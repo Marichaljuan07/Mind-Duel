@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#03030a">
+  <title>MIND DUEL</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="arcade" class="arcade">
+    <div class="scanlines" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+    <div id="flash" class="flash-overlay" aria-hidden="true"></div>
+
+    <!-- ACTO 1: INTRO -->
+    <section id="titleScreen" class="screen title-screen">
+      <div id="introBrain" class="intro-brain-wrap">
+        <div class="neon-brain brain-xl" aria-hidden="true">⌁</div>
+      </div>
+      <div id="titleLayout" class="title-layout hidden">
+        <div class="sun sun-title" aria-hidden="true"></div>
+        <div class="wire-mountains title-mountains" aria-hidden="true"></div>
+        <div class="logo-wrap">
+          <div class="logo-mind">MIND</div>
+          <div class="logo-duel">DUEL</div>
+        </div>
+        <div class="neon-brain brain-lg" aria-hidden="true">⌁</div>
+        <p class="tagline">PIENSA. PREGUNTA. DESCUBRE.</p>
+        <div class="stack compact title-actions">
+          <button id="startBtn" class="btn btn-green blink">JUGAR</button>
+          <button id="exitBtn" class="btn btn-red">SALIR</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACTO 2 / 3: ESCENARIO Y REGLAS -->
+    <section id="stageScreen" class="screen stage-screen hidden">
+      <div class="stage-world" aria-hidden="true">
+        <div class="sun stage-sun"></div>
+        <div class="wire-mountains stage-mountains"></div>
+        <div class="grid-floor"></div>
+      </div>
+      <div class="spotlights" aria-hidden="true"><i></i><i></i></div>
+      <div class="stage-content">
+        <div class="neon-brain brain-md">⌁</div>
+        <div id="stageDialog" class="oracle-card"></div>
+        <div id="stageActions" class="stack stage-actions">
+          <button id="continueBtn" class="btn btn-green">CONTINUAR</button>
+          <button id="backTitleBtn" class="btn btn-red">HUIR</button>
+        </div>
+      </div>
+      <div id="curtainLeft" class="curtain curtain-left"></div>
+      <div id="curtainRight" class="curtain curtain-right"></div>
+    </section>
+
+    <!-- ACTO 4: DUELO -->
+    <section id="gameScreen" class="screen game-screen hidden">
+      <div class="game-ambient" aria-hidden="true"><div class="mini-sun"></div></div>
+      <header class="game-header">
+        <button id="menuBtn" class="header-btn">‹ MENÚ</button>
+        <div class="mind-sign">MIND</div>
+        <div class="hud">
+          <span class="hud-item"><b id="timer">00:00</b><small>TIEMPO</small></span>
+          <span class="hud-item"><b id="questionsHud">0/20</b><small>PREG.</small></span>
+          <span class="hud-item"><b id="guessesHud">2</b><small>INT.</small></span>
+        </div>
+      </header>
+      <div class="mind-console">
+        <div class="console-title"><span class="neon-brain brain-xs">⌁</span><span>ENTIDAD BLOQUEADA</span></div>
+        <div id="chat" class="chat" aria-live="polite"></div>
+      </div>
+      <div class="controls">
+        <form id="questionForm" class="input-row">
+          <input id="questionInput" autocomplete="off" maxlength="240" placeholder="Escribe una pregunta de sí/no..." aria-label="Pregunta">
+          <button id="sendBtn" class="send-btn" type="submit" aria-label="Enviar">➤</button>
+        </form>
+        <div class="action-row">
+          <button id="suggestBtn" class="btn btn-green small">SUGERENCIA (5)</button>
+          <button id="guessBtn" class="btn btn-purple small">ADIVINAR</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACTO 5: RESULTADO -->
+    <section id="resultScreen" class="screen result-screen hidden">
+      <div class="result-sun sun" aria-hidden="true"></div>
+      <div class="result-card">
+        <div class="neon-brain brain-md">⌁</div>
+        <div id="resultTag" class="result-tag">FINAL</div>
+        <h2 id="resultTitle">VICTORIA</h2>
+        <h3 id="resultCharacter"></h3>
+        <p id="resultDescription"></p>
+        <div class="stack compact">
+          <button id="playAgainBtn" class="btn btn-green">JUGAR DE NUEVO</button>
+          <button id="resultMenuBtn" class="btn btn-purple">MENÚ PRINCIPAL</button>
+          <button id="resultExitBtn" class="btn btn-red">SALIR</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="guessModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="guessTitle">
+    <div class="modal-card">
+      <div class="neon-brain brain-sm">⌁</div>
+      <h2 id="guessTitle">TU ADIVINANZA</h2>
+      <p id="guessHint">Tienes 2 intentos.</p>
+      <input id="guessInput" autocomplete="off" maxlength="80" placeholder="Nombre del personaje">
+      <div class="modal-actions">
+        <button id="confirmGuessBtn" class="btn btn-green">CONFIRMAR</button>
+        <button data-close="guessModal" class="btn btn-red">CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="suggestModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <h2>SUGERENCIAS</h2>
+      <div id="suggestions" class="suggestions"></div>
+      <button data-close="suggestModal" class="btn btn-purple">CERRAR</button>
+    </div>
+  </div>
+
+  <div id="shutdownScreen" class="shutdown-screen hidden">
+    <div class="shutdown-line"></div>
+    <p>CONEXIÓN FINALIZADA</p>
+    <button id="restartBtn" class="btn btn-green">REINICIAR SISTEMA</button>
+  </div>
+
+  <script src="personajes.js"></script>
+  <script src="motor_logico.js"></script>
+  <script src="oraculo_local.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

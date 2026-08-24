@@ -1,0 +1,232 @@
+{
+  "configuracion": {
+    "normalizacion": {
+      "quitar_tildes": true,
+      "corregir_errores_comunes": true,
+      "correcciones": {
+        "brilante": "brillante",
+        "intelijente": "inteligente",
+        "creava": "creaba"
+      }
+    }
+  },
+  "conceptos": {
+    "ayuda_personas": {
+      "peso": 2,
+      "frases": [
+        "ayudaba a otros",
+        "ayudaba a personas",
+        "ayudaba a la gente",
+        "ayudaba gente",
+        "protegia a otros",
+        "ayudaba a los demas"
+      ]
+    },
+    "genio": {
+      "peso": 3,
+      "frases": [
+        "genio",
+        "mente brillante",
+        "persona brillante",
+        "persona muy brillante",
+        "era brillante",
+        "muy inteligente",
+        "brillante",
+        "inteligente"
+      ]
+    },
+    "creador": {
+      "peso": 2,
+      "frases": [
+        "creaba cosas nuevas",
+        "creaba algo nuevo",
+        "creo algo nuevo",
+        "crear algo nuevo",
+        "creava cosas nuevas"
+      ]
+    },
+    "tipo_real": {
+      "peso": 3,
+      "frases": [
+        "persona real",
+        "era real",
+        "existio",
+        "de verdad"
+      ]
+    },
+    "tipo_ficticio": {
+      "peso": 3,
+      "frases": [
+        "ficticio",
+        "inventado",
+        "personaje",
+        "imaginario",
+        "fantasia"
+      ]
+    },
+    "genero_hombre": {
+      "peso": 3,
+      "frases": [
+        "hombre",
+        "varon",
+        "masculino",
+        "chico"
+      ]
+    },
+    "genero_mujer": {
+      "peso": 3,
+      "frases": [
+        "mujer",
+        "femenino",
+        "femenina",
+        "chica"
+      ]
+    },
+    "famoso": {
+      "peso": 2,
+      "frases": [
+        "famoso",
+        "conocido",
+        "celebre",
+        "importante"
+      ]
+    },
+    "cientifico": {
+      "peso": 3,
+      "frases": [
+        "cientifico",
+        "investigaba",
+        "experimentos",
+        "descubria cosas",
+        "hacia experimentos"
+      ]
+    },
+    "inventor": {
+      "peso": 3,
+      "frases": [
+        "inventor",
+        "inventaba",
+        "inventaba cosas",
+        "creaba inventos",
+        "inventror",
+        "inventortora"
+      ]
+    },
+    "artista_pintor": {
+      "peso": 3,
+      "frases": [
+        "artista",
+        "artistta",
+        "pintor",
+        "pintora",
+        "pintura",
+        "cuadro"
+      ]
+    },
+    "escritor": {
+      "peso": 3,
+      "frases": [
+        "escritor",
+        "escribia",
+        "libros",
+        "novelas"
+      ]
+    },
+    "musico": {
+      "peso": 3,
+      "frases": [
+        "musico",
+        "musica",
+        "canciones"
+      ]
+    },
+    "deportista": {
+      "peso": 3,
+      "frases": [
+        "deportista",
+        "deporte",
+        "jugador",
+        "futbol"
+      ]
+    },
+    "legado": {
+      "peso": 2,
+      "frases": [
+        "todavia hablan",
+        "la gente todavia habla",
+        "la gente sigue hablando",
+        "sigue siendo recordado"
+      ]
+    },
+    "impacto_historico": {
+      "peso": 3,
+      "frases": [
+        "cambio la historia",
+        "transformo el mundo",
+        "marco una epoca"
+      ]
+    },
+    "obra_creativa": {
+      "peso": 2,
+      "frases": [
+        "obras",
+        "creaciones",
+        "sus trabajos"
+      ]
+    },
+    "heroe": {
+      "peso": 3,
+      "frases": [
+        "heroe",
+        "heroina",
+        "protegia personas"
+      ]
+    },
+    "villano": {
+      "peso": 3,
+      "frases": [
+        "villano",
+        "malvado",
+        "enemigo"
+      ]
+    },
+    "poderes": {
+      "peso": 3,
+      "frases": [
+        "poderes",
+        "superpoder",
+        "poderez"
+      ]
+    },
+    "magia": {
+      "peso": 3,
+      "frases": [
+        "magia",
+        "magico",
+        "hechizo"
+      ]
+    },
+    "medio_pelicula": {
+      "peso": 2,
+      "frases": [
+        "pelicula",
+        "cine",
+        "aparece en peliculas"
+      ]
+    },
+    "mascara": {
+      "peso": 2,
+      "frases": [
+        "mascara",
+        "usa mascara"
+      ]
+    },
+    "capa": {
+      "peso": 2,
+      "frases": [
+        "capa",
+        "usa capa"
+      ]
+    }
+  }
+}
