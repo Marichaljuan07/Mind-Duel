@@ -5,6 +5,8 @@ const MAX_GUESSES = 2;
 const FALLBACK_TIMEOUT_MS = 9000;
 const SUGGESTION_LIMIT = 5;
 
+const MIND_API_URL = "https://mind-duel-jxu8.onrender.com";
+
 const el = id => document.getElementById(id);
 const ui = {
   arcade:el('arcade'),flash:el('flash'),title:el('titleScreen'),introBrain:el('introBrain'),titleLayout:el('titleLayout'),
@@ -57,15 +59,37 @@ function addMessage(text,kind='system'){
 async function startGame(){resetGame();show(ui.game);addMessage('He elegido a alguien. Tienes veinte preguntas. Empieza.','mind');startTimer();setTimeout(()=>ui.input.focus(),80);}
 function lockInput(v){state.busy=v;ui.input.disabled=v;ui.send.disabled=v;}
 
-async function askQuestion(text){
-  if(!state.active||state.busy)return;const clean=text.trim();if(!clean)return;
-  addMessage(clean,'player');state.asked.add(MindLogic.normalizar(clean));lockInput(true);
-  let answer=MindLogic.evaluarPregunta(clean,state.secret);let source='logic';
-  if(answer===null){const interpreted=await interpretWithOraculo(clean);if(interpreted?.concepto){answer=MindLogic.resolverConcepto(interpreted.concepto,state.secret);source='aria→logic';}}
-  if(answer===null){addMessage('NO LO SÉ. Reformula la pregunta.','mind'); console.info('[ORACULO FALLÓ]', clean);console.info('[MIND] UNKNOWN',clean);lockInput(false);ui.input.focus();return;}
-  state.questionCount++;updateHud();addMessage(answer?'SÍ.':'NO.','mind');console.info(`[MIND] ${source}`,clean,'=>',answer);
-  if(state.questionCount>=MAX_QUESTIONS){finish(false,'Has agotado tus veinte preguntas.');return;}
-  lockInput(false);ui.input.focus();
+if(answer===null){
+
+  addMessage('NO LO SÉ. Reformula la pregunta.','mind');
+
+  fetch(`${MIND_API_URL}/api/fallo`, {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      pregunta: clean,
+      personaje: state.secret.nombre
+    })
+  })
+  .then(res=>{
+    if(res.ok){
+      console.info("[MIND DATA] Fallo enviado");
+    } else {
+      console.info("[MIND DATA] Error HTTP:", res.status);
+    }
+  })
+  .catch(err=>{
+    console.info("[MIND DATA] Error conexión:", err);
+  });
+
+  console.info('[ORACULO FALLÓ]', clean);
+  console.info('[MIND] UNKNOWN',clean);
+
+  lockInput(false);
+  ui.input.focus();
+  return;
 }
 
 async function interpretWithOraculo(question){
