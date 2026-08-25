@@ -48,6 +48,220 @@ function resetGame(){
   console.info('[MIND] Nueva partida. Motor lógico activo.');
 }
 function updateHud(){ui.questions.textContent=`${state.questionCount}/${MAX_QUESTIONS}`;ui.guesses.textContent=String(state.guessesLeft);ui.suggest.textContent=`SUGERENCIA (${state.suggestionUses})`;}
+
+function inferirConceptos(estado) {
+  
+  const inferido = {
+    ...estado
+  };
+  
+  
+  // Si no es real, entonces es ficticio
+  if (
+    estado.real === false &&
+    inferido.ficticio === undefined
+  ) {
+    
+    inferido.ficticio = true;
+    
+  }
+  
+  
+  // Si es real, probablemente es humano
+  if (
+    estado.real === true &&
+    inferido.especie === undefined
+  ) {
+    
+    inferido.especie = true;
+    
+  }
+  
+  
+  // Si sabemos que es hombre/mujer, sabemos género
+  if (
+    estado.genero !== undefined
+  ) {
+    
+    inferido.genero = estado.genero;
+    
+  }
+  
+  
+  // Si aparece en comics, entonces es ficticio
+  if (
+    estado.medio === true &&
+    inferido.ficticio === undefined
+  ) {
+    
+    inferido.ficticio = true;
+    
+  }
+  
+  
+  return inferido;
+  
+}
+
+window.inferirConceptos = inferirConceptos;
+
+function detectarConcepto(pregunta) {
+  
+  const p = MindLogic.normalizar(pregunta);
+  
+  
+  
+  // ==========================
+  // REALIDAD
+  // ==========================
+  
+  if (
+    p.includes("real") ||
+    p.includes("persona real") ||
+    p.includes("existe") ||
+    p.includes("vive") ||
+    p.includes("vivio")
+  ) {
+    return "real";
+  }
+  
+  
+  
+  // ==========================
+  // GENERO
+  // ==========================
+  
+  if (
+    p.includes("hombre") ||
+    p.includes("mujer") ||
+    p.includes("masculino") ||
+    p.includes("femenino")
+  ) {
+    return "genero";
+  }
+  
+  
+  
+  // ==========================
+  // ESPECIE / TIPO DE SER
+  // ==========================
+  
+  if (
+    p.includes("humano") ||
+    p.includes("persona") ||
+    p.includes("animal") ||
+    p.includes("robot") ||
+    p.includes("alien")
+  ) {
+    return "especie";
+  }
+  
+  
+  
+  // ==========================
+  // PROFESION / ACTIVIDAD
+  // ==========================
+  
+  if (
+    p.includes("cientifico") ||
+    p.includes("cientifica") ||
+    p.includes("artista") ||
+    p.includes("escritor") ||
+    p.includes("escritora") ||
+    p.includes("actor") ||
+    p.includes("actriz") ||
+    p.includes("musico") ||
+    p.includes("politico") ||
+    p.includes("profesion")
+  ) {
+    return "profesion";
+  }
+  
+  
+  
+  // ==========================
+  // MEDIO / APARICIONES
+  // ==========================
+  
+  if (
+    p.includes("pelicula") ||
+    p.includes("peliculas") ||
+    p.includes("serie") ||
+    p.includes("libro") ||
+    p.includes("comic") ||
+    p.includes("videojuego")
+  ) {
+    return "medio";
+  }
+  
+  
+  
+  // ==========================
+  // UNIVERSOS / FRANQUICIAS
+  // ==========================
+  
+  if (
+    p.includes("marvel") ||
+    p.includes("dc") ||
+    p.includes("star wars") ||
+    p.includes("harry potter") ||
+    p.includes("anime")
+  ) {
+    return "universo";
+  }
+  
+  
+  
+  // ==========================
+  // FICCION
+  // ==========================
+  
+  if (
+    p.includes("ficticio") ||
+    p.includes("ficcion") ||
+    p.includes("inventado")
+  ) {
+    return "ficcion";
+  }
+  
+  
+  
+  // ==========================
+  // HABILIDADES
+  // ==========================
+  
+  if (
+    p.includes("poder") ||
+    p.includes("magia") ||
+    p.includes("habilidad") ||
+    p.includes("volar") ||
+    p.includes("fuerza")
+  ) {
+    return "habilidad";
+  }
+  
+  
+  
+  // ==========================
+  // ORIGEN / UBICACION
+  // ==========================
+  
+  if (
+    p.includes("europa") ||
+    p.includes("america") ||
+    p.includes("asia") ||
+    p.includes("pais") ||
+    p.includes("nacionalidad")
+  ) {
+    return "origen";
+  }
+  
+  
+  
+  return "desconocido";
+  
+}
+
 function startTimer(){clearInterval(state.timerId);state.timerId=setInterval(()=>{state.seconds++;const m=String(Math.floor(state.seconds/60)).padStart(2,'0');const s=String(state.seconds%60).padStart(2,'0');ui.timer.textContent=`${m}:${s}`;},1000);}
 
 function avatarFor(kind){if(kind==='mind')return {txt:'⌁',cls:'avatar-mind'};if(kind==='player')return {txt:'●',cls:'avatar-player'};return {txt:'·',cls:'avatar-system'};}
@@ -58,97 +272,185 @@ function addMessage(text,kind='system'){
 async function startGame(){resetGame();show(ui.game);addMessage('He elegido a alguien. Tienes veinte preguntas. Empieza.','mind');startTimer();setTimeout(()=>ui.input.focus(),80);}
 function lockInput(v){state.busy=v;ui.input.disabled=v;ui.send.disabled=v;}
 
-async function askQuestion(text){
-
-  if(!state.active||state.busy)return;
-
-  const clean=text.trim();
-  if(!clean)return;
-
-  addMessage(clean,'player');
-  state.asked.add(MindLogic.normalizar(clean));
+async function askQuestion(text) {
+  
+  if (!state.active || state.busy) return;
+  
+  
+  const clean = text.trim();
+  
+  if (!clean) return;
+  
+  
+  addMessage(clean, 'player');
+  
+  
+  state.asked.add(
+    MindLogic.normalizar(clean)
+  );
+  
+  
   lockInput(true);
-
-  let answer=MindLogic.evaluarPregunta(clean,state.secret);
-  let source='logic';
-
-  if(answer===null){
-    const interpreted=await interpretWithOraculo(clean);
-
-    if(interpreted?.concepto){
-      answer=MindLogic.resolverConcepto(
+  
+  
+  
+  // ==========================
+  // BUSCAR EN MEMORIA
+  // ==========================
+  
+  const memoria = MindMemory.datos.preguntas.find(
+    p => MindLogic.normalizar(p.pregunta) === MindLogic.normalizar(clean)
+  );
+  
+  
+  if (memoria) {
+    
+    addMessage(
+      "Esa información ya está en mis registros.",
+      "mind"
+    );
+    
+    
+    addMessage(
+      memoria.respuesta ? "SÍ." : "NO.",
+      "mind"
+    );
+    
+    
+    lockInput(false);
+    ui.input.focus();
+    
+    return;
+    
+  }
+  
+  
+  
+  // ==========================
+  // LOGICA NORMAL
+  // ==========================
+  
+  
+  let answer = MindLogic.evaluarPregunta(
+    clean,
+    state.secret
+  );
+  
+  
+  let source = "logic";
+  
+  
+  
+  if (answer === null) {
+    
+    
+    const interpreted = await interpretWithOraculo(clean);
+    
+    
+    if (interpreted?.concepto) {
+      
+      
+      answer = MindLogic.resolverConcepto(
         interpreted.concepto,
         state.secret
       );
-
-      source='oraculo→logic';
+      
+      
+      source = "aria→logic";
+      
     }
+    
   }
-
-  if(answer===null){
-
+  
+  
+  
+  if (answer === null) {
+    
+    
     addMessage(
-      'NO LO SÉ. Reformula la pregunta.',
-      'mind'
+      "NO LO SÉ. Reformula la pregunta.",
+      "mind"
     );
-
-    fetch(`${MIND_API_URL}/api/fallo`,{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        pregunta:clean,
-        personaje:state.secret?.nombre || "desconocido"
-      })
-    })
-    .then(res=>{
-      console.info(
-        "[MIND DATA]",
-        res.ok ? "Fallo enviado" : "Error"
-      );
-    })
-    .catch(err=>{
-      console.info(
-        "[MIND DATA ERROR]",
-        err
-      );
-    });
-
-    console.info('[ORACULO FALLÓ]', clean);
-    console.info('[MIND] UNKNOWN', clean);
-
+    
+    
+    console.info(
+      "[ORACULO FALLO]",
+      clean
+    );
+    
+    
     lockInput(false);
     ui.input.focus();
+    
     return;
+    
   }
-
+  
+  
+  
+  // ==========================
+  // RESPUESTA
+  // ==========================
+  
+  
   state.questionCount++;
-
+  
   updateHud();
-
+  
+  
   addMessage(
-    answer ? 'SÍ.' : 'NO.',
-    'mind'
+    answer ? "SÍ." : "NO.",
+    "mind"
   );
-
+  
+  
+  
+  // ==========================
+  // GUARDAR MEMORIA CON CONCEPTO
+  // ==========================
+  
+  
+  const concepto = detectarConcepto(clean) || "desconocido";
+  
+  
+  MindMemory.registrarPregunta(
+    clean,
+    concepto,
+    answer
+  );
+  
+  
+  
   console.info(
     `[MIND] ${source}`,
     clean,
-    '=>',
-    answer
+    "=>",
+    answer,
+    "concepto:",
+    concepto
   );
-
-  if(state.questionCount>=MAX_QUESTIONS){
+  
+  
+  
+  if (state.questionCount >= MAX_QUESTIONS) {
+    
+    
     finish(
       false,
-      'Has agotado tus veinte preguntas.'
+      "Has agotado tus veinte preguntas."
     );
+    
+    
     return;
+    
   }
-
+  
+  
+  
   lockInput(false);
+  
   ui.input.focus();
+  
 }
 
 async function interpretWithOraculo(question){
@@ -178,7 +480,166 @@ function isCorrectGuess(raw){return [state.secret.nombre,...(state.secret.alias|
 function openGuess(){if(!state.active||state.busy)return;ui.guessHint.textContent=`Te quedan ${state.guessesLeft} intento${state.guessesLeft===1?'':'s'}.`;ui.guessInput.value='';ui.guessModal.classList.remove('hidden');setTimeout(()=>ui.guessInput.focus(),40);}
 function confirmGuess(){const value=ui.guessInput.value.trim();if(!value)return;ui.guessModal.classList.add('hidden');addMessage(`Adivino: ${value}`,'player');if(isCorrectGuess(value)){finish(true,'Has roto el enigma.');return;}state.guessesLeft--;updateHud();addMessage('Incorrecto.','mind');if(state.guessesLeft<=0){finish(false,'Has agotado tus intentos de adivinanza.');return;}addMessage('Te queda un último intento.','mind');}
 
-function openSuggestions(){if(!state.active||state.busy||state.suggestionUses<=0)return;state.suggestionUses--;updateHud();if(state.suggestionUses<=0)ui.suggest.disabled=true;const pool=suggestionPool.filter(q=>!state.asked.has(MindLogic.normalizar(q))).sort(()=>Math.random()-.5).slice(0,5);ui.suggestions.textContent='';(pool.length?pool:suggestionPool.slice(0,5)).forEach(q=>{const b=document.createElement('button');b.className='btn btn-green suggestion';b.textContent=q;b.onclick=()=>{ui.input.value=q;ui.suggestModal.classList.add('hidden');ui.input.focus();};ui.suggestions.append(b);});ui.suggestModal.classList.remove('hidden');}
+function openSuggestions() {
+  
+  if (
+    !state.active ||
+    state.busy ||
+    state.suggestionUses <= 0
+  ) return;
+  
+  
+  state.suggestionUses--;
+  updateHud();
+  
+  
+  if (state.suggestionUses <= 0) {
+    ui.suggest.disabled = true;
+  }
+  
+  
+  
+  const estado = MindMemory.obtenerEstado();
+  
+  
+  
+  const preguntasFiltradas = suggestionPool.filter(q => {
+    
+    
+    const concepto = detectarConcepto(q);
+    
+    
+    
+    // si no sabemos clasificarla,
+    // la dejamos pasar
+    if (!concepto || concepto === "desconocido") {
+      return true;
+    }
+    
+    
+    
+    // =========================
+    // DATOS YA CONOCIDOS
+    // =========================
+    
+    if (
+      Object.prototype.hasOwnProperty.call(
+        estado,
+        concepto
+      )
+    ) {
+      return false;
+    }
+    
+    
+    
+    // =========================
+    // INFERENCIAS LOGICAS
+    // =========================
+    
+    
+    // Si es real, no preguntar ficción
+    if (
+      concepto === "ficcion" &&
+      estado.real === true
+    ) {
+      return false;
+    }
+    
+    
+    
+    // Si es ficticio, no preguntar real
+    if (
+      concepto === "real" &&
+      estado.ficcion === true
+    ) {
+      return false;
+    }
+    
+    
+    
+    // Si es real, evitar universos ficticios
+    if (
+      concepto === "universo" &&
+      estado.real === true
+    ) {
+      return false;
+    }
+    
+    
+    
+    // Si ya sabemos que es humano,
+    // no preguntar especie humana otra vez
+    if (
+      concepto === "especie" &&
+      estado.especie === true
+    ) {
+      return false;
+    }
+    
+    
+    
+    // Si ya sabemos género,
+    // no preguntar género otra vez
+    if (
+      concepto === "genero" &&
+      estado.genero !== undefined
+    ) {
+      return false;
+    }
+    
+    
+    
+    return true;
+    
+  });
+  
+  
+  
+  const poolFinal = preguntasFiltradas
+    .filter(q =>
+      !state.asked.has(
+        MindLogic.normalizar(q)
+      )
+    )
+    .sort(() => Math.random() - 0.5)
+    .slice(0, SUGGESTION_LIMIT);
+  
+  
+  
+  ui.suggestions.textContent = '';
+  
+  
+  
+  poolFinal.forEach(q => {
+    
+    const b = document.createElement('button');
+    
+    b.className = 'btn btn-green suggestion';
+    
+    b.textContent = q;
+    
+    
+    b.onclick = () => {
+      
+      ui.input.value = q;
+      
+      ui.suggestModal.classList.add('hidden');
+      
+      ui.input.focus();
+      
+    };
+    
+    
+    ui.suggestions.append(b);
+    
+  });
+  
+  
+  
+  ui.suggestModal.classList.remove('hidden');
+  
+}
 
 function finish(win,reason){state.active=false;lockInput(true);clearInterval(state.timerId);show(ui.result);ui.resultTag.textContent=win?'ACCESO CONCEDIDO':'ACCESO DENEGADO';ui.resultTitle.textContent=win?'VICTORIA':'DERROTA';ui.resultCharacter.textContent=state.secret.nombre;ui.resultDescription.textContent=`${reason} ${state.secret.descripcion}`;}
 async function shutdown(){clearInterval(state.timerId);[ui.guessModal,ui.suggestModal].forEach(m=>m.classList.add('hidden'));ui.arcade.classList.add('shutdown');await sleep(700);ui.shutdown.classList.remove('hidden');}
