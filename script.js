@@ -4,6 +4,7 @@ const MAX_QUESTIONS = 20;
 const MAX_GUESSES = 2;
 const FALLBACK_TIMEOUT_MS = 9000;
 const SUGGESTION_LIMIT = 5;
+const MIND_API_URL = "https://mind-duel-jxu8.onrender.com";
 
 const el = id => document.getElementById(id);
 const ui = {
