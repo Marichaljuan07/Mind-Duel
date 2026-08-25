@@ -4,8 +4,7 @@ const MAX_QUESTIONS = 20;
 const MAX_GUESSES = 2;
 const FALLBACK_TIMEOUT_MS = 9000;
 const SUGGESTION_LIMIT = 5;
-const MIND_API_URL = "https://mind-duel-jxu8.onrender.com";
-  
+
 const el = id => document.getElementById(id);
 const ui = {
   arcade:el('arcade'),flash:el('flash'),title:el('titleScreen'),introBrain:el('introBrain'),titleLayout:el('titleLayout'),
@@ -272,155 +271,212 @@ function addMessage(text,kind='system'){
 async function startGame(){resetGame();show(ui.game);addMessage('He elegido a alguien. Tienes veinte preguntas. Empieza.','mind');startTimer();setTimeout(()=>ui.input.focus(),80);}
 function lockInput(v){state.busy=v;ui.input.disabled=v;ui.send.disabled=v;}
 
-async function askQuestion(text) {
-  
-  if (!state.active || state.busy) return;
-  
-  
+async function askQuestion(text){
+
+  if(!state.active || state.busy) return;
+
+
   const clean = text.trim();
-  
-  if (!clean) return;
-  
-  
-  addMessage(clean, 'player');
-  
-  
+
+  if(!clean) return;
+
+
+  addMessage(clean,'player');
+
+
   state.asked.add(
     MindLogic.normalizar(clean)
   );
-  
-  
+
+
   lockInput(true);
-  
-  
-  
+
+
+
   // ==========================
-  // BUSCAR EN MEMORIA
+  // MEMORIA
   // ==========================
-  
+
   const memoria = MindMemory.datos.preguntas.find(
-    p => MindLogic.normalizar(p.pregunta) === MindLogic.normalizar(clean)
+    p =>
+      MindLogic.normalizar(p.pregunta) ===
+      MindLogic.normalizar(clean)
   );
-  
-  
-  if (memoria) {
-    
+
+
+  if(memoria){
+
     addMessage(
       "Esa información ya está en mis registros.",
       "mind"
     );
-    
-    
+
+
     addMessage(
       memoria.respuesta ? "SÍ." : "NO.",
       "mind"
     );
-    
-    
+
+
     lockInput(false);
     ui.input.focus();
-    
+
     return;
-    
+
   }
-  
-  
-  
+
+
+
   // ==========================
   // LOGICA NORMAL
   // ==========================
-  
-  
+
+
   let answer = MindLogic.evaluarPregunta(
     clean,
     state.secret
   );
-  
-  
+
+
   let source = "logic";
-  
-  
-  
-  if (answer === null) {
-    
-    
+
+
+
+  // ==========================
+  // ORACULO
+  // ==========================
+
+  if(answer === null){
+
     const interpreted = await interpretWithOraculo(clean);
-    
-    
-    if (interpreted?.concepto) {
-      
-      
+
+
+    if(interpreted?.concepto){
+
       answer = MindLogic.resolverConcepto(
         interpreted.concepto,
         state.secret
       );
-      
-      
-      source = "aria→logic";
-      
+
+
+      source = "oraculo→logic";
+
     }
-    
+
   }
-  
-  
-  
-  if (answer === null) {
-    
-    
+
+
+
+  // ==========================
+  // NO SE
+  // ==========================
+
+  if(answer === null){
+
+
     addMessage(
       "NO LO SÉ. Reformula la pregunta.",
       "mind"
     );
-    
-    
+
+
+
+    // Enviar fallo al backend
+
+    fetch(`${MIND_API_URL}/api/fallo`,{
+
+      method:"POST",
+
+      headers:{
+        "Content-Type":"application/json"
+      },
+
+      body:JSON.stringify({
+
+        pregunta:clean,
+
+        personaje:
+          state.secret?.nombre ||
+          "desconocido"
+
+      })
+
+    })
+
+    .then(res=>{
+
+      console.info(
+        "[MIND DATA]",
+        res.ok ?
+        "Fallo enviado" :
+        "Error"
+      );
+
+    })
+
+    .catch(err=>{
+
+      console.info(
+        "[MIND DATA ERROR]",
+        err
+      );
+
+    });
+
+
+
     console.info(
       "[ORACULO FALLO]",
       clean
     );
-    
-    
+
+
     lockInput(false);
     ui.input.focus();
-    
+
     return;
-    
+
   }
-  
-  
-  
+
+
+
   // ==========================
   // RESPUESTA
   // ==========================
-  
-  
+
+
   state.questionCount++;
-  
+
   updateHud();
-  
-  
+
+
+
   addMessage(
     answer ? "SÍ." : "NO.",
     "mind"
   );
-  
-  
-  
+
+
+
   // ==========================
-  // GUARDAR MEMORIA CON CONCEPTO
+  // GUARDAR MEMORIA
   // ==========================
-  
-  
-  const concepto = detectarConcepto(clean) || "desconocido";
-  
-  
+
+
+  const concepto =
+    detectarConcepto(clean) ||
+    "desconocido";
+
+
+
   MindMemory.registrarPregunta(
     clean,
     concepto,
     answer
   );
-  
-  
-  
+
+
+
   console.info(
     `[MIND] ${source}`,
     clean,
@@ -429,28 +485,26 @@ async function askQuestion(text) {
     "concepto:",
     concepto
   );
-  
-  
-  
-  if (state.questionCount >= MAX_QUESTIONS) {
-    
-    
+
+
+
+  if(state.questionCount >= MAX_QUESTIONS){
+
     finish(
       false,
       "Has agotado tus veinte preguntas."
     );
-    
-    
+
     return;
-    
+
   }
-  
-  
-  
+
+
+
   lockInput(false);
-  
+
   ui.input.focus();
-  
+
 }
 
 async function interpretWithOraculo(question){
