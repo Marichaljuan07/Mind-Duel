@@ -153,5 +153,4 @@ body.duel-online .floating-chat.hidden{display:none!important}
 body.duel-online .floating-chat .duel-messages{min-height:100px;max-height:38vh;overflow-y:auto}
 @media(max-width:420px){body.duel-online .chat-bubble{top:74px;right:10px;width:44px;height:44px}body.duel-online .floating-chat{top:126px;right:10px;width:calc(100vw - 20px);max-height:calc(100vh - 140px)}}
 
-.classic-panel .btn.suggested{outline:2px solid #fff;outline-offset:2px;box-shadow:0 0 16px #fff}
-.duel-hint{font:16px 'VT323',monospace;color:#b9b2e6;margin:4px 0}
+#brainSuggestAnswerBtn{margin-top:9px;width:100%;}#brainSuggestionStatus{margin:7px 0 0;font:16px 'VT323',monospace;line-height:1.2;color:#a9c8ff;}body.duel-online #brainInlinePanel{display:block;}

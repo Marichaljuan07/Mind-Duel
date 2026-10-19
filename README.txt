@@ -20,3 +20,11 @@ IMPORTANTE
 - PeerJS necesita internet y un servicio de señalización disponible; algunas redes pueden bloquear conexiones P2P.
 - El aprendizaje registrado es local y experimental: aún no modifica automáticamente el motor lógico ni se comparte entre usuarios.
 - No se ha validado una partida real entre dos dispositivos en esta sesión. Antes de anunciarlo como beta pública, probá conexión, roles, preguntas, respuestas, reconexión y fin de partida.
+
+
+FUSION 3.12.5 - MEJORAS DEL CEREBRO ONLINE
+- Sugerencia de respuesta para el jugador Cerebro basada en los datos del personaje de la lista.
+- Para personajes escritos manualmente, se recuperan respuestas anteriores guardadas en la memoria local.
+- Los personajes personalizados y sus respuestas se guardan en el navegador del dispositivo; no se envían al rival.
+- Se quitó el selector duplicado de personaje durante la partida y se añadió el emoji 🧠 en los elementos principales del rol.
+- El jugador Descubridor mantiene la opción de intentar adivinar el personaje durante el duelo.
