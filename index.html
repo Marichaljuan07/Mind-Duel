@@ -58,7 +58,7 @@
           <button id="soloBtn" class="btn btn-green">JUGAR SOLO</button>
           <button id="clasicoBtn" class="btn btn-green">MODO CLÁSICO</button>
           <button id="espejoBtn" class="btn btn-purple">ESPEJO (PRONTO)</button>
-          <button id="dueloBtn" class="btn btn-purple">DUELO ONLINE 🧠</button>
+          <button id="dueloBtn" class="btn btn-purple">DUELO ONLINE</button>
           <button id="menuBackBtn" class="btn btn-red">HUIR</button>
         </div>
         <div id="stageActions" class="stack stage-actions">
@@ -85,7 +85,7 @@
         </div>
       </header>
       <div class="mind-console">
-        <div class="console-title"><span class="neon-brain brain-xs"></span><span>ENTIDAD 🧠 BLOQUEADA</span></div>
+        <div class="console-title"><span class="neon-brain brain-xs"></span><span>ENTIDAD BLOQUEADA</span></div>
         <div id="chat" class="chat" aria-live="polite"></div>
       </div>
       <div class="controls">
@@ -153,17 +153,26 @@
 
   <div id="duelModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="duelTitle">
     <div class="modal-card duel-card">
-      <div class="neon-brain brain-sm"></div><h2 id="duelTitle">DUELO ONLINE 🧠</h2>
+      <div class="neon-brain brain-sm"></div><h2 id="duelTitle">DUELO ONLINE</h2>
       <p class="duel-intro">DOS MENTES. DOS REDES. UNA CONEXIÓN.</p>
       <label class="duel-label" for="duelName">TU NOMBRE</label><input id="duelName" maxlength="20" placeholder="Cómo te llamás">
       <div class="duel-actions"><button id="createRoomBtn" class="btn btn-green">CREAR SALA</button><button id="joinRoomBtn" class="btn btn-purple">UNIRME</button></div>
       <div id="hostRoom" class="hidden"><p class="duel-label">CÓDIGO DE SALA · COMPARTILO CON TU AMIGO</p><div class="room-code-row"><code id="roomCode"></code><button id="copyRoomBtn" class="btn btn-green small">COPIAR</button></div></div>
       <div id="joinRoom" class="hidden"><label class="duel-label" for="roomInput">CÓDIGO DEL ANFITRIÓN</label><input id="roomInput" maxlength="80" placeholder="Pegá el código que te pasó tu amigo"><button id="connectRoomBtn" class="btn btn-green">CONECTAR</button></div>
       <p id="duelStatus" class="duel-status">Preparando conexión…</p>
-      <div id="duelConnected" class="hidden"><div class="duel-presence"><span class="presence-dot"></span><span id="peerStatus">ESPERANDO AL RIVAL…</span></div><div id="duelMessages" class="duel-messages" aria-live="polite"></div><form id="duelChatForm" class="duel-chat-form"><input id="duelChatInput" maxlength="300" placeholder="Escribile a tu amigo…" autocomplete="off"><button class="btn btn-green" type="submit">ENVIAR</button></form><div class="duel-actions"><button id="duelWinBtn" class="btn btn-green">🏆 GANÉ</button><button id="duelLoseBtn" class="btn btn-red">❌ PERDÍ</button></div></div>
+      <div id="duelConnected" class="hidden">
+        <div class="duel-presence"><span class="presence-dot"></span><span id="peerStatus">CONEXIÓN ESTABLECIDA</span></div>
+        <section id="roleChooser" class="role-panel"><p class="duel-label">¿QUÉ PAPEL QUERÉS JUGAR?</p><div class="duel-actions"><button id="roleBrainBtn" class="btn btn-purple">SER EL CEREBRO</button><button id="roleGuessBtn" class="btn btn-green">DESCUBRIR</button></div><p id="roleStatus" class="duel-status">Elegí tu papel. Tu amigo debe elegir el otro.</p></section>
+        <section id="brainRolePanel" class="role-panel hidden"><h3 class="role-title">PAPEL: EL CEREBRO</h3><p>Elegí el personaje secreto. Respondé las preguntas de tu rival con los botones o escribiendo una respuesta.</p><label class="duel-label" for="secretCharacter">PERSONAJE SECRETO</label><input id="secretCharacter" list="characterOptions" placeholder="Buscar personaje…"><datalist id="characterOptions"></datalist><div id="brainQuestion" class="brain-question">Cuando tu rival pregunte, aparecerá aquí.</div><div class="duel-actions answer-buttons"><button data-answer="si" class="btn btn-green">SÍ</button><button data-answer="no" class="btn btn-red">NO</button><button data-answer="nose" class="btn btn-purple">NO LO SÉ</button><button data-answer="psi" class="btn btn-green">PROB. SÍ</button><button data-answer="pno" class="btn btn-red">PROB. NO</button></div><form id="brainAnswerForm" class="duel-chat-form"><input id="brainAnswerInput" maxlength="240" placeholder="O escribí una respuesta…"><button class="btn btn-green" type="submit">RESPONDER</button></form></section>
+        <section id="guessRolePanel" class="role-panel hidden"><h3 class="role-title">PAPEL: DESCUBRIR</h3><p>Hacé preguntas como en el juego original. Tu amigo será el cerebro y responderá.</p><form id="guessQuestionForm" class="duel-chat-form"><input id="guessQuestionInput" maxlength="240" placeholder="¿Es una persona real?" autocomplete="off"><button class="btn btn-green" type="submit">PREGUNTAR</button></form><div class="duel-actions"><input id="guessCharacterInput" maxlength="80" placeholder="¿Quién creés que es?"><button id="submitCharacterGuess" class="btn btn-purple">ADIVINAR</button></div><p id="guessRoleStatus" class="duel-status"></p></section>
+        <div class="duel-actions result-actions"><button id="duelWinBtn" class="btn btn-green">🏆 VICTORIA</button><button id="duelLoseBtn" class="btn btn-red">❌ DERROTA</button></div>
+      </div>
       <button id="closeDuelBtn" class="btn btn-red duel-close">VOLVER</button>
     </div>
   </div>
+
+  <button id="chatBubbleBtn" class="chat-bubble hidden" aria-label="Abrir chat con tu rival">💬<span id="chatUnread" class="chat-unread hidden">•</span></button>
+  <aside id="floatingChat" class="floating-chat hidden" aria-label="Chat con tu rival"><header class="floating-chat-head"><span>CHAT DEL DUELO</span><button id="floatingChatClose" aria-label="Cerrar chat">×</button></header><div id="floatingMessages" class="duel-messages" aria-live="polite"></div><form id="floatingChatForm" class="duel-chat-form"><input id="floatingChatInput" maxlength="300" placeholder="Escribile a tu amigo…" autocomplete="off"><button class="btn btn-green" type="submit">➤</button></form></aside>
 
   <div id="shutdownScreen" class="shutdown-screen hidden">
     <div class="shutdown-line"></div>

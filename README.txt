@@ -53,3 +53,11 @@ DISENO DEL CEREBRO: 4 opciones (curador.html o ?cerebro=1..4).
 - Requiere internet y cargar PeerJS desde CDN. La conexión usa el servicio público de señalización de PeerJS; al ser un servicio externo gratuito, su disponibilidad puede variar.
 - Esta primera versión sincroniza chat y resultados declarados por los jugadores; no sincroniza una partida completa del oráculo ni comparte aprendizaje entre dispositivos.
 - Para abrir desde un archivo local, algunas funciones del navegador pueden estar limitadas; se recomienda publicar los archivos en HTTPS (por ejemplo GitHub Pages o Vercel).
+
+
+MIND DUEL FUSION 3.11 - ROLES ONLINE
+- Chat flotante mientras se mantiene visible el juego.
+- Roles de cerebro/descubridor; el cerebro selecciona un personaje del banco y responde preguntas.
+- El descubridor envía preguntas y propone una respuesta.
+- Requiere conexión a internet y servicio PeerJS.
+- La selección/respuestas humanas todavía no se integran como aprendizaje automático permanente del motor; las correcciones se usan en la partida.
