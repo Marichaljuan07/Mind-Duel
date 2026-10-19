@@ -28,3 +28,6 @@ FUSION 3.12.5 - MEJORAS DEL CEREBRO ONLINE
 - Los personajes personalizados y sus respuestas se guardan en el navegador del dispositivo; no se envían al rival.
 - Se quitó el selector duplicado de personaje durante la partida y se añadió el emoji 🧠 en los elementos principales del rol.
 - El jugador Descubridor mantiene la opción de intentar adivinar el personaje durante el duelo.
+
+Actualización 3.12.6:
+Se ajustó el flujo online para usar los controles originales de la consola, mostrar la secuencia y sugerencia del Cerebro como texto, bloquear los turnos mientras se espera respuesta y permitir adivinar desde el botón original. Ver VERSION_FUSION_3_12_6.txt.

@@ -154,3 +154,21 @@ body.duel-online .floating-chat .duel-messages{min-height:100px;max-height:38vh;
 @media(max-width:420px){body.duel-online .chat-bubble{top:74px;right:10px;width:44px;height:44px}body.duel-online .floating-chat{top:126px;right:10px;width:calc(100vw - 20px);max-height:calc(100vh - 140px)}}
 
 #brainSuggestAnswerBtn{margin-top:9px;width:100%;}#brainSuggestionStatus{margin:7px 0 0;font:16px 'VT323',monospace;line-height:1.2;color:#a9c8ff;}body.duel-online #brainInlinePanel{display:block;}
+
+/* 3.12.6: turnos online claros, sin controles duplicados */
+body.duel-online .action-row{display:none!important}
+body.duel-online.duel-guess .action-row{display:flex!important;justify-content:center;gap:8px}
+body.duel-online.duel-guess #guessBtn{display:inline-flex!important}
+body.duel-online.duel-brain #questionForm,
+body.duel-online.duel-brain .action-row{display:none!important}
+.sequence-heading{display:flex;align-items:center;justify-content:center;color:var(--cy);font:9px 'Press Start 2P',monospace;line-height:1.7;text-align:center}
+#onlineQuestionBox{margin-top:8px;padding:9px 10px;border-left:2px solid var(--mg);background:rgba(255,45,149,.08);color:#fff;font:21px 'VT323',monospace;overflow-wrap:anywhere}
+#brainSuggestionStatus{margin:8px 0 0;font:20px 'VT323',monospace;line-height:1.2;color:var(--gr)}
+body.duel-online #brainInlinePanel{display:block}
+body.duel-online #classicPanel [data-ans]:disabled,
+body.duel-online #questionInput:disabled,
+body.duel-online #sendBtn:disabled,
+body.duel-online #guessBtn:disabled{opacity:.38;filter:grayscale(.7);cursor:not-allowed}
+body.duel-online .role-panel .duel-chat-form,
+body.duel-online #guessRolePanel input,
+body.duel-online #guessRolePanel button:not(#submitCharacterGuess){display:none!important}
