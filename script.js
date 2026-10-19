@@ -547,7 +547,7 @@ $cl('clAgainBtn').onclick = startClassic;
 $cl('clMenuBtn').onclick = openStage;
 ui.soloBtn.onclick = chooseSolo;
 ui.espejoBtn.onclick = () => say(`<strong>CEREBRO:</strong> ${ORACULO.espejo}`);
-ui.dueloBtn.onclick = () => say(`<strong>CEREBRO:</strong> ${ORACULO.duelo}`);
+ui.dueloBtn.onclick = () => {};
 
 el('menuBtn').onclick = openStage;
 ui.form.onsubmit = e => {
