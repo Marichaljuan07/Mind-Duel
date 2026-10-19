@@ -145,3 +145,10 @@ body.duel-online .game-screen{z-index:1}
 .duel-start{width:100%;margin-top:12px}
 #brainSetupStatus{margin-top:8px;color:var(--cy)}
 @media(max-width:420px){.chat-bubble{right:10px;bottom:125px}.floating-chat{right:10px;bottom:190px;width:calc(100vw - 20px)}}
+
+/* 3.12.3: botón telefónico arriba para no tapar los controles del juego */
+body.duel-online .chat-bubble{top:78px;bottom:auto;right:12px;width:48px;height:48px;font-size:25px;z-index:10020}
+body.duel-online .floating-chat{top:136px;bottom:auto;right:12px;max-height:calc(100vh - 155px);display:flex;flex-direction:column}
+body.duel-online .floating-chat.hidden{display:none!important}
+body.duel-online .floating-chat .duel-messages{min-height:100px;max-height:38vh;overflow-y:auto}
+@media(max-width:420px){body.duel-online .chat-bubble{top:74px;right:10px;width:44px;height:44px}body.duel-online .floating-chat{top:126px;right:10px;width:calc(100vw - 20px);max-height:calc(100vh - 140px)}}

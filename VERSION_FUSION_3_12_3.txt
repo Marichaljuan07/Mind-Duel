@@ -1,0 +1,7 @@
+MIND DUEL FUSION 3.12.3 — CORRECCIONES MULTIJUGADOR
+
+- Se muestra la pregunta entrante en el panel del cerebro y en la consola.
+- Las respuestas recibidas aparecen en la consola del descubridor y en el registro del duelo.
+- Se habilita también el botón ADIVINAR del panel de roles.
+- Icono telefónico y chat flotante reubicado arriba para no tapar Enviar.
+- Se conserva el estilo synthwave y la selección privada del personaje secreto.
