@@ -137,3 +137,11 @@ body.classic.name-phase #questionForm{display:flex}
 #onlineQuestionBox{margin-top:8px;padding:8px;border-left:2px solid var(--mg);background:rgba(255,45,149,.08);color:#fff;font:20px 'VT323',monospace;overflow-wrap:anywhere}
 body.duel-online .action-row{display:none!important}body.duel-online #questionForm{margin-top:8px}
 body.duel-online .game-screen{z-index:1}
+/* Ajustes 3.12.2: chat separado de los controles y burbuja movible */
+.chat-bubble{right:14px;bottom:132px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.chat-bubble:active{cursor:grabbing}
+.floating-chat{right:14px;bottom:198px;max-height:min(65vh,460px)}
+.floating-chat .duel-chat-form input{width:auto;flex:1;min-width:0}
+.duel-start{width:100%;margin-top:12px}
+#brainSetupStatus{margin-top:8px;color:var(--cy)}
+@media(max-width:420px){.chat-bubble{right:10px;bottom:125px}.floating-chat{right:10px;bottom:190px;width:calc(100vw - 20px)}}
