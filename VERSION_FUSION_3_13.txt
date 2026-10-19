@@ -1,0 +1,11 @@
+MIND DUEL FUSION 3.13 — DUELO ONLINE (base: 3.12.4)
+
+- El Cerebro elige su personaje de la lista, con el dado 🎲 AL AZAR, o escribe uno que no está en la lista.
+- Si el personaje está en la base: el oráculo marca la respuesta sugerida (botón resaltado) y el Cerebro decide.
+- Si NO está en la base: el Cerebro responde solo a mano y, al terminar, el personaje queda anotado en mind_personajes_nuevos con sus respuestas.
+- Adivinar reconoce alias y tildes (Einstein = Albert Einstein). 2 intentos; si se acaban, se revela el personaje.
+- 20 preguntas máximo y una pregunta a la vez (hay que esperar la respuesta).
+- El que descubre no tiene sugerencias.
+- Corregido: avatar gris en los mensajes del sistema; VICTORIA/DERROTA ya no aparecen antes de jugar.
+- Cerebro predeterminado: emoji 🧠 (se puede cambiar en curador.html).
+- Pendiente: revancha con roles cambiados, enviar lo aprendido, mejorar 13 personajes que el modo clásico confunde.
