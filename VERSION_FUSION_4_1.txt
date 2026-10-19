@@ -1,0 +1,1 @@
+MIND DUEL FUSION 4.1 - estilo online synthwave integrado, rol y personaje aleatorios, invitación con enlace, código de sala regenerado ante colisión y adivinanza en ventana del juego.

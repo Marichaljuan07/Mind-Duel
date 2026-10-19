@@ -1,0 +1,15 @@
+MIND DUEL MVP 2.1 - ORACULO LOCAL
+
+Objetivo:
+Probar con jugadores reales y recopilar preguntas que el Oráculo no entiende.
+
+Cambios:
+- Oráculo local mantiene JSON.
+- Sin OperaAria/G4F.
+- Guarda preguntas fallidas en localStorage del navegador.
+- Preparado para mejorar la base con datos reales.
+
+Datos guardados:
+mind_oraculo_fallos
+
+La prioridad es validar partidas reales.

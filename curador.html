@@ -1,0 +1,25 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MIND · Curador</title><style>body{background:#03030a;color:#edf0f6;font:15px system-ui;margin:0;padding:14px}h1{color:#ffd700;font-size:18px}h2{color:#ff8c00;font-size:15px;margin-top:22px}
+.f{background:#10101c;border:1px solid #333;border-radius:8px;padding:10px;margin:8px 0}select,button{font:inherit;padding:7px;border-radius:6px;margin:4px 4px 0 0;border:1px solid #555;background:#1b1b2c;color:#fff}button{cursor:pointer}.ok{background:#0a5}.no{background:#722}small{color:#8a8fa0}</style></head><body>
+<h1>🧠 MIND · Curador</h1><small id="st"></small>
+<h2>Preguntas que MIND no entendió</h2><div id="fallos"></div>
+<h2>Lo que MIND ya aprendió</h2><div id="apr"></div>
+<h2>Personajes nuevos capturados (modo clásico)</h2><div id="nuevos"></div><button id="expN">Exportar personajes nuevos</button>
+<h2>Diseño del cerebro</h2><div id="cer"></div><small>Elegí uno y abrí el juego (también sirve abrirlo con ?cerebro=2). El 1 es el predeterminado; el 5 usa el emoji.</small>
+<h2>Copia de seguridad</h2><button id="exp">Exportar JSON</button><button id="imp">Importar JSON</button><input id="file" type="file" accept=".json" hidden>
+<script src="motor_logico.js"></script><script src="cerebro.js"></script><script>
+const C=MindLogic.CONCEPTOS_PERMITIDOS.slice().sort(),$=id=>document.getElementById(id);
+function draw(){const f=Cerebro.fallos(),a=Cerebro.aprendido();$('st').textContent=Object.keys(a).length+' frases aprendidas · '+f.length+' pendientes';
+$('fallos').innerHTML=f.length?'':'<small>Nada pendiente.</small>';
+f.forEach(x=>{const d=document.createElement('div');d.className='f';d.innerHTML='<b></b> <small>×'+x.veces+'</small><br>';d.querySelector('b').textContent=x.pregunta;
+const s=document.createElement('select');s.innerHTML='<option value="">¿Qué concepto es?</option>'+C.map(c=>'<option>'+c+'</option>').join('');
+const ok=document.createElement('button');ok.textContent='Enseñar';ok.className='ok';ok.onclick=()=>{if(s.value){Cerebro.ensenar(x.pregunta,s.value);draw()}};
+const no=document.createElement('button');no.textContent='Ignorar';no.className='no';no.onclick=()=>{Cerebro.quitarFallo(x.pregunta);draw()};d.append(s,ok,no);$('fallos').append(d)});
+$('apr').innerHTML='';Object.entries(a).forEach(([k,v])=>{const d=document.createElement('div');d.className='f';d.textContent=k+' → '+v.c+(v.auto?' (auto)':'')+'  ';const b=document.createElement('button');b.textContent='Olvidar';b.className='no';b.onclick=()=>{Cerebro.olvidar(k);draw()};d.append(b);$('apr').append(d)})}
+$('exp').onclick=()=>{const u=URL.createObjectURL(new Blob([Cerebro.exportar()],{type:'application/json'})),l=document.createElement('a');l.href=u;l.download='mind_aprendido.json';l.click()};
+$('imp').onclick=()=>$('file').click();$('file').onchange=async e=>{try{alert(Cerebro.importar(await e.target.files[0].text())+' frases importadas');draw()}catch(x){alert('Archivo inválido')}};
+function drawN(){let l=[];try{l=JSON.parse(localStorage.getItem('mind_personajes_nuevos')||'[]')}catch(e){}
+$('nuevos').innerHTML=l.length?'':'<small>Todavía no hay.</small>';l.forEach(x=>{const d=document.createElement('div');d.className='f';d.textContent=x.nombre+'  ('+(x.respuestas||[]).length+' respuestas guardadas)';$('nuevos').append(d)})}
+$('expN').onclick=()=>{const u=URL.createObjectURL(new Blob([localStorage.getItem('mind_personajes_nuevos')||'[]'],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download='personajes_nuevos.json';a.click()};
+[1,2,3,4,5].forEach(n=>{const b=document.createElement('button');b.textContent=n==5?'Emoji 🧠':'Cerebro '+n;b.onclick=()=>{try{localStorage.setItem('mind_cerebro_v2',String(n))}catch(e){}alert('Elegido el cerebro '+n+'. Abrí el juego de nuevo.')};$('cer').append(b)});
+Cerebro.intentar('',null).then(()=>{draw();drawN()});</script></body></html>

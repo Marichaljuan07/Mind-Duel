@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Orbitron:wght@800;900&display=swap');
+/* TEMA SYNTHWAVE - MIND DUEL */
+:root{--ic-brain:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M50%2014C42%208%2030%209%2025%2018%2015%2018%209%2028%2013%2037%206%2043%207%2055%2015%2059%2013%2068%2020%2078%2030%2077%2034%2086%2045%2088%2050%2082%2055%2088%2066%2086%2070%2077%2080%2078%2087%2068%2085%2059%2093%2055%2094%2043%2087%2037%2091%2028%2085%2018%2075%2018%2070%209%2058%208%2050%2014Z%22%2F%3E%3Cpath%20d%3D%22M50%2014V82%22%2F%3E%3Cpath%20d%3D%22M25%2018C30%2022%2031%2028%2027%2033M13%2037C21%2036%2027%2040%2026%2046M15%2059C22%2056%2028%2059%2028%2065M30%2077C31%2070%2037%2068%2042%2070M38%2022C44%2025%2044%2032%2040%2036M34%2048C39%2051%2040%2056%2036%2061%22%2F%3E%3Cpath%20d%3D%22M50%2030H61L67%2036H76M50%2046H65L71%2052H83M50%2062H60L66%2068H73M75%2018C72%2024%2070%2028%2066%2028%22%2F%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%2236%22%20r%3D%222.8%22%20fill%3D%22%23000%22%2F%3E%3Ccircle%20cx%3D%2285%22%20cy%3D%2252%22%20r%3D%222.8%22%20fill%3D%22%23000%22%2F%3E%3Ccircle%20cx%3D%2275%22%20cy%3D%2268%22%20r%3D%222.8%22%20fill%3D%22%23000%22%2F%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%2228%22%20r%3D%222.4%22%20fill%3D%22%23000%22%2F%3E%3C%2Fsvg%3E");--ic-user:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2234%22%20r%3D%2215%22%2F%3E%3Cpath%20d%3D%22M20%2086C20%2064%2034%2057%2050%2057S80%2064%2080%2086Z%22%2F%3E%3C%2Fsvg%3E");--ic-send:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M10%2048L90%2012%2068%2088%2050%2060Z%22%2F%3E%3Cpath%20d%3D%22M50%2060L90%2012%22%2F%3E%3C%2Fsvg%3E");--ic-play:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20fill%3D%22%23000%22%3E%3Cpath%20d%3D%22M28%2016L86%2050%2028%2084Z%22%2F%3E%3C%2Fsvg%3E");--ic-exit:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M42%2016H18V84H42M46%2050H86M70%2032L88%2050%2070%2068%22%2F%3E%3C%2Fsvg%3E");--ic-menu:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M16%2028H84M16%2050H84M16%2072H84%22%2F%3E%3C%2Fsvg%3E");--ic-spark:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M50%206C54%2034%2066%2046%2094%2050%2066%2054%2054%2066%2050%2094%2046%2066%2034%2054%206%2050%2034%2046%2046%2034%2050%206Z%22%2F%3E%3C%2Fsvg%3E");--cy:#19f0ff;--gr:#19ffa8;--mg:#ff2fd6;--vi:#8a4dff;--or:#ff9a2f;--bg:#070316}
+body,.arcade{background:var(--bg)}
+.mask-ic,.neon-brain,.btn::before,.header-btn::before,.send-btn::before,.avatar::before,.console-title .neon-brain{-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain}
+/* cerebro (mascara con degradado neon) */
+.neon-brain{display:inline-block;width:1em;height:1em;font-size:inherit;background:linear-gradient(135deg,#ff9a2f,#ff2fd6 55%,#8a4dff);-webkit-mask-image:var(--ic-brain);mask-image:var(--ic-brain);filter:drop-shadow(0 0 6px rgba(255,47,214,.8)) drop-shadow(0 0 16px rgba(138,77,255,.6));text-shadow:none}
+.brain-xl{font-size:150px}.brain-lg{font-size:54px}.brain-md{font-size:78px}.brain-sm{font-size:52px}.brain-xs{font-size:22px;margin-right:8px;vertical-align:middle}
+/* titulo */
+.sun{background:linear-gradient(180deg,#ffd23a 0%,#ff9a2f 28%,#ff3d8b 62%,#9a1cff 100%)!important;-webkit-mask-image:repeating-linear-gradient(180deg,#000 0 14px,transparent 14px 17px);mask-image:repeating-linear-gradient(180deg,#000 0 14px,transparent 14px 17px);box-shadow:none!important;filter:drop-shadow(0 0 28px rgba(255,61,139,.55))}
+.wire-mountains{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100' preserveAspectRatio='none'%3E%3Cpath d='M0 100V62L40 34 70 58 110 20 150 60 190 40 230 66 280 28 330 62 365 44 400 70V100Z' fill='%23120536'/%3E%3Cpath d='M0 62L40 34 70 58 110 20 150 60 190 40 230 66 280 28 330 62 365 44 400 70' fill='none' stroke='%2319f0ff' stroke-width='1.6'/%3E%3C/svg%3E") center bottom/100% 100% no-repeat!important;border:0!important;opacity:.95}
+.title-layout::after{content:"";position:absolute;left:-20%;right:-20%;bottom:0;height:34%;z-index:0;pointer-events:none;background:linear-gradient(0deg,transparent 0 2px,rgba(25,240,255,.0) 2px),repeating-linear-gradient(90deg,rgba(138,77,255,.75) 0 1px,transparent 1px 38px),repeating-linear-gradient(0deg,rgba(255,47,214,.7) 0 1px,transparent 1px 26px);transform:perspective(260px) rotateX(58deg);transform-origin:bottom;-webkit-mask-image:linear-gradient(0deg,#000,transparent);mask-image:linear-gradient(0deg,#000,transparent)}
+.logo-mind,.logo-duel{font-family:Orbitron,Impact,'Arial Black',sans-serif;font-style:italic;font-weight:900;transform:skewX(-8deg);animation:none}
+.logo-mind{background:linear-gradient(180deg,#fff 0%,#ff7bea 35%,#c01cff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 12px #ff2fd6) drop-shadow(0 4px 0 #3a0a66)}
+.logo-duel{background:linear-gradient(180deg,#fff 0%,#8be9ff 30%,#2a6bff 75%,#1a1a8c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 3px #fff) drop-shadow(3px 4px 0 #04104a) drop-shadow(0 0 14px #19a8ff)}
+.tagline{font-family:'Press Start 2P',monospace;color:var(--gr);font-size:9px;line-height:1.7;text-shadow:0 0 8px rgba(25,255,168,.7)}
+.title-layout::before{content:"TU MENTE\ATAMBIÉN\AJUEGA.";white-space:pre;position:absolute;top:10px;right:14px;text-align:right;font:8px/1.7 'Press Start 2P',monospace;color:#7fa8ff;z-index:3}
+.title-actions .btn::before{content:"";display:inline-block;width:1.2em;height:1.2em;margin-right:12px;vertical-align:-.25em;background:currentColor}
+.title-actions .btn-green::before{-webkit-mask-image:var(--ic-play);mask-image:var(--ic-play)}
+.title-actions .btn-red::before{-webkit-mask-image:var(--ic-exit);mask-image:var(--ic-exit)}
+.btn{font-family:'Press Start 2P',monospace;letter-spacing:.5px;border-radius:12px;font-size:13px}
+.btn-green{color:var(--gr);border-color:var(--gr);background:rgba(2,28,22,.85);box-shadow:0 0 14px rgba(25,255,168,.5),inset 0 0 12px rgba(25,255,168,.18)}
+.btn-purple{color:var(--mg);border-color:var(--mg);background:rgba(40,4,40,.85);box-shadow:0 0 14px rgba(255,47,214,.5),inset 0 0 12px rgba(255,47,214,.18)}
+.btn-red{color:#ff5aa5;border-color:#ff3d8b;background:rgba(40,4,24,.85);box-shadow:0 0 14px rgba(255,61,139,.45)}
+/* juego */
+.game-header{border:1px solid rgba(138,77,255,.8);border-radius:14px;background:rgba(10,4,40,.8);box-shadow:0 0 14px rgba(138,77,255,.45),inset 0 0 14px rgba(25,240,255,.12)}
+#menuBtn{font-size:0;width:38px}#menuBtn::before{content:"";display:block;width:24px;height:24px;margin:auto;background:var(--cy);-webkit-mask-image:var(--ic-menu);mask-image:var(--ic-menu)}
+.mind-sign{font:italic 900 20px Orbitron,Impact,sans-serif;font-size:0;background:none}
+.mind-sign::after{content:"MIND DUEL";font:italic 900 17px Orbitron,Impact,sans-serif;background:linear-gradient(180deg,#fff,#ff2fd6 60%,#2a6bff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 6px #ff2fd6)}
+.hud-item{border:1px solid var(--cy);border-radius:8px;background:rgba(2,18,34,.8);box-shadow:inset 0 0 10px rgba(25,240,255,.2);padding:4px 8px}
+.hud-item b{font-family:'Press Start 2P',monospace;font-size:13px;color:var(--gr);text-shadow:0 0 8px rgba(25,255,168,.7)}
+.hud-item small{font-family:'Press Start 2P',monospace;font-size:6px;color:#9fb4ff}
+.mind-console{border:2px solid var(--vi);border-radius:16px;background:linear-gradient(180deg,rgba(18,6,56,.85),rgba(7,3,22,.95));box-shadow:0 0 18px rgba(138,77,255,.5),inset 0 0 24px rgba(138,77,255,.15)}
+.console-title{font-family:'Press Start 2P',monospace;font-size:9px;color:#b9a6ff;border-bottom:1px solid rgba(138,77,255,.5)}
+.message{align-items:flex-start;gap:10px}
+.avatar{flex:0 0 38px;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:0;border:2px solid;background:rgba(5,2,20,.9)}
+.avatar::before{content:"";width:22px;height:22px;background:currentColor}
+.avatar-mind{color:var(--mg);border-color:var(--mg);box-shadow:0 0 10px rgba(255,47,214,.6)}.avatar-mind::before{-webkit-mask-image:var(--ic-brain);mask-image:var(--ic-brain)}
+.avatar-player{color:var(--gr);border-color:var(--gr);box-shadow:0 0 10px rgba(25,255,168,.55)}.avatar-player::before{-webkit-mask-image:var(--ic-user);mask-image:var(--ic-user)}
+.avatar-system{border-color:transparent;box-shadow:none}.avatar-system::before{width:6px;height:6px;border-radius:50%;background:var(--or)}
+.bubble{font-family:'Share Tech Mono','Courier New',monospace;font-size:14px;border-radius:4px 14px 14px 14px;padding:8px 12px;border:1px solid}
+.message-mind .bubble{background:linear-gradient(135deg,#2a0f6a,#170a40);border-color:var(--vi);color:#f0e6ff;box-shadow:0 0 10px rgba(138,77,255,.35)}
+.message-player .bubble{background:linear-gradient(135deg,#052c33,#041a26);border-color:var(--gr);color:#d8fff2;box-shadow:0 0 10px rgba(25,255,168,.25)}
+.message-system .bubble{background:transparent;border-color:rgba(255,154,47,.5);color:var(--or);font-style:italic}
+.input-row input{font-family:'Share Tech Mono','Courier New',monospace;border:2px solid var(--cy);border-radius:12px;background:rgba(3,10,30,.9);box-shadow:0 0 12px rgba(25,240,255,.3)}
+.send-btn{font-size:0;border:2px solid var(--cy);border-radius:12px;background:rgba(3,22,40,.9);box-shadow:0 0 12px rgba(25,240,255,.45)}
+.send-btn::before{content:"";display:block;width:26px;height:26px;margin:auto;background:var(--cy);-webkit-mask-image:var(--ic-send);mask-image:var(--ic-send)}
+#suggestBtn::before,#guessBtn::before{content:"";display:inline-block;width:1.5em;height:1.5em;margin-right:8px;vertical-align:-.4em;background:currentColor}
+#suggestBtn::before{-webkit-mask-image:var(--ic-brain);mask-image:var(--ic-brain)}#guessBtn::before{-webkit-mask-image:var(--ic-spark);mask-image:var(--ic-spark)}
+.small{font-size:10px}
+/* ventanas */
+.modal-card,.result-card{border:2px solid var(--mg);border-radius:18px;background:linear-gradient(180deg,rgba(24,6,56,.96),rgba(6,3,20,.98));box-shadow:0 0 24px rgba(255,47,214,.5),inset 0 0 20px rgba(138,77,255,.2)}
+.modal-card h2,.result-screen h2{font-family:'Press Start 2P',monospace;font-size:14px;line-height:1.6;color:#fff;text-shadow:0 0 10px var(--mg)}
+.suggestions .btn,.suggestions button{font-size:10px;text-align:center}
+
+.title-mountains{inset:auto 0 24% 0!important;height:17%!important;z-index:0}
+.stage-mountains{opacity:.9}
+#suggestBtn.locked{opacity:.55;filter:grayscale(.5)}
+.stage-actions .btn{width:min(80vw,360px)}
+/* ===== TELON DE TEATRO (dos paneles con pliegues que se recogen a los lados + cenefa) ===== */
+#curtainLeft,#curtainRight,#curtainLeft.open,#curtainRight.open{width:51%!important;top:0;height:100%;z-index:100;
+ background:repeating-linear-gradient(90deg,#2a0409 0,#7a0f20 12px,#c21d36 22px,#7a0f20 32px,#2a0409 46px);
+ box-shadow:inset 0 -70px 80px rgba(0,0,0,.65),inset 0 60px 60px rgba(0,0,0,.5);
+ transition:transform 2.8s cubic-bezier(.45,.05,.25,1)!important}
+#curtainLeft{left:0;right:auto;transform-origin:left center;border-right:2px solid rgba(212,167,58,.6)}
+#curtainRight{right:0;left:auto;transform-origin:right center;border-left:2px solid rgba(212,167,58,.6)}
+#curtainLeft.open,#curtainRight.open{transform:scaleX(.1)}
+.stage-screen::before{content:"";position:absolute;left:0;right:0;top:0;height:72px;z-index:110;pointer-events:none;
+ background:radial-gradient(circle at 22px 0,#8f1326 0 21px,#d4a73a 21px 23.5px,transparent 24px) 0 46px/44px 26px repeat-x,linear-gradient(180deg,#2a0409,#7a0f20 70%,#8f1326) 0 0/100% 48px no-repeat;
+ border-bottom:0;filter:drop-shadow(0 6px 8px rgba(0,0,0,.7))}
+.stage-mountains{display:none!important}
+/* HUD sin desbordes */
+.hud{gap:5px}.hud-item{padding:3px 5px;min-width:0}.hud-item b{font-size:11px}.hud-item small{font-size:5.5px}
+.stage-actions .btn{font-size:11px;line-height:1.5}
+
+/* ===== BOCADILLO DEL CEREBRO + TIPOGRAFIA ===== */
+.oracle-card{position:relative;font-family:'Press Start 2P',monospace;font-size:10px;line-height:2;text-align:left;color:#efe4ff;
+ background:linear-gradient(180deg,#220c55,#10052f);border:2px solid #8a4dff;border-radius:20px;padding:24px 18px 18px;
+ box-shadow:0 0 18px rgba(138,77,255,.6),inset 0 0 18px rgba(138,77,255,.18);text-shadow:none}
+.oracle-card::before{content:"";position:absolute;top:-17px;left:50%;margin-left:-15px;border:15px solid transparent;border-top:0;border-bottom-color:#8a4dff}
+.oracle-card::after{content:"";position:absolute;top:-12px;left:50%;margin-left:-12px;border:12px solid transparent;border-top:0;border-bottom-color:#220c55}
+.oracle-card strong{display:block;margin-bottom:10px;font-size:9px;letter-spacing:1px;color:#ff2fd6;text-shadow:0 0 8px rgba(255,47,214,.7)}
+.bubble{font-family:'VT323','Courier New',monospace;font-size:21px;line-height:1.15}
+.input-row input{font-family:'VT323','Courier New',monospace;font-size:21px}
+/* modo clasico */
+.classic-panel{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 2px 6px}
+.classic-panel .btn{font-size:10px;padding:13px 6px}
+.classic-panel [data-ans=nose]{grid-column:1/-1}
+.classic-panel.hidden{display:none}
+body.classic #questionForm,body.classic .action-row{display:none}
+body.classic.name-phase #questionForm{display:flex}
+
+/* ===== v3.9: bocadillo sin punta, escenario con luces, cerebro emoji opcional ===== */
+.oracle-card::before,.oracle-card::after{display:none!important}
+.stage-sun{display:none!important}
+.spotlight-beam{display:none!important}
+.spotlights{position:absolute;inset:0;pointer-events:none;z-index:1}
+.spotlights::before,.spotlights::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,244,214,.36),rgba(255,244,214,.05) 34%,transparent 35%)}
+.spotlights::before{clip-path:polygon(4% 0,22% 0,56% 34%,44% 34%)}
+.spotlights::after{clip-path:polygon(78% 0,96% 0,56% 34%,44% 34%)}
+.stage-pedestal{position:relative}
+.stage-pedestal::before{content:"";position:absolute;left:50%;top:50%;width:280px;height:280px;margin:-140px 0 0 -140px;z-index:-1;background:radial-gradient(circle,rgba(255,240,200,.30),rgba(255,47,214,.14) 45%,transparent 70%)}
+.brain-emoji .neon-brain{background:none;-webkit-mask:none;mask:none;width:auto;height:auto;filter:drop-shadow(0 0 10px rgba(255,47,214,.7))}
+.brain-emoji .neon-brain::before{content:"🧠"}
+.brain-emoji .avatar-mind::before{content:"🧠";background:none;-webkit-mask:none;mask:none;width:auto;height:auto;font-size:20px}
+.brain-emoji #suggestBtn::before{content:"🧠";background:none;-webkit-mask:none;mask:none;width:auto;height:auto;font-size:18px}
