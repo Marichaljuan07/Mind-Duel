@@ -382,20 +382,6 @@ function evaluarPregunta(pregunta, personaje) {
         [["harry potter", "hogwarts"], "harry potter"],
         [["tolkien", "senor de los anillos", "tierra media"], "tolkien"],
         [["disney", "frozen"], "disney"],
-        [["nintendo", "mario", "zelda"], "nintendo"],
-        [["sega", "sonic"], "sega"],
-        [["pokemon", "pokémon"], "pokemon"],
-        [["naruto"], "naruto"],
-        [["dragon ball"], "dragon ball"],
-        [["one piece"], "one piece"],
-        [["nickelodeon", "bob esponja", "spongebob"], "nickelodeon"],
-        [["pixar", "toy story"], "pixar"],
-        [["dreamworks", "shrek"], "dreamworks"],
-        [["familia addams", "addams"], "familia addams"],
-        [["studio ghibli", "ghibli", "totoro"], "studio ghibli"],
-        [["sailor moon"], "sailor moon"],
-        [["doraemon"], "doraemon"],
-        [["namco", "pac-man", "pacman"], "namco"],
         [["sherlock holmes"], "sherlock holmes"]
     ];
 

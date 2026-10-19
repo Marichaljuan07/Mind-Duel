@@ -44,7 +44,7 @@
         <div class="grid-floor"></div>
       </div>
       
-      <!-- LUZ CENTRAL DEL CEREBRO EN EL ESCENARIO -->
+      <!-- LUZ CENTRAL DEL CEREBRO 🧠 EN EL ESCENARIO -->
       <div class="spotlights" aria-hidden="true">
         <div class="spotlight-beam"></div>
       </div>
@@ -58,7 +58,7 @@
           <button id="soloBtn" class="btn btn-green">JUGAR SOLO</button>
           <button id="clasicoBtn" class="btn btn-green">MODO CLÁSICO</button>
           <button id="espejoBtn" class="btn btn-purple">ESPEJO (PRONTO)</button>
-          <button id="dueloBtn" class="btn btn-purple">DUELO ONLINE</button>
+          <button id="dueloBtn" class="btn btn-purple">DUELO ONLINE 🧠</button>
           <button id="menuBackBtn" class="btn btn-red">HUIR</button>
         </div>
         <div id="stageActions" class="stack stage-actions">
@@ -85,7 +85,7 @@
         </div>
       </header>
       <div class="mind-console">
-        <div class="console-title"><span class="neon-brain brain-xs"></span><span>ENTIDAD BLOQUEADA</span></div>
+        <div class="console-title"><span class="neon-brain brain-xs"></span><span>ENTIDAD 🧠 BLOQUEADA</span></div>
         <div id="chat" class="chat" aria-live="polite"></div>
       </div>
       <div class="controls">
@@ -150,12 +150,28 @@
     </div>
   </div>
 
+
+  <div id="duelModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="duelTitle">
+    <div class="modal-card duel-card">
+      <div class="neon-brain brain-sm"></div><h2 id="duelTitle">DUELO ONLINE 🧠</h2>
+      <p class="duel-intro">DOS MENTES. DOS REDES. UNA CONEXIÓN.</p>
+      <label class="duel-label" for="duelName">TU NOMBRE</label><input id="duelName" maxlength="20" placeholder="Cómo te llamás">
+      <div class="duel-actions"><button id="createRoomBtn" class="btn btn-green">CREAR SALA</button><button id="joinRoomBtn" class="btn btn-purple">UNIRME</button></div>
+      <div id="hostRoom" class="hidden"><p class="duel-label">CÓDIGO DE SALA · COMPARTILO CON TU AMIGO</p><div class="room-code-row"><code id="roomCode"></code><button id="copyRoomBtn" class="btn btn-green small">COPIAR</button></div></div>
+      <div id="joinRoom" class="hidden"><label class="duel-label" for="roomInput">CÓDIGO DEL ANFITRIÓN</label><input id="roomInput" maxlength="80" placeholder="Pegá el código que te pasó tu amigo"><button id="connectRoomBtn" class="btn btn-green">CONECTAR</button></div>
+      <p id="duelStatus" class="duel-status">Preparando conexión…</p>
+      <div id="duelConnected" class="hidden"><div class="duel-presence"><span class="presence-dot"></span><span id="peerStatus">ESPERANDO AL RIVAL…</span></div><div id="duelMessages" class="duel-messages" aria-live="polite"></div><form id="duelChatForm" class="duel-chat-form"><input id="duelChatInput" maxlength="300" placeholder="Escribile a tu amigo…" autocomplete="off"><button class="btn btn-green" type="submit">ENVIAR</button></form><div class="duel-actions"><button id="duelWinBtn" class="btn btn-green">🏆 GANÉ</button><button id="duelLoseBtn" class="btn btn-red">❌ PERDÍ</button></div></div>
+      <button id="closeDuelBtn" class="btn btn-red duel-close">VOLVER</button>
+    </div>
+  </div>
+
   <div id="shutdownScreen" class="shutdown-screen hidden">
     <div class="shutdown-line"></div>
     <p>CONEXIÓN FINALIZADA</p>
     <button id="restartBtn" class="btn btn-green">REINICIAR SISTEMA</button>
   </div>
 
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script src="personajes.js"></script>
   <script src="motor_logico.js"></script>
   <script src="oraculo_local.js"></script>
@@ -163,5 +179,6 @@
   <script src="sugeridor.js"></script>
   <script src="clasico.js"></script>
   <script src="script.js"></script>
+  <script src="multijugador.js"></script>
 </body>
 </html>

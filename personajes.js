@@ -1940,239 +1940,13 @@ const PERSONAJES = [
   "universo": "marvel",
   "mascara": false,
   "capa": false
- }
-,
- {
-  "nombre": "Shakira",
-  "alias": [
-   "shakira"
-  ],
-  "descripcion": "Cantante y compositora colombiana reconocida internacionalmente.",
-  "tipo": "real",
-  "genero": "mujer",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "america",
-  "nacionalidades": [
-   "colombiano"
-  ],
-  "idiomas": [
-   "espanol",
-   "ingles"
-  ],
-  "etiquetas": [
-   "artista",
-   "cantante",
-   "compositor",
-   "musico",
-   "baile"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
  },
  {
-  "nombre": "Taylor Swift",
+  "nombre": "Charles Darwin",
   "alias": [
-   "taylor"
+   "charles darwin"
   ],
-  "descripcion": "Cantautora estadounidense conocida por sus álbumes pop y country.",
-  "tipo": "real",
-  "genero": "mujer",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "america",
-  "nacionalidades": [
-   "estadounidense"
-  ],
-  "idiomas": [
-   "ingles"
-  ],
-  "etiquetas": [
-   "artista",
-   "cantante",
-   "compositor",
-   "musico"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Cristiano Ronaldo",
-  "alias": [
-   "ronaldo",
-   "cr7"
-  ],
-  "descripcion": "Futbolista portugués considerado uno de los mejores de su generación.",
-  "tipo": "real",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "europa",
-  "nacionalidades": [
-   "portugues"
-  ],
-  "idiomas": [
-   "portugues",
-   "ingles"
-  ],
-  "etiquetas": [
-   "deportista",
-   "futbolista"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Serena Williams",
-  "alias": [
-   "serena"
-  ],
-  "descripcion": "Tenista estadounidense, una de las atletas más laureadas de la historia.",
-  "tipo": "real",
-  "genero": "mujer",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "america",
-  "nacionalidades": [
-   "estadounidense"
-  ],
-  "idiomas": [
-   "ingles"
-  ],
-  "etiquetas": [
-   "deportista",
-   "tenista"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Michael Jordan",
-  "alias": [
-   "jordan"
-  ],
-  "descripcion": "Exjugador estadounidense de baloncesto, figura histórica de la NBA.",
-  "tipo": "real",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "america",
-  "nacionalidades": [
-   "estadounidense"
-  ],
-  "idiomas": [
-   "ingles"
-  ],
-  "etiquetas": [
-   "deportista",
-   "basquetbolista"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Usain Bolt",
-  "alias": [
-   "bolt"
-  ],
-  "descripcion": "Velocista jamaicano, múltiple campeón olímpico y plusmarquista mundial.",
-  "tipo": "real",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "america",
-  "nacionalidades": [
-   "jamaicano"
-  ],
-  "idiomas": [
-   "ingles"
-  ],
-  "etiquetas": [
-   "deportista",
-   "atleta"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Barack Obama",
-  "alias": [
-   "obama"
-  ],
-  "descripcion": "Político estadounidense que fue el 44.º presidente de Estados Unidos.",
-  "tipo": "real",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "america",
-  "nacionalidades": [
-   "estadounidense"
-  ],
-  "idiomas": [
-   "ingles"
-  ],
-  "etiquetas": [
-   "politico",
-   "gobernante"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Winston Churchill",
-  "alias": [
-   "churchill"
-  ],
-  "descripcion": "Político y primer ministro británico durante parte de la Segunda Guerra Mundial.",
+  "descripcion": "Naturalista que formuló la teoría de la evolución por selección natural.",
   "tipo": "real",
   "genero": "hombre",
   "vivo": false,
@@ -2183,299 +1957,13 @@ const PERSONAJES = [
    "britanico"
   ],
   "idiomas": [
+   "espanol",
    "ingles"
   ],
   "etiquetas": [
-   "politico",
-   "gobernante",
-   "escritor"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Anne Frank",
-  "alias": [
-   "ana frank"
-  ],
-  "descripcion": "Adolescente judía alemana cuyo diario se convirtió en un testimonio histórico del Holocausto.",
-  "tipo": "real",
-  "genero": "mujer",
-  "vivo": false,
-  "humano": true,
-  "famoso": true,
-  "region": "europa",
-  "nacionalidades": [
-   "aleman"
-  ],
-  "idiomas": [
-   "aleman",
-   "neerlandes"
-  ],
-  "etiquetas": [
-   "escritor",
-   "historia"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Charles Darwin",
-  "alias": [
-   "darwin"
-  ],
-  "descripcion": "Naturalista inglés que formuló la teoría de la evolución por selección natural.",
-  "tipo": "real",
-  "genero": "hombre",
-  "vivo": false,
-  "humano": true,
-  "famoso": true,
-  "region": "europa",
-  "nacionalidades": [
-   "ingles"
-  ],
-  "idiomas": [
-   "ingles"
-  ],
-  "etiquetas": [
-   "cientifico",
    "biologo",
-   "escritor"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Isaac Newton",
-  "alias": [
-   "newton"
-  ],
-  "descripcion": "Físico y matemático inglés cuyas leyes del movimiento transformaron la ciencia.",
-  "tipo": "real",
-  "genero": "hombre",
-  "vivo": false,
-  "humano": true,
-  "famoso": true,
-  "region": "europa",
-  "nacionalidades": [
-   "ingles"
-  ],
-  "idiomas": [
-   "ingles"
-  ],
-  "etiquetas": [
-   "cientifico",
-   "fisico",
-   "matematico"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Galileo Galilei",
-  "alias": [
-   "galileo"
-  ],
-  "descripcion": "Astrónomo y físico italiano que realizó importantes observaciones con telescopio.",
-  "tipo": "real",
-  "genero": "hombre",
-  "vivo": false,
-  "humano": true,
-  "famoso": true,
-  "region": "europa",
-  "nacionalidades": [
-   "italiano"
-  ],
-  "idiomas": [
-   "italiano"
-  ],
-  "etiquetas": [
-   "cientifico",
-   "astronomo",
-   "fisico"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Wolfgang Amadeus Mozart",
-  "alias": [
-   "mozart"
-  ],
-  "descripcion": "Compositor austríaco del período clásico, prodigio musical desde la infancia.",
-  "tipo": "real",
-  "genero": "hombre",
-  "vivo": false,
-  "humano": true,
-  "famoso": true,
-  "region": "europa",
-  "nacionalidades": [
-   "austriaco"
-  ],
-  "idiomas": [
-   "aleman"
-  ],
-  "etiquetas": [
-   "artista",
-   "compositor",
-   "musico"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Ludwig van Beethoven",
-  "alias": [
-   "beethoven"
-  ],
-  "descripcion": "Compositor y pianista alemán, figura central de la música clásica.",
-  "tipo": "real",
-  "genero": "hombre",
-  "vivo": false,
-  "humano": true,
-  "famoso": true,
-  "region": "europa",
-  "nacionalidades": [
-   "aleman"
-  ],
-  "idiomas": [
-   "aleman"
-  ],
-  "etiquetas": [
-   "artista",
-   "compositor",
-   "musico"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Vincent van Gogh",
-  "alias": [
-   "van gogh"
-  ],
-  "descripcion": "Pintor neerlandés posimpresionista conocido por La noche estrellada.",
-  "tipo": "real",
-  "genero": "hombre",
-  "vivo": false,
-  "humano": true,
-  "famoso": true,
-  "region": "europa",
-  "nacionalidades": [
-   "neerlandes"
-  ],
-  "idiomas": [
-   "neerlandes"
-  ],
-  "etiquetas": [
-   "artista",
-   "pintor"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Salvador Dalí",
-  "alias": [
-   "dali"
-  ],
-  "descripcion": "Pintor español asociado al surrealismo y a sus imágenes oníricas.",
-  "tipo": "real",
-  "genero": "hombre",
-  "vivo": false,
-  "humano": true,
-  "famoso": true,
-  "region": "europa",
-  "nacionalidades": [
-   "espanol"
-  ],
-  "idiomas": [
-   "espanol"
-  ],
-  "etiquetas": [
-   "artista",
-   "pintor"
-  ],
-  "medios": [
-   "historia"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "real",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Gabriel García Márquez",
-  "alias": [
-   "garcia marquez",
-   "gabo"
-  ],
-  "descripcion": "Escritor colombiano, Nobel de Literatura y autor de Cien años de soledad.",
-  "tipo": "real",
-  "genero": "hombre",
-  "vivo": false,
-  "humano": true,
-  "famoso": true,
-  "region": "america",
-  "nacionalidades": [
-   "colombiano"
-  ],
-  "idiomas": [
-   "espanol"
-  ],
-  "etiquetas": [
-   "escritor",
-   "autor",
-   "premio_nobel"
+   "evolucion",
+   "cientifico"
   ],
   "medios": [
    "historia"
@@ -2489,9 +1977,9 @@ const PERSONAJES = [
  {
   "nombre": "Amelia Earhart",
   "alias": [
-   "earhart"
+   "amelia earhart"
   ],
-  "descripcion": "Aviadora estadounidense pionera, célebre por sus vuelos de larga distancia.",
+  "descripcion": "Aviadora pionera que desapareció durante un vuelo.",
   "tipo": "real",
   "genero": "mujer",
   "vivo": false,
@@ -2502,11 +1990,13 @@ const PERSONAJES = [
    "estadounidense"
   ],
   "idiomas": [
+   "espanol",
    "ingles"
   ],
   "etiquetas": [
-   "aviador",
-   "explorador"
+   "aviadora",
+   "pionera",
+   "historia"
   ],
   "medios": [
    "historia"
@@ -2518,28 +2008,61 @@ const PERSONAJES = [
   "capa": false
  },
  {
-  "nombre": "Rosalía",
+  "nombre": "Pelé",
   "alias": [
-   "rosalia"
+   "pelé"
   ],
-  "descripcion": "Cantante y compositora española que fusiona flamenco con pop y otros géneros.",
+  "descripcion": "Futbolista brasileño considerado uno de los mejores de la historia.",
   "tipo": "real",
-  "genero": "mujer",
+  "genero": "hombre",
+  "vivo": false,
+  "humano": true,
+  "famoso": true,
+  "region": "america",
+  "nacionalidades": [
+   "brasileno"
+  ],
+  "idiomas": [
+   "espanol",
+   "ingles"
+  ],
+  "etiquetas": [
+   "futbol",
+   "deporte",
+   "brasil"
+  ],
+  "medios": [
+   "historia"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "real",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Cristiano Ronaldo",
+  "alias": [
+   "cristiano ronaldo"
+  ],
+  "descripcion": "Futbolista portugués reconocido mundialmente.",
+  "tipo": "real",
+  "genero": "hombre",
   "vivo": true,
   "humano": true,
   "famoso": true,
   "region": "europa",
   "nacionalidades": [
-   "espanol"
+   "portugues"
   ],
   "idiomas": [
-   "espanol"
+   "espanol",
+   "ingles"
   ],
   "etiquetas": [
-   "artista",
-   "cantante",
-   "compositor",
-   "musico"
+   "futbol",
+   "deporte",
+   "portugal"
   ],
   "medios": [
    "historia"
@@ -2551,11 +2074,44 @@ const PERSONAJES = [
   "capa": false
  },
  {
-  "nombre": "Bad Bunny",
+  "nombre": "Serena Williams",
   "alias": [
-   "benito"
+   "serena williams"
   ],
-  "descripcion": "Cantante y compositor puertorriqueño de música urbana.",
+  "descripcion": "Tenista estadounidense con numerosos títulos de Grand Slam.",
+  "tipo": "real",
+  "genero": "mujer",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "america",
+  "nacionalidades": [
+   "estadounidense"
+  ],
+  "idiomas": [
+   "espanol",
+   "ingles"
+  ],
+  "etiquetas": [
+   "tenis",
+   "deporte",
+   "campeona"
+  ],
+  "medios": [
+   "historia"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "real",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Michael Jordan",
+  "alias": [
+   "michael jordan"
+  ],
+  "descripcion": "Exjugador de baloncesto considerado una leyenda de la NBA.",
   "tipo": "real",
   "genero": "hombre",
   "vivo": true,
@@ -2563,16 +2119,16 @@ const PERSONAJES = [
   "famoso": true,
   "region": "america",
   "nacionalidades": [
-   "puertorriqueno"
+   "estadounidense"
   ],
   "idiomas": [
-   "espanol"
+   "espanol",
+   "ingles"
   ],
   "etiquetas": [
-   "artista",
-   "cantante",
-   "compositor",
-   "musico"
+   "basquetbol",
+   "deporte",
+   "nba"
   ],
   "medios": [
    "historia"
@@ -2584,58 +2140,470 @@ const PERSONAJES = [
   "capa": false
  },
  {
-  "nombre": "Mario",
+  "nombre": "Taylor Swift",
   "alias": [
-   "super mario"
+   "taylor swift"
   ],
-  "descripcion": "Fontanero héroe de videojuegos de Nintendo que suele rescatar a la princesa Peach.",
-  "tipo": "ficticio",
-  "genero": "hombre",
+  "descripcion": "Cantautora estadounidense de pop y country.",
+  "tipo": "real",
+  "genero": "mujer",
   "vivo": true,
   "humano": true,
   "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
+  "region": "america",
+  "nacionalidades": [
+   "estadounidense"
+  ],
+  "idiomas": [
+   "espanol",
+   "ingles"
+  ],
   "etiquetas": [
-   "videojuego",
-   "heroe",
-   "aventurero"
+   "musica",
+   "cantante",
+   "compositora"
   ],
   "medios": [
-   "videojuego"
+   "historia"
   ],
   "poderes": false,
   "magia": false,
-  "universo": "nintendo",
+  "universo": "real",
   "mascara": false,
   "capa": false
  },
  {
-  "nombre": "Sonic",
+  "nombre": "Freddie Mercury",
   "alias": [
-   "sonic the hedgehog"
+   "freddie mercury"
   ],
-  "descripcion": "Erizo azul de videojuegos famoso por correr a gran velocidad.",
+  "descripcion": "Cantante principal de la banda Queen.",
+  "tipo": "real",
+  "genero": "hombre",
+  "vivo": false,
+  "humano": true,
+  "famoso": true,
+  "region": "europa",
+  "nacionalidades": [
+   "britanico"
+  ],
+  "idiomas": [
+   "espanol",
+   "ingles"
+  ],
+  "etiquetas": [
+   "musica",
+   "cantante",
+   "queen"
+  ],
+  "medios": [
+   "historia"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "real",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Bob Marley",
+  "alias": [
+   "bob marley"
+  ],
+  "descripcion": "Músico jamaicano, símbolo mundial del reggae.",
+  "tipo": "real",
+  "genero": "hombre",
+  "vivo": false,
+  "humano": true,
+  "famoso": true,
+  "region": "america",
+  "nacionalidades": [
+   "jamaicano"
+  ],
+  "idiomas": [
+   "espanol",
+   "ingles"
+  ],
+  "etiquetas": [
+   "musica",
+   "reggae",
+   "cantante"
+  ],
+  "medios": [
+   "historia"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "real",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Shakira",
+  "alias": [
+   "shakira"
+  ],
+  "descripcion": "Cantante colombiana conocida por su voz y baile.",
+  "tipo": "real",
+  "genero": "mujer",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "america",
+  "nacionalidades": [
+   "colombiana"
+  ],
+  "idiomas": [
+   "espanol",
+   "ingles"
+  ],
+  "etiquetas": [
+   "musica",
+   "cantante",
+   "baile"
+  ],
+  "medios": [
+   "historia"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "real",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Beyoncé",
+  "alias": [
+   "beyoncé"
+  ],
+  "descripcion": "Cantante y artista estadounidense.",
+  "tipo": "real",
+  "genero": "mujer",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "america",
+  "nacionalidades": [
+   "estadounidense"
+  ],
+  "idiomas": [
+   "espanol",
+   "ingles"
+  ],
+  "etiquetas": [
+   "musica",
+   "cantante",
+   "baile"
+  ],
+  "medios": [
+   "historia"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "real",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Keanu Reeves",
+  "alias": [
+   "keanu reeves"
+  ],
+  "descripcion": "Actor conocido por Matrix y John Wick.",
+  "tipo": "real",
+  "genero": "hombre",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "america",
+  "nacionalidades": [
+   "canadiense"
+  ],
+  "idiomas": [
+   "espanol",
+   "ingles"
+  ],
+  "etiquetas": [
+   "actor",
+   "cine",
+   "accion"
+  ],
+  "medios": [
+   "historia"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "real",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Jackie Chan",
+  "alias": [
+   "jackie chan"
+  ],
+  "descripcion": "Actor y artista marcial famoso por sus acrobacias.",
+  "tipo": "real",
+  "genero": "hombre",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "asia",
+  "nacionalidades": [
+   "hongkones"
+  ],
+  "idiomas": [
+   "espanol",
+   "ingles"
+  ],
+  "etiquetas": [
+   "actor",
+   "artes_marciales",
+   "comedia"
+  ],
+  "medios": [
+   "historia"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "real",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Audrey Hepburn",
+  "alias": [
+   "audrey hepburn"
+  ],
+  "descripcion": "Actriz conocida por Desayuno en Tiffany’s.",
+  "tipo": "real",
+  "genero": "mujer",
+  "vivo": false,
+  "humano": true,
+  "famoso": true,
+  "region": "europa",
+  "nacionalidades": [
+   "britanica"
+  ],
+  "idiomas": [
+   "espanol",
+   "ingles"
+  ],
+  "etiquetas": [
+   "actriz",
+   "cine",
+   "moda"
+  ],
+  "medios": [
+   "historia"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "real",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Princesa Leia",
+  "alias": [
+   "princesa leia"
+  ],
+  "descripcion": "Líder de la rebelión en Star Wars.",
+  "tipo": "ficticio",
+  "genero": "mujer",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "espacio",
+  "nacionalidades": [
+   "galactica"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "lider",
+   "jedi",
+   "star_wars"
+  ],
+  "medios": [
+   "pelicula",
+   "television",
+   "videojuego"
+  ],
+  "poderes": true,
+  "magia": false,
+  "universo": "galactica",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Frodo Bolsón",
+  "alias": [
+   "frodo bolsón"
+  ],
+  "descripcion": "Hobbit encargado de llevar el Anillo Único.",
   "tipo": "ficticio",
   "genero": "hombre",
   "vivo": true,
   "humano": true,
   "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
+  "region": "europa",
+  "nacionalidades": [
+   "hobbit"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
   "etiquetas": [
-   "videojuego",
-   "heroe",
-   "veloz"
+   "hobbit",
+   "anillo",
+   "senor_de_los_anillos"
   ],
   "medios": [
+   "pelicula",
+   "television",
    "videojuego"
   ],
   "poderes": false,
   "magia": false,
-  "universo": "sega",
+  "universo": "hobbit",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Voldemort",
+  "alias": [
+   "voldemort"
+  ],
+  "descripcion": "Principal antagonista de Harry Potter.",
+  "tipo": "ficticio",
+  "genero": "hombre",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "europa",
+  "nacionalidades": [
+   "britanico"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "villano",
+   "magia",
+   "harry_potter"
+  ],
+  "medios": [
+   "pelicula",
+   "television",
+   "videojuego"
+  ],
+  "poderes": true,
+  "magia": true,
+  "universo": "britanico",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Wednesday Addams",
+  "alias": [
+   "wednesday addams"
+  ],
+  "descripcion": "Joven de humor oscuro de la familia Addams.",
+  "tipo": "ficticio",
+  "genero": "mujer",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "america",
+  "nacionalidades": [
+   "estadounidense"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "oscura",
+   "familia_addams",
+   "misterio"
+  ],
+  "medios": [
+   "pelicula",
+   "television",
+   "videojuego"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "estadounidense",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Drácula",
+  "alias": [
+   "drácula"
+  ],
+  "descripcion": "Conde vampiro creado por Bram Stoker.",
+  "tipo": "ficticio",
+  "genero": "hombre",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "europa",
+  "nacionalidades": [
+   "rumano"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "vampiro",
+   "terror",
+   "colmillos"
+  ],
+  "medios": [
+   "pelicula",
+   "television",
+   "videojuego"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "rumano",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Frankenstein",
+  "alias": [
+   "frankenstein"
+  ],
+  "descripcion": "Nombre asociado popularmente a la criatura de la novela de Mary Shelley.",
+  "tipo": "ficticio",
+  "genero": "hombre",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "europa",
+  "nacionalidades": [
+   "suizo"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "monstruo",
+   "terror",
+   "literatura"
+  ],
+  "medios": [
+   "pelicula",
+   "television",
+   "videojuego"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "suizo",
   "mascara": false,
   "capa": false
  },
@@ -2644,320 +2612,168 @@ const PERSONAJES = [
   "alias": [
    "pikachu"
   ],
-  "descripcion": "Pokémon eléctrico amarillo compañero de Ash en la serie animada.",
+  "descripcion": "Pokémon amarillo que puede lanzar descargas eléctricas.",
   "tipo": "ficticio",
-  "genero": "hombre",
+  "genero": "otro",
   "vivo": true,
   "humano": false,
   "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
+  "region": "asia",
+  "nacionalidades": [
+   "pokemon"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
   "etiquetas": [
    "pokemon",
-   "animal",
-   "electrico"
+   "electrico",
+   "amarillo"
   ],
   "medios": [
-   "videojuego",
-   "animacion"
+   "pelicula",
+   "television",
+   "videojuego"
   ],
-  "poderes": false,
+  "poderes": true,
   "magia": false,
   "universo": "pokemon",
   "mascara": false,
   "capa": false
  },
  {
-  "nombre": "Naruto Uzumaki",
+  "nombre": "Mario",
   "alias": [
-   "naruto"
+   "mario"
   ],
-  "descripcion": "Ninja protagonista de Naruto que sueña con convertirse en Hokage.",
+  "descripcion": "Héroe de videojuegos de Nintendo que suele rescatar a Peach.",
   "tipo": "ficticio",
   "genero": "hombre",
   "vivo": true,
   "humano": true,
   "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
+  "region": "europa",
+  "nacionalidades": [
+   "italiano"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
   "etiquetas": [
-   "ninja",
-   "guerrero",
-   "heroe",
-   "anime"
+   "videojuego",
+   "nintendo",
+   "fontanero"
   ],
   "medios": [
-   "libro",
-   "animacion"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "naruto",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Goku",
-  "alias": [
-   "son goku",
-   "kakarotto"
-  ],
-  "descripcion": "Guerrero saiyajin protagonista de Dragon Ball, conocido por su fuerza y transformaciones.",
-  "tipo": "ficticio",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "guerrero",
-   "heroe",
-   "poderes",
-   "anime"
-  ],
-  "medios": [
-   "libro",
-   "animacion"
-  ],
-  "poderes": true,
-  "magia": false,
-  "universo": "dragon ball",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Monkey D. Luffy",
-  "alias": [
-   "luffy"
-  ],
-  "descripcion": "Capitán de los Piratas del Sombrero de Paja en el manga One Piece.",
-  "tipo": "ficticio",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "pirata",
-   "aventurero",
-   "heroe",
-   "anime"
-  ],
-  "medios": [
-   "libro",
-   "animacion"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "one piece",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Ash Ketchum",
-  "alias": [
-   "ash"
-  ],
-  "descripcion": "Joven entrenador Pokémon de la serie animada que viaja con Pikachu.",
-  "tipo": "ficticio",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": false,
-  "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "entrenador",
-   "pokemon",
-   "heroe",
-   "anime"
-  ],
-  "medios": [
-   "animacion",
+   "pelicula",
+   "television",
    "videojuego"
   ],
   "poderes": false,
   "magia": false,
-  "universo": "pokemon",
+  "universo": "italiano",
   "mascara": false,
   "capa": false
  },
  {
-  "nombre": "Bob Esponja",
+  "nombre": "Sonic",
   "alias": [
-   "spongebob"
+   "sonic"
   ],
-  "descripcion": "Esponja marina optimista que vive en una piña bajo el mar.",
+  "descripcion": "Erizo azul de videojuegos famoso por su velocidad.",
   "tipo": "ficticio",
   "genero": "hombre",
   "vivo": true,
   "humano": false,
   "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
+  "region": "america",
+  "nacionalidades": [
+   "mobius"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
   "etiquetas": [
-   "animal",
-   "comedia",
-   "marino"
+   "videojuego",
+   "erizo",
+   "velocidad"
   ],
   "medios": [
-   "serie",
-   "animacion"
+   "pelicula",
+   "television",
+   "videojuego"
   ],
   "poderes": false,
   "magia": false,
-  "universo": "nickelodeon",
+  "universo": "mobius",
   "mascara": false,
   "capa": false
  },
  {
-  "nombre": "Mickey Mouse",
+  "nombre": "Lara Croft",
   "alias": [
-   "mickey"
+   "lara croft"
   ],
-  "descripcion": "Ratón de dibujos animados creado por Walt Disney, ícono de la cultura popular.",
-  "tipo": "ficticio",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": false,
-  "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "animal",
-   "mascota",
-   "heroe"
-  ],
-  "medios": [
-   "animacion"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "disney",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Donald Duck",
-  "alias": [
-   "donald",
-   "pato donald"
-  ],
-  "descripcion": "Pato de dibujos animados de Disney, conocido por su voz y temperamento.",
-  "tipo": "ficticio",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": false,
-  "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "animal",
-   "comedia"
-  ],
-  "medios": [
-   "animacion"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "disney",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Moana",
-  "alias": [
-   "vaiana"
-  ],
-  "descripcion": "Joven navegante de una isla del Pacífico que emprende una misión para salvar a su pueblo.",
+  "descripcion": "Arqueóloga y protagonista de Tomb Raider.",
   "tipo": "ficticio",
   "genero": "mujer",
   "vivo": true,
   "humano": true,
   "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
+  "region": "europa",
+  "nacionalidades": [
+   "britanica"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
   "etiquetas": [
-   "aventurero",
-   "navegante",
-   "heroe"
+   "videojuego",
+   "aventurera",
+   "arqueologia"
   ],
   "medios": [
    "pelicula",
-   "animacion"
+   "television",
+   "videojuego"
   ],
   "poderes": false,
   "magia": false,
-  "universo": "disney",
+  "universo": "britanica",
   "mascara": false,
   "capa": false
  },
  {
-  "nombre": "Simba",
+  "nombre": "Pac-Man",
   "alias": [
-   "rey leon"
+   "pac-man"
   ],
-  "descripcion": "León protagonista de El rey león, destinado a convertirse en rey.",
+  "descripcion": "Personaje amarillo que come puntos y escapa de fantasmas.",
   "tipo": "ficticio",
-  "genero": "hombre",
+  "genero": "otro",
   "vivo": true,
   "humano": false,
   "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "animal",
-   "rey",
-   "heroe"
-  ],
-  "medios": [
-   "pelicula",
-   "animacion"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "disney",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Aladdin",
-  "alias": [
-   "aladino"
-  ],
-  "descripcion": "Joven protagonista de una historia de aventuras que encuentra una lámpara mágica.",
-  "tipo": "ficticio",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
   "region": "asia",
-  "nacionalidades": [],
-  "idiomas": [],
+  "nacionalidades": [
+   "videojuego"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
   "etiquetas": [
-   "aventurero",
-   "heroe"
+   "videojuego",
+   "laberinto",
+   "arcade"
   ],
   "medios": [
    "pelicula",
-   "libro",
-   "animacion"
+   "television",
+   "videojuego"
   ],
   "poderes": false,
   "magia": false,
-  "universo": "disney",
+  "universo": "videojuego",
   "mascara": false,
   "capa": false
  },
@@ -2966,415 +2782,741 @@ const PERSONAJES = [
   "alias": [
    "shrek"
   ],
-  "descripcion": "Ogro verde protagonista de una saga animada de comedia y aventuras.",
+  "descripcion": "Ogro verde protagonista de una saga animada.",
   "tipo": "ficticio",
   "genero": "hombre",
   "vivo": true,
   "humano": false,
   "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
+  "region": "europa",
+  "nacionalidades": [
+   "pantano"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
   "etiquetas": [
    "ogro",
-   "heroe",
-   "comedia"
+   "comedia",
+   "pantano"
   ],
   "medios": [
    "pelicula",
-   "animacion"
+   "television",
+   "videojuego"
   ],
   "poderes": false,
   "magia": false,
-  "universo": "dreamworks",
+  "universo": "pantano",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Moana",
+  "alias": [
+   "moana"
+  ],
+  "descripcion": "Joven navegante que emprende una misión por el océano.",
+  "tipo": "ficticio",
+  "genero": "mujer",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "oceania",
+  "nacionalidades": [
+   "polinesia"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "disney",
+   "navegacion",
+   "aventura"
+  ],
+  "medios": [
+   "pelicula",
+   "television",
+   "videojuego"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "polinesia",
   "mascara": false,
   "capa": false
  },
  {
   "nombre": "Buzz Lightyear",
   "alias": [
-   "buzz"
+   "buzz lightyear"
   ],
-  "descripcion": "Juguete guardián espacial de Toy Story, compañero de Woody.",
+  "descripcion": "Juguete astronauta de Toy Story.",
   "tipo": "ficticio",
   "genero": "hombre",
   "vivo": true,
   "humano": false,
   "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "juguete",
-   "heroe",
+  "region": "espacio",
+  "nacionalidades": [
    "espacio"
   ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "juguete",
+   "astronauta",
+   "pixar"
+  ],
   "medios": [
    "pelicula",
-   "animacion"
+   "television",
+   "videojuego"
   ],
   "poderes": false,
   "magia": false,
-  "universo": "pixar",
+  "universo": "espacio",
   "mascara": false,
   "capa": false
  },
  {
-  "nombre": "Woody",
+  "nombre": "Optimus Prime",
   "alias": [
-   "sheriff woody"
+   "optimus prime"
   ],
-  "descripcion": "Muñeco vaquero de Toy Story y líder de los juguetes de Andy.",
+  "descripcion": "Líder de los Autobots en Transformers.",
   "tipo": "ficticio",
   "genero": "hombre",
   "vivo": true,
   "humano": false,
   "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
+  "region": "espacio",
+  "nacionalidades": [
+   "cybertron"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
   "etiquetas": [
-   "juguete",
-   "vaquero",
-   "heroe"
+   "robot",
+   "transformers",
+   "lider"
   ],
   "medios": [
    "pelicula",
-   "animacion"
+   "television",
+   "videojuego"
   ],
   "poderes": false,
   "magia": false,
-  "universo": "pixar",
+  "universo": "cybertron",
   "mascara": false,
   "capa": false
  },
  {
-  "nombre": "Joker",
+  "nombre": "Winnie the Pooh",
   "alias": [
-   "guason"
+   "winnie the pooh"
   ],
-  "descripcion": "Archienemigo de Batman, criminal caótico del universo de DC Comics.",
+  "descripcion": "Oso de ficción al que le encanta la miel.",
   "tipo": "ficticio",
   "genero": "hombre",
   "vivo": true,
-  "humano": true,
+  "humano": false,
   "famoso": true,
-  "region": "america",
-  "nacionalidades": [],
-  "idiomas": [],
+  "region": "europa",
+  "nacionalidades": [
+   "bosque"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
   "etiquetas": [
-   "villano",
-   "criminal",
-   "comic"
+   "oso",
+   "miel",
+   "disney"
   ],
   "medios": [
-   "comic",
-   "pelicula"
+   "pelicula",
+   "television",
+   "videojuego"
   ],
   "poderes": false,
   "magia": false,
-  "universo": "dc",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Harley Quinn",
-  "alias": [
-   "harley"
-  ],
-  "descripcion": "Antigua psiquiatra convertida en antiheroína y personaje de DC Comics.",
-  "tipo": "ficticio",
-  "genero": "mujer",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "america",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "antiheroe",
-   "villano",
-   "comic"
-  ],
-  "medios": [
-   "comic",
-   "pelicula"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "dc",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Deadpool",
-  "alias": [
-   "pool"
-  ],
-  "descripcion": "Mercenario bocazas de Marvel conocido por romper la cuarta pared y regenerarse.",
-  "tipo": "ficticio",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "america",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "antiheroe",
-   "superheroe",
-   "regeneracion",
-   "comic"
-  ],
-  "medios": [
-   "comic",
-   "pelicula"
-  ],
-  "poderes": true,
-  "magia": false,
-  "universo": "marvel",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Wolverine",
-  "alias": [
-   "logan",
-   "lobezno"
-  ],
-  "descripcion": "Mutante de Marvel con garras retráctiles, sentidos agudos y curación acelerada.",
-  "tipo": "ficticio",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "america",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "superheroe",
-   "mutante",
-   "regeneracion",
-   "comic"
-  ],
-  "medios": [
-   "comic",
-   "pelicula"
-  ],
-  "poderes": true,
-  "magia": false,
-  "universo": "marvel",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Doctor Strange",
-  "alias": [
-   "doctor extrano",
-   "stephen strange"
-  ],
-  "descripcion": "Neurocirujano convertido en hechicero supremo del universo Marvel.",
-  "tipo": "ficticio",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "america",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "superheroe",
-   "mago",
-   "magia",
-   "comic"
-  ],
-  "medios": [
-   "comic",
-   "pelicula"
-  ],
-  "poderes": true,
-  "magia": true,
-  "universo": "marvel",
+  "universo": "bosque",
   "mascara": false,
   "capa": false
  },
  {
   "nombre": "Black Panther",
   "alias": [
-   "pantera negra",
-   "t'challa"
+   "black panther"
   ],
-  "descripcion": "T'Challa, rey y protector de Wakanda en el universo Marvel.",
+  "descripcion": "Rey y protector de Wakanda.",
   "tipo": "ficticio",
   "genero": "hombre",
   "vivo": true,
   "humano": true,
   "famoso": true,
   "region": "africa",
-  "nacionalidades": [],
-  "idiomas": [],
+  "nacionalidades": [
+   "wakandiano"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
   "etiquetas": [
    "superheroe",
-   "rey",
-   "comic"
+   "marvel",
+   "wakanda"
   ],
   "medios": [
    "comic",
-   "pelicula"
+   "pelicula",
+   "television"
   ],
   "poderes": true,
   "magia": false,
-  "universo": "marvel",
+  "universo": "wakandiano",
   "mascara": false,
   "capa": false
  },
  {
-  "nombre": "Loki",
+  "nombre": "Deadpool",
   "alias": [
-   "loki"
+   "deadpool"
   ],
-  "descripcion": "Dios nórdico de las travesuras y personaje astuto del universo Marvel.",
-  "tipo": "ficticio",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "europa",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "villano",
-   "magia",
-   "dios",
-   "comic"
-  ],
-  "medios": [
-   "comic",
-   "pelicula"
-  ],
-  "poderes": true,
-  "magia": true,
-  "universo": "marvel",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Thanos",
-  "alias": [
-   "thanos"
-  ],
-  "descripcion": "Titán supervillano de Marvel obsesionado con reunir las Gemas del Infinito.",
-  "tipo": "ficticio",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": true,
-  "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "villano",
-   "poderes",
-   "comic"
-  ],
-  "medios": [
-   "comic",
-   "pelicula"
-  ],
-  "poderes": true,
-  "magia": false,
-  "universo": "marvel",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "Groot",
-  "alias": [
-   "baby groot"
-  ],
-  "descripcion": "Ser arbóreo extraterrestre de Marvel que suele decir 'Yo soy Groot'.",
-  "tipo": "ficticio",
-  "genero": "hombre",
-  "vivo": true,
-  "humano": false,
-  "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
-  "etiquetas": [
-   "alienigena",
-   "heroe",
-   "guardianes"
-  ],
-  "medios": [
-   "comic",
-   "pelicula"
-  ],
-  "poderes": false,
-  "magia": false,
-  "universo": "marvel",
-  "mascara": false,
-  "capa": false
- },
- {
-  "nombre": "The Flash",
-  "alias": [
-   "flash",
-   "flechaverde"
-  ],
-  "descripcion": "Héroe de DC Comics con supervelocidad, conocido como el hombre más rápido del mundo.",
+  "descripcion": "Antihéroe de humor irreverente que suele romper la cuarta pared.",
   "tipo": "ficticio",
   "genero": "hombre",
   "vivo": true,
   "humano": true,
   "famoso": true,
   "region": "america",
-  "nacionalidades": [],
-  "idiomas": [],
+  "nacionalidades": [
+   "canadiense"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
   "etiquetas": [
    "superheroe",
-   "veloz",
-   "comic"
+   "marvel",
+   "humor"
   ],
   "medios": [
    "comic",
-   "serie"
+   "pelicula",
+   "television"
   ],
   "poderes": true,
   "magia": false,
-  "universo": "dc",
+  "universo": "canadiense",
   "mascara": false,
   "capa": false
  },
  {
-  "nombre": "Aquaman",
+  "nombre": "Ariel",
   "alias": [
-   "arthur curry"
+   "ariel"
   ],
-  "descripcion": "Héroe de DC Comics y rey de Atlantis, capaz de comunicarse con la vida marina.",
+  "descripcion": "Sirena de Disney que sueña con vivir en tierra firme.",
+  "tipo": "ficticio",
+  "genero": "mujer",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "oceania",
+  "nacionalidades": [
+   "atlantica"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "sirena",
+   "disney",
+   "mar"
+  ],
+  "medios": [
+   "comic",
+   "pelicula",
+   "television"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "atlantica",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Cenicienta",
+  "alias": [
+   "cenicienta"
+  ],
+  "descripcion": "Joven de cuento que asiste al baile con ayuda mágica.",
+  "tipo": "ficticio",
+  "genero": "mujer",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "europa",
+  "nacionalidades": [
+   "europea"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "disney",
+   "princesa",
+   "cuento"
+  ],
+  "medios": [
+   "comic",
+   "pelicula",
+   "television"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "europea",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Peter Pan",
+  "alias": [
+   "peter pan"
+  ],
+  "descripcion": "Niño que no quiere crecer y vive en Nunca Jamás.",
   "tipo": "ficticio",
   "genero": "hombre",
   "vivo": true,
   "humano": true,
   "famoso": true,
-  "region": "otro planeta",
-  "nacionalidades": [],
-  "idiomas": [],
+  "region": "europa",
+  "nacionalidades": [
+   "nuncajamas"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
   "etiquetas": [
-   "superheroe",
-   "rey",
-   "marino",
-   "comic"
+   "vuelo",
+   "aventura",
+   "cuento"
   ],
   "medios": [
    "comic",
-   "pelicula"
+   "pelicula",
+   "television"
   ],
   "poderes": true,
   "magia": false,
-  "universo": "dc",
+  "universo": "nuncajamas",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Asterix",
+  "alias": [
+   "asterix"
+  ],
+  "descripcion": "Pequeño guerrero galo que obtiene fuerza de una poción.",
+  "tipo": "ficticio",
+  "genero": "hombre",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "europa",
+  "nacionalidades": [
+   "galo"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "comic",
+   "galia",
+   "pocion"
+  ],
+  "medios": [
+   "comic",
+   "pelicula",
+   "television"
+  ],
+  "poderes": true,
+  "magia": false,
+  "universo": "galo",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Tintín",
+  "alias": [
+   "tintín"
+  ],
+  "descripcion": "Joven reportero protagonista de cómics de aventuras.",
+  "tipo": "ficticio",
+  "genero": "hombre",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "europa",
+  "nacionalidades": [
+   "belga"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "comic",
+   "periodista",
+   "aventura"
+  ],
+  "medios": [
+   "comic",
+   "pelicula",
+   "television"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "belga",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Mafalda",
+  "alias": [
+   "mafalda"
+  ],
+  "descripcion": "Niña argentina de historietas conocida por sus reflexiones.",
+  "tipo": "ficticio",
+  "genero": "mujer",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "america",
+  "nacionalidades": [
+   "argentina"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "comic",
+   "argentina",
+   "humor"
+  ],
+  "medios": [
+   "comic",
+   "pelicula",
+   "television"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "argentina",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Dora la Exploradora",
+  "alias": [
+   "dora la exploradora"
+  ],
+  "descripcion": "Niña exploradora de una serie infantil interactiva.",
+  "tipo": "ficticio",
+  "genero": "mujer",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "america",
+  "nacionalidades": [
+   "latinoamericana"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "animacion",
+   "aventura",
+   "mapa"
+  ],
+  "medios": [
+   "comic",
+   "pelicula",
+   "television"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "latinoamericana",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Gru",
+  "alias": [
+   "gru"
+  ],
+  "descripcion": "Exvillano protagonista de Mi villano favorito.",
+  "tipo": "ficticio",
+  "genero": "hombre",
+  "vivo": true,
+  "humano": true,
+  "famoso": true,
+  "region": "europa",
+  "nacionalidades": [
+   "desconocido"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "villano",
+   "minions",
+   "animacion"
+  ],
+  "medios": [
+   "comic",
+   "pelicula",
+   "television"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "desconocido",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Wall-E",
+  "alias": [
+   "wall-e"
+  ],
+  "descripcion": "Pequeño robot compactador de basura que explora el espacio.",
+  "tipo": "ficticio",
+  "genero": "otro",
+  "vivo": true,
+  "humano": false,
+  "famoso": true,
+  "region": "america",
+  "nacionalidades": [
+   "tierra"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "robot",
+   "pixar",
+   "espacio"
+  ],
+  "medios": [
+   "comic",
+   "pelicula",
+   "television"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "tierra",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Goku",
+  "alias": [
+   "goku"
+  ],
+  "descripcion": "Guerrero de Dragon Ball que protege la Tierra.",
+  "tipo": "ficticio",
+  "genero": "otro",
+  "vivo": true,
+  "humano": false,
+  "famoso": true,
+  "region": "asia",
+  "nacionalidades": [
+   "ficcion"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "anime",
+   "artes_marciales",
+   "energia"
+  ],
+  "medios": [
+   "television",
+   "pelicula"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "ficcion",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Naruto Uzumaki",
+  "alias": [
+   "naruto uzumaki"
+  ],
+  "descripcion": "Ninja que sueña con convertirse en Hokage.",
+  "tipo": "ficticio",
+  "genero": "otro",
+  "vivo": true,
+  "humano": false,
+  "famoso": true,
+  "region": "asia",
+  "nacionalidades": [
+   "ficcion"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "anime",
+   "ninja",
+   "aldea"
+  ],
+  "medios": [
+   "television",
+   "pelicula"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "ficcion",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Totoro",
+  "alias": [
+   "totoro"
+  ],
+  "descripcion": "Criatura del bosque de Mi vecino Totoro.",
+  "tipo": "ficticio",
+  "genero": "otro",
+  "vivo": true,
+  "humano": false,
+  "famoso": true,
+  "region": "asia",
+  "nacionalidades": [
+   "ficcion"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "animacion",
+   "espiritu",
+   "ghibli"
+  ],
+  "medios": [
+   "television",
+   "pelicula"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "ficcion",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Popeye",
+  "alias": [
+   "popeye"
+  ],
+  "descripcion": "Marinero de dibujos animados que obtiene fuerza con espinacas.",
+  "tipo": "ficticio",
+  "genero": "otro",
+  "vivo": true,
+  "humano": false,
+  "famoso": true,
+  "region": "asia",
+  "nacionalidades": [
+   "ficcion"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "marinero",
+   "espinaca",
+   "comic"
+  ],
+  "medios": [
+   "television",
+   "pelicula"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "ficcion",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Garfield",
+  "alias": [
+   "garfield"
+  ],
+  "descripcion": "Gato naranja perezoso al que le encanta la lasaña.",
+  "tipo": "ficticio",
+  "genero": "otro",
+  "vivo": true,
+  "humano": false,
+  "famoso": true,
+  "region": "asia",
+  "nacionalidades": [
+   "ficcion"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "gato",
+   "comic",
+   "lasaña"
+  ],
+  "medios": [
+   "television",
+   "pelicula"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "ficcion",
+  "mascara": false,
+  "capa": false
+ },
+ {
+  "nombre": "Scooby-Doo",
+  "alias": [
+   "scooby-doo"
+  ],
+  "descripcion": "Perro que resuelve misterios junto a sus amigos.",
+  "tipo": "ficticio",
+  "genero": "otro",
+  "vivo": true,
+  "humano": false,
+  "famoso": true,
+  "region": "asia",
+  "nacionalidades": [
+   "ficcion"
+  ],
+  "idiomas": [
+   "espanol"
+  ],
+  "etiquetas": [
+   "perro",
+   "misterio",
+   "animacion"
+  ],
+  "medios": [
+   "television",
+   "pelicula"
+  ],
+  "poderes": false,
+  "magia": false,
+  "universo": "ficcion",
   "mascara": false,
   "capa": false
  }
 ];
-if (typeof module !== "undefined" && module.exports) { module.exports = PERSONAJES; }
