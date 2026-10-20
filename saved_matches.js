@@ -25,8 +25,19 @@ function collect(){
    if(!online||!inProgress)continue;
    const snap=m.meta?.onlineSession||(session&&(!session.matchId||session.matchId===m.id)?session:null);
    const id='history-'+String(m.id);
-   const existing=rows.find(x=>x.id===id);
-   const item={id,matchId:String(m.id),mode:'ONLINE',status:'in_progress',savedAt:Date.parse(m.startedAt)||Date.now(),startedAt:Date.parse(m.startedAt)||Date.now(),historyOnly:!snap,snapshot:snap||{historyId:m.id,startedAt:Date.parse(m.startedAt)||Date.now(),myRole:''}};
+   // Las versiones anteriores guardaban el registro de mensajes pero no el estado de sesión.
+   // Reconstruimos una copia local utilizable como recuperación offline a partir de ese registro.
+   let rebuilt=null;
+   if(!snap && Array.isArray(m.events) && m.events.length){
+    const brainEvents=m.events.some(ev=>/^(CEREBRO|Juan)$/i.test(String(ev.speaker||'')));
+    const role=brainEvents?'brain':'guess';
+    const transcript=m.events.map(ev=>({text:String(ev.text||''),kind:/^(CEREBRO)$/i.test(String(ev.speaker||''))?'mind':/^(JUGADOR|Juan|Milton)$/i.test(String(ev.speaker||''))?'player':'system'})).slice(-500);
+    const questions=m.events.filter(ev=>/pregunta:/i.test(String(ev.text||''))).length;
+    const answers=m.events.filter(ev=>/^(CEREBRO|Juan)$/i.test(String(ev.speaker||'')) && !/Partida iniciada|Personaje elegido/i.test(String(ev.text||''))).length;
+    rebuilt={version:1,host:true,roomId:'history-recovery-'+String(m.id),localPeerId:'',remotePlayerPeerId:'',myRole:role,theirRole:role==='brain'?'guess':'brain',secret:role==='brain'?'Robin Hood':'',startedAt:Date.parse(m.startedAt)||Date.now(),questionCount:questions,answerCount:answers,guessesLeft:2,pendingQuestion:'',waitingForAnswer:false,waitingForGuess:false,pendingOnlineGuess:'',lastQuestion:'',lastAnswer:'',transcript,savedAt:Date.now(),inGame:true,reconstructedFromHistory:true,historyId:m.id};
+   }
+   const effective=snap||rebuilt;
+   const item={id,matchId:String(m.id),mode:'ONLINE',status:'in_progress',savedAt:Date.parse(m.startedAt)||Date.now(),startedAt:Date.parse(m.startedAt)||Date.now(),historyOnly:!effective,reconstructed:!snap&&!!rebuilt,snapshot:effective||{historyId:m.id,startedAt:Date.parse(m.startedAt)||Date.now(),myRole:''}};
    const at=rows.findIndex(x=>x.id===id);if(at>=0)rows[at]=item;else rows.push(item);
   }
  }catch{}
@@ -36,7 +47,7 @@ function collect(){
 }
 function label(item){const d=new Date(Number(item.startedAt)||Number(item.savedAt)||Date.now()).toLocaleString();const s=item.snapshot||{};const role=s.myRole==='brain'?'EL CEREBRO':s.myRole==='guess'?'DESCUBRIDOR':'ROL SIN DEFINIR';return `${d} · ${role}`}
 function render(){const list=$('savedMatchesList');if(!list)return;list.textContent='';const rows=collect();if(!rows.length){const empty=document.createElement('div');empty.className='saved-library-empty';empty.textContent='No hay partidas online en curso en el historial ni sesiones guardadas en este dispositivo.';list.append(empty);return;}
- rows.forEach(item=>{const card=document.createElement('article');card.className='saved-match-card';const info=document.createElement('div');info.className='saved-match-info';const title=document.createElement('strong');title.textContent=item.mode+' · EN CURSO';const sub=document.createElement('span');sub.textContent=label(item);const details=document.createElement('small');details.textContent=item.historyOnly?'Figura en el historial, pero no tiene una copia completa para reconstruir tu lado en este dispositivo.':`${Number(item.snapshot.questionCount)||0} preguntas · ${Number(item.snapshot.answerCount)||0} respuestas · ${Array.isArray(item.snapshot.transcript)?item.snapshot.transcript.length:0} mensajes guardados`;info.append(title,sub,details);const actions=document.createElement('div');actions.className='saved-match-actions';const restore=document.createElement('button');restore.type='button';restore.className='btn btn-green';restore.textContent=item.historyOnly?'BUSCAR COPIA LOCAL':'RECUPERAR MI LADO';restore.addEventListener('click',()=>{ $('savedMatchesModal')?.classList.add('hidden');window.dispatchEvent(new CustomEvent('mind:restore-history-online',{detail:{snapshot:item.snapshot,matchId:item.matchId||item.id}}));});actions.append(restore);card.append(info,actions);list.append(card);});
+ rows.forEach(item=>{const card=document.createElement('article');card.className='saved-match-card';const info=document.createElement('div');info.className='saved-match-info';const title=document.createElement('strong');title.textContent=item.mode+' · EN CURSO';const sub=document.createElement('span');sub.textContent=label(item);const details=document.createElement('small');details.textContent=item.historyOnly?'El historial no tiene datos suficientes para reconstruir esta partida.':item.reconstructed?'Reconstruida desde el historial: permite revisar la conversación sin conexión. La reconexión depende de que el otro jugador conserve su sesión.':`${Number(item.snapshot.questionCount)||0} preguntas · ${Number(item.snapshot.answerCount)||0} respuestas · ${Array.isArray(item.snapshot.transcript)?item.snapshot.transcript.length:0} mensajes guardados`;info.append(title,sub,details);const actions=document.createElement('div');actions.className='saved-match-actions';const restore=document.createElement('button');restore.type='button';restore.className='btn btn-green';restore.textContent=item.historyOnly?'BUSCAR COPIA LOCAL':item.reconstructed?'RECUPERAR DESDE HISTORIAL':'RECUPERAR MI LADO';restore.addEventListener('click',()=>{ $('savedMatchesModal')?.classList.add('hidden');window.dispatchEvent(new CustomEvent('mind:restore-history-online',{detail:{snapshot:item.snapshot,matchId:item.matchId||item.id}}));});actions.append(restore);card.append(info,actions);list.append(card);});
 }
 function open(){render();$('savedMatchesModal')?.classList.remove('hidden')}
 document.addEventListener('click',e=>{if(e.target.closest('#restoreSavedDuelBtn')||e.target.closest('#openSavedMatchesBtn')){e.preventDefault();e.stopPropagation();open()}if(e.target.closest('#closeSavedMatchesBtn'))$('savedMatchesModal')?.classList.add('hidden')});
