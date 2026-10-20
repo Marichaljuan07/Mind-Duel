@@ -39,6 +39,13 @@ function finish(result='Finalizada',meta={}){
   const done=current;latestMatch=done;current=null;return done;
 }
 function getCurrent(){return current;}
+function setOnlineSession(snapshot){
+  if(!snapshot||typeof snapshot!=='object')return;
+  if(current&&String(current.mode||'').toLowerCase()==='online'&&current.status==='in_progress'){
+    current.meta={...(current.meta||{}),onlineSession:snapshot};
+    upsert(current);
+  }
+}
 function render(container,match){
   if(!container)return;
   container.textContent='';
@@ -66,7 +73,17 @@ function show(match){
   const selected=match||(current&&rows.find(m=>m.id===current.id))||rows[0]||null;
   render(body,selected);
   if(select&&selected)select.value=selected.id;
+  updateRestoreButton(selected);
   modal.classList.remove('hidden');
+}
+function updateRestoreButton(match){
+  const button=document.getElementById('restoreOnlineHistoryBtn');
+  if(!button)return;
+  const local=(()=>{try{return JSON.parse(localStorage.getItem('mindduel_online_session_v1')||'null')}catch{return null}})();
+  const online=String(match?.mode||'').toLowerCase()==='online';
+  const inProgress=match?.status==='in_progress'||String(match?.result||'').toLowerCase()==='en curso';
+  button.dataset.matchId=match?.id||'';
+  button.classList.toggle('hidden',!(online&&inProgress));
 }
 function list(){return read();}
 function clear(){
@@ -75,16 +92,24 @@ function clear(){
   try { if(keep) write([keep]); else localStorage.removeItem(KEY); } catch {}
   show(keep||null);
 }
-window.MatchHistory={begin,record,finish,getCurrent,show,list,clear};
+window.MatchHistory={begin,record,finish,getCurrent,setOnlineSession,show,list,clear};
 document.addEventListener('click',e=>{
   if(e.target.closest('#viewMatchHistoryBtn')||e.target.closest('#viewClassicHistoryBtn')){e.preventDefault();show();}
   if(e.target.closest('#closeMatchHistoryBtn'))document.getElementById('matchHistoryModal')?.classList.add('hidden');
+  if(e.target.closest('#restoreOnlineHistoryBtn')){
+    const select=document.getElementById('historyMatchSelect');
+    const match=read().find(m=>m.id===(select?.value||''));
+    const snapshot=match?.meta?.onlineSession||null;
+    document.getElementById('matchHistoryModal')?.classList.add('hidden');
+    window.dispatchEvent(new CustomEvent('mind:restore-history-online',{detail:{snapshot,matchId:match?.id||''}}));
+  }
   if(e.target.closest('#clearMatchHistoryBtn')){if(window.confirm('¿Borrar todo el historial guardado? Esta acción no se puede deshacer.'))clear();}
 });
 document.addEventListener('change',e=>{
   if(e.target?.id==='historyMatchSelect'){
     const match=read().find(m=>m.id===e.target.value)||(current&&current.id===e.target.value?current:null);
     render(document.getElementById('matchHistoryBody'),match||null);
+    updateRestoreButton(match||null);
   }
 });
 })();
