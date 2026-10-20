@@ -1,0 +1,2 @@
+Mind Duel Fusion 3.13.5
+Recuperación local de partidas online en curso y reapertura de sala con código de recuperación.

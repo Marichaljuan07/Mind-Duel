@@ -85,6 +85,7 @@ function updateRestoreButton(match){
   button.dataset.matchId=match?.id||'';
   button.classList.toggle('hidden',!(online&&inProgress));
 }
+function attachSnapshot(matchId,snapshot){if(!matchId||!snapshot)return;const rows=read();const match=rows.find(m=>m.id===matchId);if(!match)return;match.meta={...(match.meta||{}),onlineSession:snapshot};upsert(match);}
 function list(){return read();}
 function clear(){
   // Borrar partidas anteriores, pero conservar la partida actual o la que acaba de terminar.
@@ -92,7 +93,7 @@ function clear(){
   try { if(keep) write([keep]); else localStorage.removeItem(KEY); } catch {}
   show(keep||null);
 }
-window.MatchHistory={begin,record,finish,getCurrent,setOnlineSession,show,list,clear};
+window.MatchHistory={begin,record,finish,getCurrent,setOnlineSession,attachSnapshot,show,list,clear};
 document.addEventListener('click',e=>{
   if(e.target.closest('#viewMatchHistoryBtn')||e.target.closest('#viewClassicHistoryBtn')){e.preventDefault();show();}
   if(e.target.closest('#closeMatchHistoryBtn'))document.getElementById('matchHistoryModal')?.classList.add('hidden');
