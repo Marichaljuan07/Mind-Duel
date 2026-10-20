@@ -313,3 +313,18 @@ body.duel-online #classicPanel [data-ans]{grid-row:auto;}
 @media(prefers-reduced-motion:reduce){.title-layout>.neon-brain{animation:none!important}.sun-title{animation:none!important}}
 
 .classic-result-status{margin:0 0 8px;color:var(--cy);font:8px/1.7 'Press Start 2P',monospace}
+
+/* v3.12.12 — panel de sugerencias del Cerebro */
+.suggestion-card{width:min(94vw,560px);max-height:min(86dvh,780px);overflow:auto}
+.suggestion-title-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
+.suggestion-title-row .brain-sm{flex:0 0 auto}
+.suggestion-title-row h2{margin:0;font-size:clamp(10px,2.5vw,14px);line-height:1.7}
+.suggestion-intro{font-family:VT323,monospace;font-size:20px;text-align:center;color:#b7caff;margin:8px 0 16px}
+.suggestions{display:grid;grid-template-columns:1fr;gap:9px}
+.suggestions .suggestion{font-family:VT323,monospace;font-size:21px;line-height:1.25;letter-spacing:0;text-align:left;padding:12px 14px;min-height:48px}
+.suggestion-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 10px;flex-wrap:wrap}
+.reroll-status{font:7px/1.6 'Press Start 2P',monospace;color:var(--cy)}
+.suggestion-footer .btn{font-size:8px;padding:10px;line-height:1.5}
+.suggestion-footer .btn:disabled{opacity:.45;filter:grayscale(1);cursor:not-allowed}
+.suggestion-close{width:100%;font-size:9px;padding:12px}
+@media(min-width:600px){.suggestions{grid-template-columns:1fr 1fr}.suggestion-footer{margin-top:18px}}

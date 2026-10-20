@@ -53,6 +53,8 @@ const state = {
   questionCount: 0,
   guessesLeft: MAX_GUESSES,
   suggestionUses: SUGGESTION_LIMIT,
+  suggestionSession: { options: [], rerolls: 0, initialized: false },
+  consecutiveNo: 0,
   asked: new Set(),
   facts: [],
   timerId: null,
@@ -239,9 +241,8 @@ async function startClassic() {
   classicBusy = true;
   state.guessesLeft = 3; updateHud();
   show(ui.game);
-  await addMessage('Piensa en un personaje, real o ficticio. Responde con los botones y yo lo adivinaré.', 'system');
+  await addMessage('Piensa en un personaje, real o ficticio. Yo intentaré descubrirlo. Respondé cada pregunta con los botones.', 'mind');
   startTimer();
-  await sleep(350);
   await nextClassic();
 }
 
@@ -355,6 +356,8 @@ function resetGame() {
   state.questionCount = 0;
   state.guessesLeft = MAX_GUESSES;
   state.suggestionUses = SUGGESTION_LIMIT;
+  state.suggestionSession = { options: [], rerolls: 0, initialized: false };
+  state.consecutiveNo = 0;
   state.asked.clear();
   state.facts = [];
   state.patience = 0;
@@ -370,9 +373,9 @@ function resetGame() {
 function updateHud() {
   ui.questions.textContent = `${state.questionCount}/${MAX_QUESTIONS}`;
   ui.guesses.textContent = String(state.guessesLeft);
-  const bloqueada = !!window.Sugeridor && !Sugeridor.desbloqueada(MindLogic, PERSONAJES, state.facts);
-  ui.suggest.textContent = bloqueada ? 'SUGERENCIA · BLOQUEADA' : `SUGERENCIA (${state.suggestionUses})`;
-  ui.suggest.classList.toggle('locked', bloqueada);
+  ui.suggest.textContent = `SUGERENCIAS (${state.suggestionUses})`;
+  ui.suggest.classList.remove('locked');
+  ui.suggest.disabled = state.suggestionUses <= 0;
 }
 
 function startTimer() {
@@ -487,8 +490,15 @@ async function askQuestion(text) {
 
   state.facts.push({ texto: clean, concepto: conceptoUsado, answer: !!answer });
   state.questionCount++;
+  if (answer) state.consecutiveNo = 0;
+  else state.consecutiveNo++;
   updateHud();
   await addMessage(answer ? 'SÍ.' : 'NO.', 'mind');
+  // En el modo normal, cinco respuestas negativas seguidas activan una pista sin revelar el personaje.
+  if (state.mode !== 'classic' && state.consecutiveNo >= 5) {
+    state.consecutiveNo = 0;
+    await addMessage(buildBrainHint(state.secret), 'mind');
+  }
 
   if (state.questionCount >= MAX_QUESTIONS) {
     finish(false, 'Has agotado tus veinte preguntas.');
@@ -581,29 +591,84 @@ function confirmGuess() {
   addMessage('Te queda un último intento.', 'mind');
 }
 
-function openSuggestions() {
-  if (!state.active || state.busy || state.suggestionUses <= 0) return;
-  if (window.Sugeridor && !Sugeridor.desbloqueada(MindLogic, PERSONAJES, state.facts)) { addMessage(ORACULO.bloqueada, 'mind'); return; }
-  state.suggestionUses--;
-  updateHud();
-  if (state.suggestionUses <= 0) ui.suggest.disabled = true;
+function buildSuggestionPool(excluded = []) {
+  let pool = window.Sugeridor ? Sugeridor.sugerir(MindLogic, PERSONAJES, state.facts, state.asked, 12) : [];
+  if (!pool.length) pool = suggestionPool.filter(q => !state.asked.has(MindLogic.normalizar(q)));
+  const blocked = new Set([...excluded, ...state.asked].map(x => typeof x === 'string' ? MindLogic.normalizar(x) : x));
+  pool = pool.filter(q => !blocked.has(MindLogic.normalizar(q)));
+  // Evitar que el banco pequeño deje el panel vacío; nunca repetir lo ya preguntado ni las opciones visibles.
+  if (pool.length < 5) {
+    const extras = suggestionPool.filter(q => !blocked.has(MindLogic.normalizar(q)) && !pool.some(p => MindLogic.normalizar(p) === MindLogic.normalizar(q)));
+    pool = pool.concat(extras.sort(() => Math.random() - .5));
+  }
+  return pool.sort(() => Math.random() - .5).slice(0, 5);
+}
 
-  let pool = window.Sugeridor ? Sugeridor.sugerir(MindLogic, PERSONAJES, state.facts, state.asked, 5) : [];
-  if (!pool.length) pool = suggestionPool.filter(q => !state.asked.has(MindLogic.normalizar(q))).sort(() => Math.random() - .5).slice(0, 5);
-
+function renderSuggestions() {
+  const session = state.suggestionSession;
   ui.suggestions.textContent = '';
-  (pool.length ? pool : suggestionPool.slice(0, 5)).forEach(q => {
+  session.options.forEach(q => {
     const b = document.createElement('button');
     b.className = 'btn btn-green suggestion';
     b.textContent = q;
     b.onclick = () => {
+      if (!state.active || state.busy || state.suggestionUses <= 0) return;
+      // El uso se descuenta solo al elegir una pregunta, no al abrir/cerrar ni al renovar.
+      state.suggestionUses--;
+      updateHud();
       ui.input.value = q;
       ui.suggestModal.classList.add('hidden');
+      state.suggestionSession = { options: [], rerolls: 0, initialized: false };
       ui.input.focus();
     };
     ui.suggestions.append(b);
   });
+  const remaining = Math.max(0, 2 - session.rerolls);
+  const status = el('rerollStatus');
+  const reroll = el('rerollSuggestionsBtn');
+  if (status) status.textContent = remaining ? `CAMBIOS: ${remaining} DISPONIBLE${remaining === 1 ? '' : 'S'}` : 'PREGUNTAS DEFINITIVAS';
+  if (reroll) {
+    reroll.disabled = remaining === 0;
+    reroll.textContent = remaining ? `↻ OTRAS PREGUNTAS (${remaining})` : 'SIN CAMBIOS';
+  }
+}
+
+function rerollSuggestions() {
+  const session = state.suggestionSession;
+  if (!state.active || state.busy || !session.initialized || session.rerolls >= 2) return;
+  const next = buildSuggestionPool(session.options);
+  if (!next.length) return;
+  session.options = next;
+  session.rerolls++;
+  renderSuggestions();
+}
+
+function openSuggestions() {
+  if (!state.active || state.busy || state.suggestionUses <= 0) return;
+  const session = state.suggestionSession;
+  // Cerrar y reabrir conserva exactamente las preguntas y los cambios restantes.
+  if (!session.initialized) {
+    session.options = buildSuggestionPool();
+    session.rerolls = 0;
+    session.initialized = true;
+  }
+  renderSuggestions();
   ui.suggestModal.classList.remove('hidden');
+}
+
+function buildBrainHint(character) {
+  const real = character?.tipo === 'real' || character?.universo === 'real';
+  const tags = Array.isArray(character?.etiquetas) ? character.etiquetas : [];
+  const media = Array.isArray(character?.medios) ? character.medios : [];
+  const useful = tags.find(t => /cient|artist|escritor|deport|pol[ií]tic|m[uú]sic|h[eé]roe|villano|detective|magia|superh[eé]roe|f[ií]sico|actor/i.test(t));
+  if (real) {
+    if (useful) return `PISTA DEL CEREBRO: mi personaje pertenece al mundo real y se lo relaciona con ${useful.replace(/_/g, ' ')}. No te confíes; todavía quedan detalles por descubrir.`;
+    if (character?.region) return `PISTA DEL CEREBRO: mi personaje pertenece al mundo real y tiene una conexión con ${String(character.region).replace(/_/g, ' ')}. Usá esa información con cuidado.`;
+    return 'PISTA DEL CEREBRO: estoy pensando en alguien que existió en el mundo real. Afiná tus preguntas.';
+  }
+  if (useful) return `PISTA DEL CEREBRO: mi personaje es ficticio y está relacionado con ${useful.replace(/_/g, ' ')}. Todavía no voy a revelar más.`;
+  if (media.length) return `PISTA DEL CEREBRO: mi personaje es ficticio y aparece en un universo de ${String(media[0]).replace(/_/g, ' ')}. Seguimos.`;
+  return 'PISTA DEL CEREBRO: mi personaje pertenece a la ficción. Pensá en sus habilidades y en el mundo del que viene.';
 }
 
 function finish(win, reason) {
@@ -661,6 +726,7 @@ ui.guessInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') confirmGuess();
 });
 ui.suggest.onclick = openSuggestions;
+el('rerollSuggestionsBtn').onclick = rerollSuggestions;
 el('playAgainBtn').onclick = startGame;
 el('resultMenuBtn').onclick = openStage;
 el('resultExitBtn').onclick = shutdown;
