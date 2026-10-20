@@ -1,0 +1,3 @@
+Mind Duel Fusion 3.12.26
+
+Frases de adivinanza según el rol, con variantes aleatorias. En Online, el anuncio de adivinanza pertenece al Descubridor y se presenta como mensaje del jugador; en Clásico, el Cerebro conserva su propia voz con frases dinámicas.

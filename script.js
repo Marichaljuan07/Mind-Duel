@@ -274,7 +274,16 @@ async function classicGuess(announce = false) {
   const m = Clasico.mejor(classic.s);
   if (!m) return classicName();
   classic.cur = { tipo: 'g', i: m.i, p: m.p };
-  if (announce) await addMessage('He analizado tus respuestas. Ha llegado el momento de arriesgarme… voy a adivinar.', 'mind');
+  if (announce) {
+    const lines = [
+      'He revisado tus respuestas y voy a arriesgarme con un nombre.',
+      'Creo que ya tengo una buena pista… voy a adivinar.',
+      'Es momento de poner a prueba mi deducción: voy a adivinar.',
+      'Con lo que me contaste, tengo una sospecha. Voy a probar.',
+      'Voy a jugármela: creo que sé qué personaje elegiste.'
+    ];
+    await addMessage(lines[Math.floor(Math.random() * lines.length)], 'mind');
+  }
   el('classicGuessCharacter').textContent = m.p.nombre;
   el('classicGuessModal').classList.remove('hidden');
   classicBusy = false;
