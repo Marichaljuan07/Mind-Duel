@@ -141,11 +141,24 @@ async function say(html, ms = 24) {
   return my === sayToken;
 }
 
+async function closeStageCurtain(wait = 1200) {
+  ui.stage.classList.remove('stage-ready');
+  ui.curtainLeft.classList.remove('open');
+  ui.curtainRight.classList.remove('open');
+  await sleep(wait);
+}
+async function openStageCurtain(wait = 1200) {
+  ui.curtainLeft.classList.add('open');
+  ui.curtainRight.classList.add('open');
+  await sleep(wait);
+}
+
 async function openStage() {
   classicSetMode(false);
   clearInterval(state.timerId);
   state.active = false;
   show(ui.stage);
+  ui.stage.classList.remove('stage-ready');
   ui.curtainLeft.classList.remove('open');
   ui.curtainRight.classList.remove('open');
   ui.stageDialog.innerHTML = '';
@@ -153,28 +166,29 @@ async function openStage() {
   ui.stageActions.classList.add('hidden');
 
   await sleep(900);
-  ui.curtainLeft.classList.add('open');
-  ui.curtainRight.classList.add('open');
-  await sleep(2400);
+  await openStageCurtain(1700);
   if (await say(`<strong>CEREBRO:</strong> ${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`)) {
     ui.stageMenu.classList.remove('hidden');
+    ui.stage.classList.add('stage-ready');
   }
 }
 
 async function chooseSolo() {
   state.pendingMode = 'solo';
   ui.stageMenu.classList.add('hidden');
+  await closeStageCurtain(1100);
+  await openStageCurtain(900);
   const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.solo}<br><br>He elegido a una entidad secreta.<br><span style="color:#00ff67">Tienes 20 preguntas y 2 intentos para adivinar.</span><br>Respuestas estrictas de SÍ o NO.<br><br>¿Aceptas el duelo?`);
-  if (ok) ui.stageActions.classList.remove('hidden');
+  if (ok) { ui.stageActions.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); }
 }
 
 async function cancelStageAndReturn() {
   ui.stageMenu.classList.add('hidden');
   ui.stageActions.classList.add('hidden');
-  ui.curtainLeft.classList.remove('open');
-  ui.curtainRight.classList.remove('open');
+  await closeStageCurtain(900);
   ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${ORACULO.huir}`;
-  await sleep(2400);
+  ui.stage.classList.add('stage-ready');
+  await sleep(1500);
   titleSequence();
 }
 
@@ -198,8 +212,10 @@ function classicSetMode(on) {
 async function chooseClassic() {
   state.pendingMode = 'classic';
   ui.stageMenu.classList.add('hidden');
+  await closeStageCurtain(1100);
+  await openStageCurtain(900);
   const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.clasico}<br><br>Responderás con los botones: SÍ, NO, NO LO SÉ, PROBABLEMENTE SÍ o PROBABLEMENTE NO.<br><br>¿Aceptas el duelo?`);
-  if (ok) ui.stageActions.classList.remove('hidden');
+  if (ok) { ui.stageActions.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); }
 }
 
 async function startClassic() {
@@ -340,6 +356,9 @@ function addMessage(text, kind = 'system') {
 }
 
 async function startGame() {
+  ui.stage.classList.remove('stage-ready');
+  ui.curtainLeft.classList.add('open'); ui.curtainRight.classList.add('open');
+  await sleep(500);
   if (state.pendingMode === 'classic') { state.pendingMode = null; return startClassic(); }
   classicSetMode(false);
   resetGame();
@@ -552,7 +571,7 @@ $cl('classicPanel').addEventListener('click', e => { const b = e.target.closest(
 $cl('clAgainBtn').onclick = startClassic;
 $cl('clMenuBtn').onclick = openStage;
 ui.soloBtn.onclick = chooseSolo;
-ui.espejoBtn.onclick = () => say(`<strong>CEREBRO:</strong> ${ORACULO.espejo}`);
+ui.espejoBtn.onclick = async () => { ui.stageMenu.classList.add('hidden'); await closeStageCurtain(900); await openStageCurtain(900); const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.espejo}`); if (ok) { await sleep(700); ui.stageMenu.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); } };
 ui.dueloBtn.onclick = () => {};
 
 el('menuBtn').onclick = openStage;
