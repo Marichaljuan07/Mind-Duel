@@ -272,3 +272,27 @@ body.duel-online #classicPanel [data-ans]{grid-row:auto;}
  .theatre-audience{height:55px}
 }
 @media(prefers-reduced-motion:reduce){.oracle-card.typing::after{animation:none!important}}
+
+/* 3.12.10 — escena centrada: oscuridad, foco, Cerebro, bocadillo y controles */
+.stage-screen .spotlights{opacity:0;transition:opacity 1.1s ease}
+.stage-screen.spotlight-on .spotlights{opacity:1}
+.stage-screen .stage-pedestal{top:clamp(24vh,29vh,34vh)!important;height:clamp(74px,12vh,100px)!important}
+.stage-screen .stage-pedestal .neon-brain{font-size:clamp(66px,10vh,88px)!important}
+.stage-screen .stage-pedestal::before{width:270px!important;height:230px!important;margin:-115px 0 0 -135px!important;background:radial-gradient(ellipse,rgba(255,240,200,.42),rgba(255,47,214,.18) 42%,transparent 72%)!important}
+.stage-screen .oracle-card:empty{display:none!important}
+.stage-screen .oracle-card{top:clamp(40vh,43vh,47vh)!important;height:clamp(100px,17vh,145px)!important;max-height:clamp(100px,17vh,145px)!important;width:min(86vw,540px)!important;z-index:5;font-size:clamp(8px,1.25vh,10px)!important;line-height:1.8!important}
+.stage-screen .stage-actions{top:calc(clamp(40vh,43vh,47vh) + clamp(100px,17vh,145px) + 12px)!important;max-height:calc(100% - 55vh - 95px)!important;z-index:20}
+.stage-screen .stage-actions.hidden{display:none!important}
+.stage-screen .theatre-audience{z-index:30;height:clamp(58px,10vh,92px)!important}
+.stage-screen .spotlights::before,.stage-screen .spotlights::after{background:linear-gradient(180deg,rgba(255,244,214,.48),rgba(255,244,214,.12) 48%,transparent 70%)!important}
+/* El texto aparece solo, sin indicador ni etiqueta de escritura. */
+.oracle-card.typing::after{content:none!important;display:none!important}
+@media(max-height:700px){
+ .stage-screen .stage-pedestal{top:22vh!important;height:66px!important}
+ .stage-screen .stage-pedestal .neon-brain{font-size:58px!important}
+ .stage-screen .oracle-card{top:37vh!important;height:100px!important;max-height:100px!important;font-size:8px!important}
+ .stage-screen .stage-actions{top:calc(37vh + 112px)!important;max-height:calc(100% - 48vh - 80px)!important}
+}
+
+/* 3.12.11: diálogo progresivo sin indicador de escritura. */
+.oracle-card.typing::after{content:none!important;display:none!important}

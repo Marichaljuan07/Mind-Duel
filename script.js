@@ -131,11 +131,9 @@ const ORACULO = {
 async function say(html, ms = 42) {
   const my = ++sayToken;
   let out = '', i = 0;
-  ui.stageDialog.classList.add('typing');
-  ui.stageDialog.setAttribute('aria-label', 'El Cerebro está escribiendo');
   ui.stageDialog.innerHTML = '';
   while (i < html.length) {
-    if (my !== sayToken) { ui.stageDialog.classList.remove('typing'); return false; }
+    if (my !== sayToken) return false;
     if (html[i] === '<') { const j = html.indexOf('>', i); out += html.slice(i, j + 1); i = j + 1; }
     else {
       const ch = html[i++]; out += ch;
@@ -143,13 +141,11 @@ async function say(html, ms = 42) {
     }
     ui.stageDialog.innerHTML = out;
   }
-  ui.stageDialog.classList.remove('typing');
-  ui.stageDialog.removeAttribute('aria-label');
   return my === sayToken;
 }
 
 async function closeStageCurtain(wait = 2600) {
-  ui.stage.classList.remove('stage-ready');
+  ui.stage.classList.remove('stage-ready', 'spotlight-on');
   ui.curtainLeft.classList.remove('open');
   ui.curtainRight.classList.remove('open');
   await sleep(wait);
@@ -172,8 +168,11 @@ async function openStage() {
   ui.stageMenu.classList.add('hidden');
   ui.stageActions.classList.add('hidden');
 
+  ui.stage.classList.remove('spotlight-on');
   await sleep(900);
   await openStageCurtain(2800);
+  ui.stage.classList.add('spotlight-on');
+  await sleep(1500);
   if (await say(`<strong>CEREBRO:</strong> ${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`)) {
     ui.stageMenu.classList.remove('hidden');
     ui.stage.classList.add('stage-ready');
@@ -345,7 +344,7 @@ function avatarFor(kind) {
   return { txt: '', cls: 'avatar-system' };
 }
 
-function addMessage(text, kind = 'system') {
+async function addMessage(text, kind = 'system') {
   window.MatchHistory?.record(kind === 'player' ? 'TÚ' : kind === 'mind' ? 'CEREBRO' : 'SISTEMA', text, kind);
   const row = document.createElement('div');
   row.className = `message message-${kind}`;
@@ -356,9 +355,15 @@ function addMessage(text, kind = 'system') {
   avatar.classList.add(a.cls);
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
-  bubble.textContent = (kind === 'player' ? 'TÚ: ' : kind === 'mind' ? 'CEREBRO: ' : '') + text;
   row.append(avatar, bubble);
   ui.chat.append(row);
+  const prefix = kind === 'player' ? 'TÚ: ' : kind === 'mind' ? 'CEREBRO: ' : '';
+  const fullText = prefix + text;
+  for (let i = 1; i <= fullText.length; i++) {
+    bubble.textContent = fullText.slice(0, i);
+    ui.chat.scrollTop = ui.chat.scrollHeight;
+    await sleep(/[.!?…]/.test(fullText[i - 1]) ? 110 : /[,;:]/.test(fullText[i - 1]) ? 48 : 22);
+  }
   ui.chat.scrollTop = ui.chat.scrollHeight;
 }
 
@@ -371,7 +376,7 @@ async function startGame() {
   resetGame();
   window.MatchHistory?.begin('solo', {personaje: state.secret?.nombre || ''});
   show(ui.game);
-  addMessage('He elegido a alguien. Tienes veinte preguntas. Empieza.', 'mind');
+  await addMessage('He elegido a alguien. Tienes veinte preguntas. Empieza.', 'mind');
   startTimer();
   setTimeout(() => ui.input.focus(), 80);
 }
@@ -388,14 +393,17 @@ async function askQuestion(text) {
   const clean = text.trim();
   if (!clean) return;
 
+  lockInput(true);
   if (state.asked.has(MindLogic.normalizar(clean))) {
-    addMessage(clean, 'player');
-    addMessage(ORACULO.repetida, 'mind');
+    await addMessage(clean, 'player');
+    await sleep(2000);
+    await addMessage(ORACULO.repetida, 'mind');
+    lockInput(false); ui.input.focus();
     return;
   }
-  addMessage(clean, 'player');
+  await addMessage(clean, 'player');
+  await sleep(2000);
   state.asked.add(MindLogic.normalizar(clean));
-  lockInput(true);
 
   let answer = MindLogic.evaluarPregunta(clean, state.secret);
   let source = 'logic';
@@ -412,7 +420,7 @@ async function askQuestion(text) {
   }
 
   if (answer === null) {
-    addMessage('Todavía no entiendo esa pregunta. La guardo para aprenderla. Probá decirlo de otra forma.', 'mind');
+    await addMessage('Todavía no entiendo esa pregunta. La guardo para aprenderla. Probá decirlo de otra forma.', 'mind');
     lockInput(false);
     ui.input.focus();
     return;
@@ -421,7 +429,7 @@ async function askQuestion(text) {
   state.facts.push({ texto: clean, concepto: conceptoUsado, answer: !!answer });
   state.questionCount++;
   updateHud();
-  addMessage(answer ? 'SÍ.' : 'NO.', 'mind');
+  await addMessage(answer ? 'SÍ.' : 'NO.', 'mind');
 
   if (state.questionCount >= MAX_QUESTIONS) {
     finish(false, 'Has agotado tus veinte preguntas.');

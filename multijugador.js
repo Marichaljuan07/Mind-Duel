@@ -65,7 +65,7 @@ function enterGame(){
  else gameMessage('Tu amigo eligió un personaje. Hacé preguntas y usá ADIVINAR cuando creas saber quién es.','mind');
  status('Duelo online iniciado.');
 }
-function onData(d){if(!d||typeof d!=='object')return;
+async function onData(d){if(!d||typeof d!=='object')return;
  if(d.type==='hello'){status((d.name||'Tu rival')+' se conectó.');return;}
  if(d.type==='chat'){const text=String(d.text||'').slice(0,300);addMessage(d.name||'RIVAL',text,'remote');window.MatchHistory?.record(d.name||'RIVAL',text,'chat');if($('floatingChat').classList.contains('hidden'))$('chatUnread').classList.remove('hidden');return;}
  if(d.type==='role'){theirRole=d.role;updateRoles();return;}
@@ -76,8 +76,9 @@ function onData(d){if(!d||typeof d!=='object')return;
   gameMessage((d.name||'DESCUBRIDOR')+' pregunta: '+pendingQuestion,'player');$('questionInput').value='';$('questionInput').placeholder='Escribí una respuesta…';$('sendBtn').textContent='Responder';setDisabled($('questionInput'),false);setDisabled($('sendBtn'),false);status('Pregunta recibida. Elegí una respuesta o escribí tu respuesta abajo.');return;
  }
  if(d.type==='answer'&&myRole==='guess'){
-  waitingForAnswer=false;setDiscovererControlsDisabled(false);const answer=String(d.text||'');
-  gameMessage(answer,'mind');if(d.count)$('questionsHud').textContent=d.count+'/20';
+  const answer=String(d.text||'');
+  await gameMessage(answer,'mind');await new Promise(resolve=>setTimeout(resolve,2000));
+  waitingForAnswer=false;setDiscovererControlsDisabled(false);if(d.count)$('questionsHud').textContent=d.count+'/20';
   status('Respuesta recibida. Podés hacer otra pregunta o adivinar.');return;
  }
  if(d.type==='guess'&&myRole==='brain'){

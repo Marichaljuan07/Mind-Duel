@@ -1,0 +1,3 @@
+Mind Duel Fusion 3.12.11
+
+Diálogo progresivo universal para preguntas y respuestas, pausa de 2 segundos entre pregunta y respuesta, escenario estable y público teatral. Se eliminó el indicador textual de escritura.
