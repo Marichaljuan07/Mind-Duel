@@ -323,21 +323,37 @@ async function classicSaveName(text) {
   const known=findKnownCharacter(nombre); const saved=localStorage.getItem('mind_character_description_'+nombre)||''; classicEnd({wonBy:'player', nombre, descripcion:(known&&known.descripcion)||saved||'El Cerebro no logró identificar tu personaje.'});
 }
 
-const CLASSIC_WIN_LINES = [
-  'Impresionante. Has demostrado que tu mente merece mi respeto.',
-  'Una victoria digna. No cualquiera logra confundirme de esta manera.',
-  'Bien jugado, mortal. Hoy has estado un paso por delante de mí.',
-  'Admito tu triunfo. Tu elección ha sido más astuta de lo que esperaba.',
-  'Extraordinario. Has escapado de mi lógica… por ahora.'
-];
-const CLASSIC_LOSE_LINES = [
-  'Ja. Sabía que acabarías cayendo en mis redes.',
-  'Demasiado predecible. Otra mente descifrada.',
-  'Victoria para el Cerebro. Tu secreto ya no lo es.',
-  'La lógica ha hablado. Inténtalo otra vez si te atreves.',
-  'Un buen intento, pero mi mente ha sido más rápida.'
-];
 function pickLine(lines) { return lines[Math.floor(Math.random() * lines.length)]; }
+// Burlas claras y fáciles de entender. Las referencias al personaje son un extra, no un requisito.
+function mindDuelTaunt(name, brainWon) {
+  const n = String(name || '').trim() || 'este personaje';
+  const norm = (typeof MindLogic !== 'undefined' ? MindLogic.normalizar(n) : n.toLowerCase());
+  const specific = norm.includes('julio cesar') ? {
+    win: ['¡JAJAJA! ¡Yo conquisté territorios y vos no pudiste conquistar una respuesta! ¡Qué papelón!', '¡Te di oportunidades de sobra y aun así no me descubriste! ¡Hasta Roma habría tenido más suerte que vos!'],
+    lose: ['¡¿Me ganaste vos?! ¡Yo conquisté Roma y terminé perdiendo contra alguien que juega desde el celular! ¡Qué vergüenza!', '¡Esto es una humillación! ¡Disfrutá tu victoria, emperador de sillón, que no te va a durar para siempre!']
+  } : norm.includes('albert einstein') || norm === 'einstein' ? {
+    win: ['¡JAJAJA! ¡Tanta inteligencia en el mundo y no alcanzó para que me descubrieras! ¡Qué cerebro el tuyo!', '¡No pudiste adivinar quién soy! Tranquilo, no todo el mundo puede tener dos dedos de frente… aunque vos hoy te esforzaste poco.'],
+    lose: ['¡¿Vos me ganaste?! Bueno, parece que hoy la inteligencia no estuvo de mi lado. ¡Pero no te agrandes, que ganar una partida no te convierte en Einstein!', '¡Esto no tiene sentido! Bueno, sí lo tiene… ¡pero igual me niego a aceptar que me hayas ganado tan fácilmente!']
+  } : norm.includes('napoleon') ? {
+    win: ['¡JAJAJA! ¡Yo gané batallas históricas y vos no pudiste ganar ni esta partida! ¡Retirada, soldado!', '¡Qué desastre! Te di todas las oportunidades del mundo y aun así fracasaste. ¡No te acerques más al campo de batalla!'],
+    lose: ['¡¿Me derrotaste?! ¡Esto es una humillación! ¡Ganaste una partida y ya te creés dueño del mundo! ¡Bajá un poquito, campeón!', '¡Exijo la revancha! ¡No pienso dejar que presumas toda la semana por haberme ganado una sola vez!']
+  } : null;
+  const genericWin = [
+    `¡JAJAJA! ¡Tantas preguntas y ni así descubriste quién soy: ${n}! ¡No te preocupes, la próxima capaz que tenés más suerte!`,
+    `¡No puede ser! Te di un montón de oportunidades y no pudiste descubrirme. ¡${n} te ganó y ni siquiera tuvo que moverse!`,
+    `¡Victoria para mí! ¡Después de tantas pistas, seguís sin saber quién soy! ¡Qué talento para perderte lo evidente!`
+  ];
+  const genericLose = [
+    `¡¿Qué?! ¡¿Me ganaste?! ¡Esto es una vergüenza! ¡Disfrutá tu momento de gloria, detective, que no siempre vas a tener tanta suerte!`,
+    `¡No me lo puedo creer! ¡Me descubriste! Bueno, no te agrandes… ¡que ganar una partida no te convierte en un genio!`,
+    `¡Protesto! ¡Esto no cuenta! ¡Yo estaba pensando en ${n} y vos tuviste la suerte de acertar! ¡Quiero la revancha!`
+  ];
+  const pool = specific ? (brainWon ? specific.win : specific.lose) : (brainWon ? genericWin : genericLose);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+window.MindDuelTaunt = mindDuelTaunt;
+const CLASSIC_WIN_LINES = ['¡Bien, bien! No te emociones, que fue una sola partida.','¡Disfrutá la victoria mientras puedas!','¡Tuviste suerte! Sí, sí, SUERTE.'];
+const CLASSIC_LOSE_LINES = ['¡JAJAJA! ¡Ni con todas esas pistas pudiste descubrirme!','¡Qué desastre! ¡Era más fácil que adivinar qué hay para cenar!','¡Perdiste y encima me hiciste trabajar contestando preguntas!'];
 function findKnownCharacter(name){try{return (PERSONAJES||[]).find(p=>MindLogic.normalizar(p.nombre)===MindLogic.normalizar(name))||null;}catch{return null;}}
 function getCharacterDescription(name, fallback=''){
   const key='mind_character_description_'+String(name||'');
@@ -357,7 +373,7 @@ async function classicEnd(result = {}) {
   ui.resultTitle.textContent = wonByBrain ? 'HAS PERDIDO' : '¡HAS GANADO!';
   ui.resultCharacter.textContent = result.nombre ? `Tu personaje era: ${result.nombre}` : 'Personaje no identificado';
   const characterDescription = getCharacterDescription(result.nombre, result.descripcion);
-  ui.resultDescription.textContent = [characterDescription, result.frase || (wonByBrain ? pickLine(CLASSIC_LOSE_LINES) : pickLine(CLASSIC_WIN_LINES))].filter(Boolean).join(' ');
+  ui.resultDescription.textContent = [characterDescription, mindDuelTaunt(result.nombre, wonByBrain)].filter(Boolean).join(' ');
   const editBtn=el('editCharacterBtn'); if(editBtn) editBtn.classList.toggle('hidden', !result.nombre);
   show(ui.result);
   ui.input.placeholder = 'Pregunta de sí/no...';
@@ -378,7 +394,7 @@ async function classicAnswer(ans) {
   el('classicGuessModal').classList.add('hidden');
   if (ans === 'si' || ans === 'psi') {
     await addMessage(`¡Lo sabía! Eras ${c.p.nombre}.`, 'mind');
-    await classicEnd({wonBy:'brain', nombre:c.p.nombre, descripcion:c.p.descripcion || 'El personaje que estabas pensando.', frase:pickLine(CLASSIC_LOSE_LINES)});
+    await classicEnd({wonBy:'brain', nombre:c.p.nombre, descripcion:c.p.descripcion || 'El personaje que estabas pensando.'});
     return;
   }
   classic.fails++; Clasico.rechazar(classic.s, c.i);
@@ -721,7 +737,7 @@ function finish(win, reason) {
   const modeHud=el('modeHud'); if(modeHud) modeHud.textContent='SOLO';
   ui.resultTitle.textContent = win ? 'VICTORIA' : 'DERROTA';
   ui.resultCharacter.textContent = state.secret.nombre;
-  ui.resultDescription.textContent = [reason, getCharacterDescription(state.secret.nombre, state.secret.descripcion)].filter(Boolean).join(' ');
+  ui.resultDescription.textContent = [reason, getCharacterDescription(state.secret.nombre, state.secret.descripcion), mindDuelTaunt(state.secret.nombre, !win)].filter(Boolean).join(' ');
 }
 
 async function shutdown() {

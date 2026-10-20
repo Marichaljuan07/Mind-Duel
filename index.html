@@ -137,7 +137,8 @@
         <div id="resultActions" class="stack compact">
           <button id="viewMatchHistoryBtn" class="btn btn-green">VER PARTIDA</button>
           <button id="editCharacterBtn" class="btn btn-purple hidden">AÑADIR / EDITAR DESCRIPCIÓN</button>
-          <button id="playAgainBtn" class="btn btn-green">JUGAR DE NUEVO</button>
+          <button id="playAgainBtn" class="btn btn-green">JUGAR OTRA VEZ · MISMOS ROLES</button>
+          <button id="playAgainSwapRolesBtn" class="btn btn-purple">🔄 CAMBIAR ROLES Y JUGAR</button>
           <button id="resultMenuBtn" class="btn btn-purple">MENÚ PRINCIPAL</button>
           <button id="resultExitBtn" class="btn btn-red">SALIR</button>
         </div>
@@ -200,7 +201,7 @@
       <p class="duel-intro">DOS MENTES. DOS REDES. UNA CONEXIÓN.</p>
       <label class="duel-label" for="duelName">TU NOMBRE</label><input id="duelName" maxlength="20" placeholder="Cómo te llamás">
       <div class="duel-actions"><button id="createRoomBtn" class="btn btn-green">CREAR SALA</button><button id="joinRoomBtn" class="btn btn-purple">UNIRME</button></div>
-      <div id="hostRoom" class="hidden"><p class="duel-label">CÓDIGO DE SALA · COMPARTILO CON TU AMIGO</p><div class="room-code-row"><code id="roomCode"></code><button id="copyRoomBtn" class="btn btn-green small">COPIAR</button></div></div>
+      <div id="hostRoom" class="hidden"><p class="duel-label">CÓDIGO DE SALA · COMPARTILO CON TU AMIGO</p><div class="room-code-row"><code id="roomCode"></code><button id="copyRoomBtn" class="btn btn-green small">COPIAR</button></div><div class="duel-actions room-tools"><button id="shareRoomBtn" class="btn btn-purple">COMPARTIR INVITACIÓN</button><button id="newRoomCodeBtn" class="btn btn-red">GENERAR OTRO CÓDIGO</button></div></div>
       <div id="joinRoom" class="hidden"><label class="duel-label" for="roomInput">CÓDIGO DEL ANFITRIÓN</label><input id="roomInput" maxlength="80" placeholder="Pegá el código que te pasó tu amigo"><button id="connectRoomBtn" class="btn btn-green">CONECTAR</button></div>
       <p id="duelStatus" class="duel-status">Preparando conexión…</p>
       <div id="duelConnected" class="hidden">

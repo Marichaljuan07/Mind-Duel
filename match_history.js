@@ -2,6 +2,7 @@
 'use strict';
 const KEY='mind_duel_match_history';
 let current=null;
+let latestMatch=null;
 function read(){
   try {
     const value=JSON.parse(localStorage.getItem(KEY)||'[]');
@@ -19,6 +20,7 @@ function upsert(match){
 }
 function begin(mode,meta={}){
   current={id:'match-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),mode,startedAt:new Date().toISOString(),endedAt:null,result:'En curso',status:'in_progress',meta,events:[]};
+  latestMatch=current;
   record('Sistema','Partida iniciada');
   return current;
 }
@@ -34,7 +36,7 @@ function finish(result='Finalizada',meta={}){
   if(!current)return;
   current.endedAt=new Date().toISOString();current.result=result;current.status='finished';current.meta={...current.meta,...meta};
   upsert(current);
-  const done=current;current=null;return done;
+  const done=current;latestMatch=done;current=null;return done;
 }
 function getCurrent(){return current;}
 function render(container,match){
@@ -67,7 +69,12 @@ function show(match){
   modal.classList.remove('hidden');
 }
 function list(){return read();}
-function clear(){current=null;try{localStorage.removeItem(KEY)}catch{}show();}
+function clear(){
+  // Borrar partidas anteriores, pero conservar la partida actual o la que acaba de terminar.
+  const keep=current||latestMatch;
+  try { if(keep) write([keep]); else localStorage.removeItem(KEY); } catch {}
+  show(keep||null);
+}
 window.MatchHistory={begin,record,finish,getCurrent,show,list,clear};
 document.addEventListener('click',e=>{
   if(e.target.closest('#viewMatchHistoryBtn')||e.target.closest('#viewClassicHistoryBtn')){e.preventDefault();show();}
