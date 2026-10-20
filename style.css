@@ -620,3 +620,26 @@ button, input {
   text-align: center;
   padding: 20px;
 }
+
+
+/* 3.12.13 — paneles de juego con identidad synthwave */
+.guess-card, .suggestion-card, .game-menu-card { border:1px solid rgba(0,216,255,.7); border-radius:18px; background:linear-gradient(155deg,rgba(12,13,35,.98),rgba(4,4,14,.98)); box-shadow:0 0 28px rgba(0,216,255,.16),inset 0 0 22px rgba(240,0,255,.06); }
+.guess-orbit { display:flex; align-items:center; justify-content:center; gap:12px; color:var(--neon-cyan); letter-spacing:2px; font-size:11px; }
+.guess-lead { color:#edf0f6; font-size:14px; line-height:1.5; }
+.guess-hint { color:var(--neon-cyan); font-size:12px; }
+#guessInput { width:100%; margin:12px 0; }
+.suggestion-title-row { display:flex; align-items:center; gap:12px; text-align:left; }
+.suggestion-heading { flex:1; min-width:0; }
+.suggestion-heading h2 { margin:0; }
+.suggestion-heading .suggestion-intro { margin:5px 0 0; }
+.refresh-btn { flex:0 0 44px; width:44px; height:44px; border:1px solid var(--neon-cyan); border-radius:12px; background:rgba(0,216,255,.1); color:var(--neon-cyan); font-size:29px; cursor:pointer; box-shadow:0 0 12px rgba(0,216,255,.13); }
+.refresh-btn:disabled { opacity:.35; cursor:not-allowed; }
+.suggestion-counter { text-align:right; color:var(--text-muted); font-size:10px; margin:8px 0 12px; }
+.suggestion-close { margin-top:14px; }
+.game-menu-card { max-width:390px; }
+.game-menu-card .suggestion-title-row { margin-bottom:18px; }
+.menu-option { width:100%; display:flex; align-items:center; gap:14px; padding:14px 13px; margin:7px 0; text-align:left; border:1px solid rgba(0,216,255,.28); border-radius:10px; color:var(--text-main); background:rgba(255,255,255,.035); cursor:pointer; }
+.menu-option span { flex:1; }
+.menu-option:hover { border-color:var(--neon-cyan); background:rgba(0,216,255,.08); }
+.menu-option.menu-danger { border-color:rgba(240,0,255,.28); }
+.menu-option.menu-danger:hover { border-color:var(--neon-purple); background:rgba(240,0,255,.08); }

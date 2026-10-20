@@ -156,15 +156,23 @@
 
   <div id="suggestModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="suggestTitle">
     <div class="modal-card suggestion-card">
-      <div class="suggestion-title-row"><span class="neon-brain brain-sm" aria-hidden="true"></span><h2 id="suggestTitle">SUGERENCIAS DEL CEREBRO</h2></div>
-      <p class="suggestion-intro">Preguntas pensadas a partir de lo que ya descubriste.</p>
+      <div class="suggestion-title-row"><span class="neon-brain brain-sm" aria-hidden="true"></span><div class="suggestion-heading"><h2 id="suggestTitle">SUGERENCIAS DEL CEREBRO</h2><p class="suggestion-intro">Preguntas basadas en lo que ya descubriste.</p></div><button id="rerollSuggestionsBtn" class="refresh-btn" type="button" aria-label="Refrescar preguntas" title="Otras preguntas">↻</button></div>
+      <div class="suggestion-counter" id="rerollStatus">2 renovaciones disponibles</div>
       <div id="suggestions" class="suggestions"></div>
-      <div class="suggestion-footer"><span id="rerollStatus" class="reroll-status">CAMBIOS: 2 DISPONIBLES</span><button id="rerollSuggestionsBtn" class="btn btn-purple small" type="button">↻ OTRAS PREGUNTAS</button></div>
-      <button data-close="suggestModal" class="btn btn-purple suggestion-close">CERRAR</button>
+      <button data-close="suggestModal" class="btn btn-purple suggestion-close">VOLVER AL JUEGO</button>
     </div>
   </div>
 
 
+  <div id="gameMenuModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="gameMenuTitle">
+    <div class="modal-card game-menu-card"><div class="suggestion-title-row"><span class="neon-brain brain-sm" aria-hidden="true"></span><h2 id="gameMenuTitle">MENÚ DE PARTIDA</h2></div>
+      <button id="menuResumeBtn" class="menu-option">↩ <span>Volver a la partida</span></button>
+      <button id="menuHintsBtn" class="menu-option">🧠 <span>Sugerencias del Cerebro</span></button>
+      <button id="menuHistoryBtn" class="menu-option">▤ <span>Historial</span></button>
+      <button id="menuSurrenderBtn" class="menu-option menu-danger">⚑ <span>Rendirse</span></button>
+      <button id="menuExitBtn" class="menu-option menu-danger">⌂ <span>Salir de la partida</span></button>
+    </div>
+  </div>
   <div id="duelModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="duelTitle">
     <div class="modal-card duel-card">
       <div class="neon-brain brain-sm"></div><h2 id="duelTitle">DUELO ONLINE</h2>

@@ -1,0 +1,6 @@
+MIND DUEL FUSION 3.12.13
+- Fix: primera pregunta del modo clasico.
+- Sugerencias estrictas, sin rellenar con preguntas incongruentes.
+- Pistas con voz mas organica del Cerebro.
+- Menu de partida con reanudar, sugerencias, historial, rendirse y salir.
+- Rediseño del modal de adivinanza y panel de sugerencias con refresco en encabezado.

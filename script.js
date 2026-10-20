@@ -243,6 +243,7 @@ async function startClassic() {
   show(ui.game);
   await addMessage('Piensa en un personaje, real o ficticio. Yo intentaré descubrirlo. Respondé cada pregunta con los botones.', 'mind');
   startTimer();
+  classicBusy = false;
   await nextClassic();
 }
 
@@ -592,16 +593,10 @@ function confirmGuess() {
 }
 
 function buildSuggestionPool(excluded = []) {
-  let pool = window.Sugeridor ? Sugeridor.sugerir(MindLogic, PERSONAJES, state.facts, state.asked, 12) : [];
-  if (!pool.length) pool = suggestionPool.filter(q => !state.asked.has(MindLogic.normalizar(q)));
-  const blocked = new Set([...excluded, ...state.asked].map(x => typeof x === 'string' ? MindLogic.normalizar(x) : x));
-  pool = pool.filter(q => !blocked.has(MindLogic.normalizar(q)));
-  // Evitar que el banco pequeño deje el panel vacío; nunca repetir lo ya preguntado ni las opciones visibles.
-  if (pool.length < 5) {
-    const extras = suggestionPool.filter(q => !blocked.has(MindLogic.normalizar(q)) && !pool.some(p => MindLogic.normalizar(p) === MindLogic.normalizar(q)));
-    pool = pool.concat(extras.sort(() => Math.random() - .5));
-  }
-  return pool.sort(() => Math.random() - .5).slice(0, 5);
+  // Solo preguntas no respondidas y que dividan de verdad a los personajes compatibles.
+  const pool = window.Sugeridor ? Sugeridor.sugerir(MindLogic, PERSONAJES, state.facts, state.asked, 30) : [];
+  const blocked = new Set([...excluded, ...state.asked].map(x => MindLogic.normalizar(typeof x === 'string' ? x : '')));
+  return pool.filter(q => !blocked.has(MindLogic.normalizar(q))).slice(0, 5);
 }
 
 function renderSuggestions() {
@@ -626,11 +621,8 @@ function renderSuggestions() {
   const remaining = Math.max(0, 2 - session.rerolls);
   const status = el('rerollStatus');
   const reroll = el('rerollSuggestionsBtn');
-  if (status) status.textContent = remaining ? `CAMBIOS: ${remaining} DISPONIBLE${remaining === 1 ? '' : 'S'}` : 'PREGUNTAS DEFINITIVAS';
-  if (reroll) {
-    reroll.disabled = remaining === 0;
-    reroll.textContent = remaining ? `↻ OTRAS PREGUNTAS (${remaining})` : 'SIN CAMBIOS';
-  }
+  if (status) status.textContent = remaining ? `${remaining} renovación${remaining === 1 ? '' : 'es'} disponible${remaining === 1 ? '' : 's'}` : 'Preguntas definitivas';
+  if (reroll) { reroll.disabled = remaining === 0; reroll.title = remaining ? 'Refrescar preguntas' : 'No quedan renovaciones'; }
 }
 
 function rerollSuggestions() {
@@ -662,13 +654,13 @@ function buildBrainHint(character) {
   const media = Array.isArray(character?.medios) ? character.medios : [];
   const useful = tags.find(t => /cient|artist|escritor|deport|pol[ií]tic|m[uú]sic|h[eé]roe|villano|detective|magia|superh[eé]roe|f[ií]sico|actor/i.test(t));
   if (real) {
-    if (useful) return `PISTA DEL CEREBRO: mi personaje pertenece al mundo real y se lo relaciona con ${useful.replace(/_/g, ' ')}. No te confíes; todavía quedan detalles por descubrir.`;
-    if (character?.region) return `PISTA DEL CEREBRO: mi personaje pertenece al mundo real y tiene una conexión con ${String(character.region).replace(/_/g, ' ')}. Usá esa información con cuidado.`;
-    return 'PISTA DEL CEREBRO: estoy pensando en alguien que existió en el mundo real. Afiná tus preguntas.';
+    if (useful) return `🧠 Cerebro: Vas bien. Mi personaje está relacionado con ${useful.replace(/_/g, ' ')}. Pensá qué tipo de figura podría ser…`;
+    if (character?.region) return `🧠 Cerebro: Te doy una pista más: mi personaje tiene una conexión con ${String(character.region).replace(/_/g, ' ')}. Usá esa información para afinar tus preguntas.`;
+    return '🧠 Cerebro: Te puedo confirmar algo: estoy pensando en alguien que existió en el mundo real. Afiná tus preguntas.';
   }
-  if (useful) return `PISTA DEL CEREBRO: mi personaje es ficticio y está relacionado con ${useful.replace(/_/g, ' ')}. Todavía no voy a revelar más.`;
-  if (media.length) return `PISTA DEL CEREBRO: mi personaje es ficticio y aparece en un universo de ${String(media[0]).replace(/_/g, ' ')}. Seguimos.`;
-  return 'PISTA DEL CEREBRO: mi personaje pertenece a la ficción. Pensá en sus habilidades y en el mundo del que viene.';
+  if (useful) return `🧠 Cerebro: Una pista para vos: mi personaje ficticio está relacionado con ${useful.replace(/_/g, ' ')}. Todavía no voy a revelar más.`;
+  if (media.length) return `🧠 Cerebro: Prestá atención a esto: mi personaje aparece en un universo de ${String(media[0]).replace(/_/g, ' ')}. Seguimos.`;
+  return '🧠 Cerebro: Te doy una pequeña ayuda: mi personaje pertenece a la ficción. Pensá en sus habilidades y en el mundo del que viene.';
 }
 
 function finish(win, reason) {
@@ -696,6 +688,9 @@ function closeModalFromTarget(target) {
   const id = target.dataset.close;
   if (id) el(id)?.classList.add('hidden');
 }
+function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; el('gameMenuModal').classList.remove('hidden'); }
+function leaveGame(){ el('gameMenuModal').classList.add('hidden'); if(state.mode!=='classic' && state.active){ if(confirm('¿Querés salir de esta partida? El progreso actual se perderá.')) openStage(); } else openStage(); }
+
 
 document.addEventListener('click', e => closeModalFromTarget(e.target));
 el('startBtn').onclick = openStage;
@@ -713,7 +708,12 @@ ui.soloBtn.onclick = chooseSolo;
 ui.espejoBtn.onclick = async () => { ui.stageMenu.classList.add('hidden'); await closeStageCurtain(2600); await openStageCurtain(2800); const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.espejo}`); if (ok) { await sleep(700); ui.stageMenu.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); } };
 ui.dueloBtn.onclick = () => {};
 
-el('menuBtn').onclick = openStage;
+el('menuBtn').onclick = openGameMenu;
+el('menuResumeBtn').onclick = () => el('gameMenuModal').classList.add('hidden');
+el('menuHintsBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); openSuggestions(); };
+el('menuHistoryBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); if(el('matchHistoryModal')) el('matchHistoryModal').classList.remove('hidden'); else addMessage('El historial está disponible al terminar la partida.', 'system'); };
+el('menuSurrenderBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); if(state.mode==='classic') classicEnd({wonBy:'brain',nombre:classic.cur?.p?.nombre || Clasico.mejor(classic.s)?.p?.nombre || 'personaje secreto',descripcion:'Te rendiste antes de descubrirlo.',frase:pickLine(CLASSIC_LOSE_LINES)}); else if(state.active) finish(false,'Te has rendido.'); };
+el('menuExitBtn').onclick = leaveGame;
 ui.form.onsubmit = e => {
   e.preventDefault();
   const q = ui.input.value;
