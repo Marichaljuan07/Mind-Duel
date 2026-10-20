@@ -67,10 +67,12 @@ function show(match){
   modal.classList.remove('hidden');
 }
 function list(){return read();}
-window.MatchHistory={begin,record,finish,getCurrent,show,list};
+function clear(){current=null;try{localStorage.removeItem(KEY)}catch{}show();}
+window.MatchHistory={begin,record,finish,getCurrent,show,list,clear};
 document.addEventListener('click',e=>{
   if(e.target.closest('#viewMatchHistoryBtn')||e.target.closest('#viewClassicHistoryBtn')){e.preventDefault();show();}
   if(e.target.closest('#closeMatchHistoryBtn'))document.getElementById('matchHistoryModal')?.classList.add('hidden');
+  if(e.target.closest('#clearMatchHistoryBtn')){if(window.confirm('¿Borrar todo el historial guardado? Esta acción no se puede deshacer.'))clear();}
 });
 document.addEventListener('change',e=>{
   if(e.target?.id==='historyMatchSelect'){
