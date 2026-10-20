@@ -1,0 +1,3 @@
+Mind Duel Fusion 3.12.19
+
+Ajustes de reglas y sincronización: dos intentos en modo clásico y online; contador compartido de preguntas/respuestas; reloj online sincronizado por marca de inicio; indicador de modo; anuncio y confirmación del intento de adivinanza en online; resultados y rendición enviados al otro jugador.

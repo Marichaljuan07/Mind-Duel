@@ -83,7 +83,8 @@
         <div class="mind-sign">MIND DUEL</div>
         <div class="hud">
           <span class="hud-item"><b id="timer">00:00</b><small>TIEMPO</small></span>
-          <span class="hud-item"><b id="questionsHud">0/20</b><small>PREG.</small></span>
+          <span class="hud-item"><b id="modeHud">SOLO</b><small>MODO</small></span>
+          <span class="hud-item"><b id="questionsHud">0/20</b><small id="questionCountLabel">PREG.</small></span>
           <span class="hud-item"><b id="guessesHud">2</b><small>INT.</small></span>
         </div>
       </header>
@@ -155,6 +156,17 @@
         <button id="confirmGuessBtn" class="btn btn-green">CONFIRMAR TEORÍA</button>
         <button data-close="guessModal" class="btn btn-red">SEGUIR PENSANDO</button>
       </div>
+    </div>
+  </div>
+
+  <div id="onlineGuessConfirmModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="onlineGuessConfirmTitle">
+    <div class="modal-card guess-card classic-guess-card">
+      <div class="guess-orbit"><span class="neon-brain brain-sm" aria-hidden="true"></span><span>DUELO ONLINE · CONFIRMACIÓN</span></div>
+      <h2 id="onlineGuessConfirmTitle">EL DESCUBRIDOR SE ARRIESGA</h2>
+      <p id="onlineGuessConfirmLead" class="guess-lead">Tu rival va a adivinar.</p>
+      <div id="onlineGuessConfirmCharacter" class="classic-guess-character"></div>
+      <p class="guess-lead">¿Es el personaje correcto?</p>
+      <div class="modal-actions"><button id="onlineGuessConfirmYes" class="btn btn-green">SÍ, ACERTÓ</button><button id="onlineGuessConfirmNo" class="btn btn-red">NO, FALLÓ</button></div>
     </div>
   </div>
 

@@ -241,7 +241,7 @@ async function startClassic() {
   classic.s = Clasico.nuevo(PERSONAJES);
   classic.cur = null; classic.fails = 0; classic.phase = 'ask';
   classicBusy = true;
-  state.guessesLeft = 3; updateHud();
+  state.guessesLeft = MAX_GUESSES; updateHud();
   show(ui.game);
   await addMessage('Piensa en un personaje, real o ficticio. Yo intentaré descubrirlo. Respondé cada pregunta con los botones.', 'mind');
   startTimer();
@@ -254,7 +254,7 @@ async function nextClassic() {
   if (classicBusy || classic.phase === 'end' || classic.phase === 'name') return;
   classicBusy = true;
   const s = classic.s;
-  state.questionCount = s.n; state.guessesLeft = 3 - classic.fails; updateHud();
+  state.questionCount = s.n; state.guessesLeft = Math.max(0, MAX_GUESSES - classic.fails); updateHud();
   if (Clasico.debeAdivinar(s) || s.n >= MAX_QUESTIONS) return classicGuess(true);
   let q = Clasico.pregunta(s, MindLogic);
   // El banco puede no dividir al conjunto inicial; no dejar nunca al Cerebro sin preguntar.
@@ -362,7 +362,7 @@ async function classicAnswer(ans) {
     return;
   }
   classic.fails++; Clasico.rechazar(classic.s, c.i);
-  if (classic.fails >= 3 || !Clasico.mejor(classic.s)) return classicName();
+  if (classic.fails >= MAX_GUESSES || !Clasico.mejor(classic.s)) return classicName();
   await addMessage('Esa no era. No importa: reajusto mis deducciones y continúo.', 'mind');
   classicBusy = false;
   await nextClassic();
