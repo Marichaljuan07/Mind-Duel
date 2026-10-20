@@ -1,0 +1,8 @@
+Mind Duel Fusion 3.13.9
+
+- La biblioteca funciona como ficha de partida por dispositivo: muestra rol/contexto, progreso registrado y conversación local.
+- Las partidas antiguas que solo tienen historial se pueden revisar sin conexión, sin inventar personaje secreto ni afirmar que su estado se puede reanudar exactamente.
+- Solo las partidas con snapshot completo muestran CONTINUAR ONLINE.
+- Las sesiones nuevas guardan automáticamente el nombre local, rol, contadores, estado de turno, transcripción y personaje secreto únicamente en el lado Cerebro.
+- La sesión del Descubridor nunca guarda el campo de personaje secreto; el Cerebro conserva su propio snapshot local.
+- Para continuar una partida en otro dispositivo, cada jugador necesita conservar su propio snapshot. El historial de un dispositivo no puede recuperar datos privados que nunca se guardaron en el otro.
