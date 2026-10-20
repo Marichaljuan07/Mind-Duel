@@ -1,0 +1,5 @@
+Mind Duel Fusion 3.12.22
+- Secuencia compacta: se eliminó el bloque grande de sugerencias del Cerebro.
+- Contadores asíncronos: preguntas incrementan al enviarse; respuestas incrementan al responder.
+- Estado de conexión: aviso de desconexión y botón para intentar reconectar con el peer conocido.
+- Al reconectar, se envía un paquete básico de sincronización de estado.
