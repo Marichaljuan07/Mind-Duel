@@ -653,3 +653,13 @@ button, input {
 #guessModal .modal-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
 #guessModal .modal-actions .btn { min-width:0; padding:12px 8px; }
 @media(max-width:420px){#guessModal .modal-actions{grid-template-columns:1fr} }
+
+/* 3.12.15 — menú desplegable anclado y adivinanza clásica en ventana */
+#gameMenuModal { background:rgba(0,0,0,.18); align-items:flex-start; justify-content:flex-start; padding:0; }
+#gameMenuModal .game-menu-card { position:fixed; top:70px; left:12px; width:min(320px,calc(100vw - 24px)); max-height:calc(100vh - 88px); padding:16px; text-align:left; border:1px solid rgba(0,216,255,.6); border-radius:14px; background:linear-gradient(155deg,rgba(12,13,35,.99),rgba(4,4,14,.99)); box-shadow:0 0 28px rgba(0,216,255,.18),0 12px 35px rgba(0,0,0,.55); animation:menuDropIn .16s ease-out; }
+#gameMenuModal .game-menu-card .suggestion-title-row { margin-bottom:12px; }
+#gameMenuModal .game-menu-card h2 { font-size:1rem; }
+#gameMenuModal .menu-option { padding:12px; margin:5px 0; }
+.classic-guess-character { margin:20px auto; padding:18px 12px; border:1px solid var(--neon-purple); border-radius:14px; color:#fff; font-size:clamp(1.35rem,5vw,2rem); font-weight:800; letter-spacing:.5px; background:radial-gradient(ellipse at center,rgba(240,0,255,.2),rgba(0,216,255,.05)); text-shadow:0 0 14px rgba(240,0,255,.4); box-shadow:inset 0 0 18px rgba(0,216,255,.07),0 0 18px rgba(240,0,255,.12); }
+#guessModal .guess-card.classic-guess-mode .guess-lead { line-height:1.55; }
+@keyframes menuDropIn { from { opacity:0; transform:translateY(-8px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }

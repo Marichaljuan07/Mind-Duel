@@ -239,7 +239,7 @@ async function startClassic() {
   classic.s = Clasico.nuevo(PERSONAJES);
   classic.cur = null; classic.fails = 0; classic.phase = 'ask';
   classicBusy = true;
-  state.guessesLeft = 3; updateHud();
+  state.guessesLeft = 2; updateHud();
   show(ui.game);
   await addMessage('Piensa en un personaje, real o ficticio. Yo intentaré descubrirlo. Respondé cada pregunta con los botones.', 'mind');
   startTimer();
@@ -271,9 +271,19 @@ async function classicGuess(announce = false) {
   const m = Clasico.mejor(classic.s);
   if (!m) return classicName();
   classic.cur = { tipo: 'g', i: m.i, p: m.p };
-  if (announce) await addMessage('He analizado tus respuestas. Ha llegado el momento de arriesgarme… voy a adivinar.', 'mind');
-  await addMessage(`¿Tu personaje es ${m.p.nombre}?`, 'mind');
+  if (announce) await addMessage('Muy bien, mortal. He analizado tus respuestas y estoy listo para arriesgarme.', 'mind');
   classicBusy = false;
+  const modal = el('guessModal');
+  el('guessTitle').textContent = 'EL CEREBRO SE ARRIESGA';
+  modal.querySelector('.guess-lead').textContent = 'Muy bien, mortal. He analizado tus respuestas y he llegado a una conclusión…';
+  el('guessInput').classList.add('hidden');
+  modal.querySelector('label[for="guessInput"]').classList.add('hidden');
+  el('guessHint').classList.add('hidden');
+  el('classicGuessCharacter').textContent = m.p.nombre;
+  el('classicGuessCharacter').classList.remove('hidden');
+  el('normalGuessActions').classList.add('hidden');
+  el('classicGuessActions').classList.remove('hidden');
+  modal.classList.remove('hidden');
 }
 
 async function classicName() {
@@ -349,7 +359,7 @@ async function classicAnswer(ans) {
     return;
   }
   classic.fails++; Clasico.rechazar(classic.s, c.i);
-  if (classic.fails >= 3 || !Clasico.mejor(classic.s)) return classicName();
+  if (classic.fails >= 2 || !Clasico.mejor(classic.s)) return classicName();
   await addMessage('Esa no era. No importa: reajusto mis deducciones y continúo.', 'mind');
   classicBusy = false;
   await nextClassic();
@@ -560,6 +570,9 @@ function isCorrectGuess(raw) {
 
 function openGuess() {
   if (!state.active || state.busy) return;
+  el('guessTitle').textContent = '¿PODÉS DESCIFRARLO?';
+  el('guessModal').querySelector('.guess-lead').textContent = 'El Cerebro está listo para comprobar tu teoría.';
+  el('guessInput').classList.remove('hidden'); el('guessModal').querySelector('label[for="guessInput"]').classList.remove('hidden'); el('guessHint').classList.remove('hidden'); el('classicGuessCharacter').classList.add('hidden'); el('normalGuessActions').classList.remove('hidden'); el('classicGuessActions').classList.add('hidden');
   ui.guessHint.textContent = `Te quedan ${state.guessesLeft} intento${state.guessesLeft === 1 ? '' : 's'}.`;
   ui.guessInput.value = '';
   ui.guessModal.classList.remove('hidden');
@@ -699,7 +712,7 @@ function closeModalFromTarget(target) {
   const id = target.dataset.close;
   if (id) el(id)?.classList.add('hidden');
 }
-function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; const hints=el('menuHintsBtn'); if(hints) hints.classList.toggle('hidden', state.mode==='classic'); el('gameMenuTitle').textContent = state.mode==='classic' ? 'MENÚ CLÁSICO' : state.mode==='multiplayer' ? 'MENÚ MULTIJUGADOR' : 'MENÚ DE PARTIDA'; el('menuSurrenderBtn').querySelector('span').textContent = state.mode==='classic' ? 'Retirarse' : 'Rendirse'; el('menuExitBtn').querySelector('span').textContent = 'Salir de la partida'; el('gameMenuModal').classList.remove('hidden'); }
+function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; el('gameMenuTitle').textContent = 'MENÚ DE PARTIDA'; el('menuSurrenderBtn').querySelector('span').textContent = state.mode==='classic' ? 'Retirarse' : 'Rendirse'; el('menuExitBtn').querySelector('span').textContent = 'Salir de la partida'; el('gameMenuModal').classList.remove('hidden'); }
 function leaveGame(){ el('gameMenuModal').classList.add('hidden'); if(state.mode!=='classic' && state.active){ if(confirm('¿Querés salir de esta partida? El progreso actual se perderá.')) openStage(); } else openStage(); }
 
 
@@ -721,7 +734,6 @@ ui.dueloBtn.onclick = () => {};
 
 el('menuBtn').onclick = openGameMenu;
 el('menuResumeBtn').onclick = () => el('gameMenuModal').classList.add('hidden');
-el('menuHintsBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); openSuggestions(); };
 el('menuHistoryBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); if(el('matchHistoryModal')) el('matchHistoryModal').classList.remove('hidden'); else addMessage('El historial está disponible al terminar la partida.', 'system'); };
 el('menuSurrenderBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); if(state.mode==='classic') classicEnd({wonBy:'brain',nombre:classic.cur?.p?.nombre || Clasico.mejor(classic.s)?.p?.nombre || 'personaje secreto',descripcion:'Te rendiste antes de descubrirlo.',frase:pickLine(CLASSIC_LOSE_LINES)}); else if(state.active) finish(false,'Te has rendido.'); };
 el('menuExitBtn').onclick = leaveGame;
@@ -733,6 +745,8 @@ ui.form.onsubmit = e => {
 };
 ui.guess.onclick = openGuess;
 el('confirmGuessBtn').onclick = confirmGuess;
+el('classicGuessYesBtn').onclick = async () => { el('guessModal').classList.add('hidden'); el('classicGuessActions').classList.add('hidden'); el('normalGuessActions').classList.remove('hidden'); el('guessInput').classList.remove('hidden'); el('guessModal').querySelector('label[for="guessInput"]').classList.remove('hidden'); el('guessHint').classList.remove('hidden'); const p=classic.cur?.p; if(p) await classicEnd({wonBy:'brain',nombre:p.nombre,descripcion:p.descripcion || 'El personaje que estabas pensando.',frase:pickLine(CLASSIC_LOSE_LINES)}); };
+el('classicGuessNoBtn').onclick = async () => { el('guessModal').classList.add('hidden'); el('classicGuessActions').classList.add('hidden'); el('normalGuessActions').classList.remove('hidden'); el('guessInput').classList.remove('hidden'); el('guessModal').querySelector('label[for="guessInput"]').classList.remove('hidden'); el('guessHint').classList.remove('hidden'); const c=classic.cur; if(!c) return; classicBusy=true; classic.fails++; Clasico.rechazar(classic.s,c.i); if(classic.fails>=2 || !Clasico.mejor(classic.s)) return classicName(); await addMessage('¡Rayos! No era ese. Tendré que seguir pensando…','mind'); classicBusy=false; await nextClassic(); };
 ui.guessInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') confirmGuess();
 });

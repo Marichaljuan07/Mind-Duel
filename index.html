@@ -149,9 +149,14 @@
       <label class="guess-hint" for="guessInput">ESCRIBÍ EL NOMBRE DEL PERSONAJE</label>
       <input id="guessInput" autocomplete="off" maxlength="80" placeholder="¿Quién es?">
       <p id="guessHint" class="guess-hint">Tienes 2 intentos.</p>
-      <div class="modal-actions">
+      <div id="classicGuessCharacter" class="classic-guess-character hidden"></div>
+      <div class="modal-actions" id="normalGuessActions">
         <button id="confirmGuessBtn" class="btn btn-green">CONFIRMAR TEORÍA</button>
         <button data-close="guessModal" class="btn btn-red">SEGUIR PENSANDO</button>
+      </div>
+      <div class="modal-actions hidden" id="classicGuessActions">
+        <button id="classicGuessYesBtn" class="btn btn-green">SÍ, ES ESE</button>
+        <button id="classicGuessNoBtn" class="btn btn-red">NO, SEGUÍ PENSANDO</button>
       </div>
     </div>
   </div>
@@ -169,7 +174,6 @@
   <div id="gameMenuModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="gameMenuTitle">
     <div class="modal-card game-menu-card"><div class="suggestion-title-row"><span class="neon-brain brain-sm" aria-hidden="true"></span><h2 id="gameMenuTitle">MENÚ DE PARTIDA</h2></div>
       <button id="menuResumeBtn" class="menu-option">↩ <span>Volver a la partida</span></button>
-      <button id="menuHintsBtn" class="menu-option">🧠 <span>Sugerencias del Cerebro</span></button>
       <button id="menuHistoryBtn" class="menu-option">▤ <span>Historial</span></button>
       <button id="menuSurrenderBtn" class="menu-option menu-danger">⚑ <span>Rendirse</span></button>
       <button id="menuExitBtn" class="menu-option menu-danger">⌂ <span>Salir de la partida</span></button>
