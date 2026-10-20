@@ -1,0 +1,8 @@
+MIND DUEL FUSION — versión 3.12.18
+
+Correcciones puntuales:
+- Menú hamburguesa: se eliminan los pseudo-elementos de icono superpuestos. Las tres barras se dibujan como un único fondo CSS en el propio botón.
+- Historial: las partidas se guardan también mientras están en curso; aparecen como opción seleccionable y muestran sus intervenciones.
+- Al finalizar una partida, el mismo registro se actualiza en vez de crear una copia.
+- El lector del historial tolera datos locales inválidos y evita que una estructura inesperada rompa la ventana.
+- Se elimina el registro duplicado de cada mensaje en el modo individual/clásico.

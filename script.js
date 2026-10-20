@@ -417,7 +417,7 @@ function avatarFor(kind) {
 
 function renderMessage(text, kind = 'system') {
   return new Promise(async resolve => {
-    window.MatchHistory?.record(kind === 'player' ? 'TÚ' : kind === 'mind' ? 'CEREBRO' : 'SISTEMA', text, kind);
+    // addMessage registra la intervención una sola vez antes de encolarla.
     const row = document.createElement('div');
     row.className = `message message-${kind}`;
     const avatar = document.createElement('div');

@@ -24,7 +24,7 @@ body,.arcade{background:var(--bg)}
 .btn-red{color:#ff5aa5;border-color:#ff3d8b;background:rgba(40,4,24,.85);box-shadow:0 0 14px rgba(255,61,139,.45)}
 /* juego */
 .game-header{border:1px solid rgba(138,77,255,.8);border-radius:14px;background:rgba(10,4,40,.8);box-shadow:0 0 14px rgba(138,77,255,.45),inset 0 0 14px rgba(25,240,255,.12)}
-#menuBtn{font-size:0;width:38px}#menuBtn::before{content:"";display:block;width:24px;height:24px;margin:auto;background:var(--cy);-webkit-mask-image:var(--ic-menu);mask-image:var(--ic-menu)}
+#menuBtn{font-size:0;width:36px;height:36px;flex:0 0 36px}#menuBtn::before,#menuBtn::after{content:none!important;display:none!important}
 .mind-sign{font:italic 900 20px Orbitron,Impact,sans-serif;font-size:0;background:none}
 .mind-sign::after{content:"MIND DUEL";font:italic 900 17px Orbitron,Impact,sans-serif;background:linear-gradient(180deg,#fff,#ff2fd6 60%,#2a6bff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 6px #ff2fd6)}
 .hud-item{border:1px solid var(--cy);border-radius:8px;background:rgba(2,18,34,.8);box-shadow:inset 0 0 10px rgba(25,240,255,.2);padding:4px 8px}
