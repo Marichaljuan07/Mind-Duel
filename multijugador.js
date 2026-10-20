@@ -44,11 +44,18 @@ function suggestedAnswer(question){
  if(!suggestion){const rows=readTraining().filter(r=>normalizeName(r.character)===normalizeName(secret)&&normalizeName(r.question)===normalizeName(question));if(rows.length){suggestion=rows[rows.length-1].answer;source='memoria aprendida';}}
  return {suggestion:suggestion||'No lo sé',source:source||'sin datos suficientes'};
 }
-function renderBrainSequence(question){
- const box=$('onlineQuestionBox'),hint=$('brainSuggestionStatus');const result=suggestedAnswer(question);
- if(box)box.textContent='';
- const reading=$('onlineReadingStatus');if(reading)reading.textContent='Leyendo la pregunta del otro jugador: «'+question+'»';
- if(hint)hint.textContent='Sugerencia para responder: '+result.suggestion+(result.source==='sin datos suficientes'?' (no hay datos suficientes).':' ('+result.source+').');
+function renderOnlineSequence(question){
+ const box=$('onlineQuestionBox'),hint=$('brainSuggestionStatus'),reading=$('onlineReadingStatus');
+ if(myRole==='brain'){
+  const result=suggestedAnswer(question);
+  if(box)box.textContent='Pregunta recibida: '+question;
+  if(reading){reading.classList.remove('hidden');reading.textContent='Leyendo la pregunta del jugador: «'+question+'»';}
+  if(hint){hint.classList.remove('hidden');hint.textContent='Sugerencia para responder: '+result.suggestion+(result.source==='sin datos suficientes'?' (no hay datos suficientes).':' ('+result.source+').');}
+ }else{
+  if(box)box.textContent='Pregunta enviada: '+question;
+  if(reading){reading.classList.remove('hidden');reading.textContent='Esperando la respuesta del Cerebro…';}
+  if(hint)hint.classList.add('hidden');
+ }
 }
 function enterGame(startAt){
  clearInterval(onlineTimerId);onlineStartedAt=Number(startAt)||Date.now();onlineQuestionCount=0;onlineGuessesLeft=2;
@@ -57,7 +64,7 @@ function enterGame(startAt){
  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
  $('gameScreen').classList.remove('hidden');$('chatBubbleBtn').classList.remove('hidden');
  document.body.classList.add('duel-online');document.body.classList.toggle('duel-brain',myRole==='brain');document.body.classList.toggle('duel-guess',myRole==='guess');document.body.classList.remove('classic','name-phase');
- $('classicEnd').classList.add('hidden');$('brainInlinePanel').classList.toggle('hidden',myRole!=='brain');$('classicPanel').classList.toggle('hidden',myRole!=='brain');
+ $('classicEnd').classList.add('hidden');$('brainInlinePanel').classList.remove('hidden');$('classicPanel').classList.toggle('hidden',myRole!=='brain');
  $('suggestBtn').classList.add('hidden');$('guessBtn').classList.toggle('hidden',myRole==='brain');
  $('questionForm').classList.remove('hidden');
  $('questionInput').disabled=myRole==='brain';$('sendBtn').disabled=myRole==='brain';
@@ -65,8 +72,10 @@ function enterGame(startAt){
  nativeChat.innerHTML='';window.MatchHistory?.begin('online', {rol:myRole});$('questionsHud').textContent='0/20';$('guessesHud').textContent='2';if($('modeHud'))$('modeHud').textContent='ONLINE';if($('questionCountLabel'))$('questionCountLabel').textContent=myRole==='brain'?'RESP.':'PREG.';updateOnlineHud();saveOnlineProgress();
  const updateOnlineClock=()=>{const sec=Math.max(0,Math.floor((Date.now()-onlineStartedAt)/1000));$('timer').textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');};updateOnlineClock();onlineTimerId=setInterval(()=>{updateOnlineClock();saveOnlineProgress();},1000);send({type:'progress',count:onlineQuestionCount,startedAt:onlineStartedAt});
  $('questionInput').placeholder=myRole==='brain'?'Escribí una respuesta…':'Escribí tu pregunta…';$('sendBtn').textContent=myRole==='brain'?'Responder':'Enviar';
- if($('brainSuggestionStatus'))$('brainSuggestionStatus').textContent='La sugerencia aparecerá aquí cuando llegue la pregunta.';
- if($('onlineQuestionBox'))$('onlineQuestionBox').textContent='Esperando la pregunta del Descubridor…';
+ if($('brainSuggestionStatus')){ $('brainSuggestionStatus').textContent='La sugerencia aparecerá aquí cuando llegue la pregunta.'; $('brainSuggestionStatus').classList.toggle('hidden',myRole!=='brain');}
+ if($('onlineQuestionBox'))$('onlineQuestionBox').textContent=myRole==='brain'?'Esperando la pregunta del Descubridor…':'Esperando enviar tu primera pregunta…';
+ if($('onlineReadingStatus'))$('onlineReadingStatus').textContent=myRole==='brain'?'Esperando la pregunta del Descubridor…':'Cuando envíes una pregunta, aquí verás el estado de la respuesta.';
+ const seqTitle=document.querySelector('.sequence-heading');if(seqTitle)seqTitle.lastChild.textContent=myRole==='brain'?' SECUENCIA DEL CEREBRO':' SECUENCIA DEL DESCUBRIDOR';
  const title=document.querySelector('.console-title span:last-child');if(title)title.textContent=myRole==='brain'?'RESPONDE AL DESCUBRIDOR':'DESCUBRÍ EL PERSONAJE';
  if(myRole==='brain')gameMessage('Personaje elegido. Esperá la pregunta del Descubridor.','system');
  else gameMessage('Tu amigo eligió un personaje. Hacé preguntas y usá ADIVINAR cuando creas saber quién es.','mind');
@@ -81,12 +90,15 @@ function onData(d){if(!d||typeof d!=='object')return;
  if(d.type==='question'&&myRole==='brain'){
   onlineQuestionCount=Math.max(onlineQuestionCount+1,Number(d.count)||0);updateOnlineHud();send({type:'progress',count:onlineQuestionCount,startedAt:onlineStartedAt});
   pendingQuestion=String(d.text||'').slice(0,240);if(!pendingQuestion)return;
-  renderBrainSequence(pendingQuestion);$('brainInlinePanel').classList.remove('hidden');setAnswerButtonsDisabled(false);
+  renderOnlineSequence(pendingQuestion);$('brainInlinePanel').classList.remove('hidden');setAnswerButtonsDisabled(false);
   gameMessage((d.name||'DESCUBRIDOR')+' pregunta: '+pendingQuestion,'player');$('questionInput').value='';$('questionInput').placeholder='Escribí una respuesta…';$('sendBtn').textContent='Responder';setDisabled($('questionInput'),false);setDisabled($('sendBtn'),false);status('Pregunta recibida. Elegí una respuesta o escribí tu respuesta abajo.');return;
  }
  if(d.type==='answer'&&myRole==='guess'){
   waitingForAnswer=false;setDiscovererControlsDisabled(false);const answer=String(d.text||'');
   onlineQuestionCount=Math.max(onlineQuestionCount,Number(d.count)||0);updateOnlineHud();gameMessage('Respuesta del Cerebro: '+answer,'mind');
+  if($('onlineQuestionBox'))$('onlineQuestionBox').textContent='Respuesta recibida: '+answer;
+  if($('onlineReadingStatus')){$('onlineReadingStatus').classList.remove('hidden');$('onlineReadingStatus').textContent='Respuesta recibida. Podés hacer otra pregunta.';}
+  if($('brainSuggestionStatus'))$('brainSuggestionStatus').classList.add('hidden');
   status('Respuesta recibida. Podés hacer otra pregunta o adivinar.');return;
  }
  if(d.type==='guess_announce'&&myRole==='brain'){gameMessage((d.name||'El Descubridor')+' dice: '+String(d.text||'He analizado las respuestas… voy a adivinar.'),'player');return;}
@@ -127,8 +139,8 @@ on('secretCharacter','change',()=>setSecret($('secretCharacter').value));on('sec
 function readTraining(){try{return JSON.parse(localStorage.getItem('mind_duel_human_training')||'[]')}catch{return []}}
 function rememberCustomCharacter(name){try{const key='mind_duel_custom_characters';const list=JSON.parse(localStorage.getItem(key)||'[]');if(!findCharacter(name)&&!list.some(x=>normalizeName(x.nombre)===normalizeName(name)))list.push({nombre:name,creado:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(list.slice(-500)));}catch{}}
 // Intercepta el formulario NATIVO del juego: en modo cerebro envía respuestas; en modo descubridor envía preguntas.
-on('questionForm','submit',e=>{if(!document.body.classList.contains('duel-online'))return;e.preventDefault();e.stopImmediatePropagation();const input=$('questionInput'),text=input.value.trim();if(!connected||!myRole){status('La partida online no está conectada correctamente.');return;}if(!text)return;if(myRole==='guess'){if(waitingForAnswer||waitingForGuess)return;if(!send({type:'question',name:saveName(),text,count:incrementCount()})){status('No se pudo enviar la pregunta.');return;}input.value='';waitingForAnswer=true;setDiscovererControlsDisabled(true);gameMessage(text,'player');status('Pregunta enviada. Esperando respuesta del Cerebro…');return;}if(myRole==='brain'){if(!pendingQuestion){status('Esperá una pregunta del Descubridor.');return;}if($('sendBtn').disabled)return;if(!send({type:'answer',text,count:onlineQuestionCount})){status('No se pudo enviar la respuesta.');return;}gameMessage(text,'mind');storeLearning(pendingQuestion,text);updateOnlineHud();pendingQuestion='';input.value='';setAnswerButtonsDisabled(true);if($('onlineQuestionBox'))$('onlineQuestionBox').textContent='Respuesta enviada: '+text;if($('brainSuggestionStatus'))$('brainSuggestionStatus').textContent='Esperando la próxima pregunta del Descubridor…';status('Respuesta enviada. Esperando la próxima pregunta…');}},true);
-on('classicPanel','click',e=>{if(!document.body.classList.contains('duel-online'))return;if(!connected||myRole!=='brain')return;const b=e.target.closest('[data-ans]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();if(!pendingQuestion){status('Esperá una pregunta del Descubridor.');return;}if(b.disabled)return;const text=labels[b.dataset.ans];if(!send({type:'answer',text,count:onlineQuestionCount})){status('No se pudo enviar la respuesta.');return;}gameMessage(text,'mind');storeLearning(pendingQuestion,text);updateOnlineHud();pendingQuestion='';$('questionInput').value='';setAnswerButtonsDisabled(true);if($('onlineQuestionBox'))$('onlineQuestionBox').textContent='Respuesta enviada: '+text;if($('brainSuggestionStatus'))$('brainSuggestionStatus').textContent='Esperando la próxima pregunta del Descubridor…';status('Respuesta enviada. Esperando la próxima pregunta…');},true);
+on('questionForm','submit',e=>{if(!document.body.classList.contains('duel-online'))return;e.preventDefault();e.stopImmediatePropagation();const input=$('questionInput'),text=input.value.trim();if(!connected||!myRole){status('La partida online no está conectada correctamente.');return;}if(!text)return;if(myRole==='guess'){if(waitingForAnswer||waitingForGuess)return;if(!send({type:'question',name:saveName(),text,count:incrementCount()})){status('No se pudo enviar la pregunta.');return;}input.value='';waitingForAnswer=true;setDiscovererControlsDisabled(true);gameMessage(text,'player');renderOnlineSequence(text);status('Pregunta enviada. Esperando respuesta del Cerebro…');return;}if(myRole==='brain'){if(!pendingQuestion){status('Esperá una pregunta del Descubridor.');return;}if($('sendBtn').disabled)return;if(!send({type:'answer',text,count:onlineQuestionCount})){status('No se pudo enviar la respuesta.');return;}gameMessage(text,'mind');storeLearning(pendingQuestion,text);updateOnlineHud();pendingQuestion='';input.value='';setAnswerButtonsDisabled(true);if($('onlineQuestionBox'))$('onlineQuestionBox').textContent='Respuesta enviada: '+text;if($('onlineReadingStatus'))$('onlineReadingStatus').textContent='Esperando la próxima pregunta del Descubridor…';if($('brainSuggestionStatus'))$('brainSuggestionStatus').classList.add('hidden');status('Respuesta enviada. Esperando la próxima pregunta…');}},true);
+on('classicPanel','click',e=>{if(!document.body.classList.contains('duel-online'))return;if(!connected||myRole!=='brain')return;const b=e.target.closest('[data-ans]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();if(!pendingQuestion){status('Esperá una pregunta del Descubridor.');return;}if(b.disabled)return;const text=labels[b.dataset.ans];if(!send({type:'answer',text,count:onlineQuestionCount})){status('No se pudo enviar la respuesta.');return;}gameMessage(text,'mind');storeLearning(pendingQuestion,text);updateOnlineHud();pendingQuestion='';$('questionInput').value='';setAnswerButtonsDisabled(true);if($('onlineQuestionBox'))$('onlineQuestionBox').textContent='Respuesta enviada: '+text;if($('onlineReadingStatus'))$('onlineReadingStatus').textContent='Esperando la próxima pregunta del Descubridor…';if($('brainSuggestionStatus'))$('brainSuggestionStatus').classList.add('hidden');status('Respuesta enviada. Esperando la próxima pregunta…');},true);
 function confirmOnlineGuess(correct){if(!pendingOnlineGuess)return;const guessed=pendingOnlineGuess;pendingOnlineGuess='';$('onlineGuessConfirmModal').classList.add('hidden');const left=onlineGuessesLeft;$('guessesHud').textContent=String(left);send({type:'guess_result',correct,character:guessed,secret:secret,guessesLeft:left,name:saveName()});if(correct){gameMessage('Confirmaste que el Descubridor acertó.','system');showResult(false,'Tu amigo descubrió el personaje',secret);}else if(left<=0){gameMessage('El Descubridor agotó sus dos intentos.','system');showResult(true,'Tu amigo agotó sus dos intentos',secret);}else{gameMessage('Confirmaste que no era ese personaje. Queda(n) '+left+' intento(s).','system');status('Intento incorrecto confirmado.');}}
 on('onlineGuessConfirmYes','click',()=>confirmOnlineGuess(true));on('onlineGuessConfirmNo','click',()=>confirmOnlineGuess(false));
 on('guessBtn','click',e=>{if(!document.body.classList.contains('duel-online'))return;e.preventDefault();e.stopImmediatePropagation();if(myRole!=='guess'||waitingForAnswer||waitingForGuess||onlineGuessesLeft<=0)return;const announcement='He analizado las respuestas. Ha llegado el momento de arriesgarme… voy a adivinar.';if(!send({type:'guess_announce',text:announcement,name:saveName()})){status('No se pudo anunciar el intento.');return;}gameMessage(announcement,'mind');$('guessHint').textContent='Te quedan '+onlineGuessesLeft+' intentos. Escribí el nombre del personaje.';$('guessInput').value='';$('guessModal').classList.remove('hidden');$('guessInput').focus();},true);

@@ -1,0 +1,6 @@
+Mind Duel Fusion 3.12.21
+- Compactación del HUD superior para que los indicadores queden dentro del marco en móviles.
+- Panel de secuencia compartido visualmente por Cerebro y Descubridor, con textos adaptados al rol.
+- El Descubridor ve la pregunta enviada y la respuesta recibida en el panel de secuencia.
+- La sugerencia del Cerebro desaparece después de enviar la respuesta y vuelve a mostrarse al recibir la siguiente pregunta.
+- Mantiene el contador de turno compartido y los dos intentos.
