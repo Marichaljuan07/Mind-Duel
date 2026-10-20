@@ -1,5 +1,5 @@
 // Simula al jugador respondiendo con honestidad por CADA personaje y mide si el Cerebro lo adivina.
-global.Sugeridor=require('./sugeridor.js');const L=require('./motor_logico.js'),C=require('./clasico.js'),P=require('./personajes.js');
+global.Sugeridor=require('./sugeridor.js');const L=require('./motor_logico.js'),C=require('./clasico.js'),fs=require('fs'),vm=require('vm');const ctx={};vm.createContext(ctx);vm.runInContext(fs.readFileSync('./personajes.js','utf8')+';globalThis.__P=PERSONAJES;',ctx);const P=ctx.__P;
 let ok=0,tot=0,sum=0;const fallos=[];
 for(const p of P){const s=C.nuevo(P);let fails=0,res=null;
  for(let it=0;it<60&&res===null;it++){

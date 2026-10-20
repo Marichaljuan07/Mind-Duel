@@ -60,6 +60,7 @@ const state = {
   timerId: null,
   seconds: 0
 };
+window.setMindDuelMode = mode => { state.mode = mode; };
 
 const suggestionPool = [
   '¿Es una persona real?', '¿Es ficticio?', '¿Es una mujer?', '¿Es un hombre?',
@@ -76,6 +77,17 @@ let classicBusy = false;
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function show(screen) { sayToken++; [ui.title, ui.stage, ui.game, ui.result].forEach(s => s.classList.add('hidden')); screen.classList.remove('hidden'); }
 function flash() { ui.flash.classList.remove('fire'); void ui.flash.offsetWidth; ui.flash.classList.add('fire'); }
+
+// Audio arcade sintetizado localmente: no requiere archivos ni servicios externos.
+const arcadeAudio = (() => { let ctx=null, musicOn=false, sfxOn=true, loop=null, step=0; const notes=[110,164.81,220,164.81,130.81,196,261.63,196];
+ function audio(){ if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(AC)ctx=new AC();} if(ctx&&ctx.state==='suspended')ctx.resume().catch(()=>{});return ctx;}
+ function tone(freq,duration=.12,type='square',volume=.025,delay=0){const c=audio();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.0001,c.currentTime+delay);g.gain.exponentialRampToValueAtTime(volume,c.currentTime+delay+.012);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+delay+duration);o.connect(g);g.connect(c.destination);o.start(c.currentTime+delay);o.stop(c.currentTime+delay+duration+.025);}
+ function tick(){if(!musicOn)return;tone(notes[step%notes.length],.18,'triangle',.012);if(step%2===0)tone(notes[(step+3)%notes.length]/2,.16,'square',.007,.03);step++;}
+ function music(on){musicOn=!!on;const b=el('musicToggleBtn');if(b){b.classList.toggle('sound-off',!musicOn);b.title='Música: '+(musicOn?'activada':'apagada');}if(musicOn){audio();if(!loop){tick();loop=setInterval(tick,260);}}else if(loop){clearInterval(loop);loop=null;}}
+ function fx(kind='click'){if(!sfxOn)return;const seq={click:[660],open:[440,660,880],yes:[523,659,784],no:[330,247],win:[523,659,784,1046],lose:[440,370,294]};(seq[kind]||seq.click).forEach((n,i)=>tone(n,.09,'square',.025,i*.075));}
+ function effects(on){sfxOn=!!on;const b=el('sfxToggleBtn');if(b){b.classList.toggle('sound-off',!sfxOn);b.title='Efectos: '+(sfxOn?'activados':'desactivados');}}
+ return {music,effects,fx}; })();
+
 
 // =========================================================
 // SEQUENCIA CINEMATOGRÁFICA DE INICIO (CEREBRO + RAYOS)
@@ -239,7 +251,7 @@ async function startClassic() {
   classic.s = Clasico.nuevo(PERSONAJES);
   classic.cur = null; classic.fails = 0; classic.phase = 'ask';
   classicBusy = true;
-  state.guessesLeft = 2; updateHud();
+  state.guessesLeft = 3; updateHud();
   show(ui.game);
   await addMessage('Piensa en un personaje, real o ficticio. Yo intentaré descubrirlo. Respondé cada pregunta con los botones.', 'mind');
   startTimer();
@@ -271,29 +283,26 @@ async function classicGuess(announce = false) {
   const m = Clasico.mejor(classic.s);
   if (!m) return classicName();
   classic.cur = { tipo: 'g', i: m.i, p: m.p };
-  if (announce) await addMessage('Muy bien, mortal. He analizado tus respuestas y estoy listo para arriesgarme.', 'mind');
+  if (announce) await addMessage('He analizado tus respuestas. Ha llegado el momento de arriesgarme… voy a adivinar.', 'mind');
+  await addMessage(`¿Tu personaje es ${m.p.nombre}?`, 'mind');
   classicBusy = false;
-  const modal = el('guessModal');
-  el('guessTitle').textContent = 'EL CEREBRO SE ARRIESGA';
-  modal.querySelector('.guess-lead').textContent = 'Muy bien, mortal. He analizado tus respuestas y he llegado a una conclusión…';
-  el('guessInput').classList.add('hidden');
-  modal.querySelector('label[for="guessInput"]').classList.add('hidden');
-  el('guessHint').classList.add('hidden');
-  el('classicGuessCharacter').textContent = m.p.nombre;
-  el('classicGuessCharacter').classList.remove('hidden');
-  el('normalGuessActions').classList.add('hidden');
-  el('classicGuessActions').classList.remove('hidden');
-  modal.classList.remove('hidden');
 }
 
 async function classicName() {
   classicBusy = true;
   classic.cur = null; classic.phase = 'name';
-  await addMessage('Me rindo. Esta vez has vencido tú. ¿En quién pensabas? Escribe su nombre.', 'mind');
+  await addMessage('No he logrado identificarlo. Decime en quién estabas pensando y lo anotamos.', 'mind');
   document.body.classList.add('name-phase');
   $cl('classicPanel').classList.add('hidden');
-  ui.input.placeholder = 'Nombre del personaje...';
-  ui.input.disabled = false; ui.send.disabled = false; ui.input.focus();
+  ui.resultTag.textContent='MODO CLÁSICO';
+  ui.resultTitle.textContent='¡EL CEREBRO NO LO DESCIFRÓ!';
+  ui.resultCharacter.textContent='Tu personaje sigue siendo un misterio.';
+  ui.resultDescription.textContent='Tu victoria está casi lista. Contame quién era para mostrar el resultado final.';
+  el('resultActions').classList.add('hidden');
+  el('classicCharacterNameForm').classList.remove('hidden');
+  show(ui.result);
+  el('classicCharacterNameInput').value='';
+  el('classicCharacterNameInput').focus();
 }
 
 async function classicSaveName(text) {
@@ -307,7 +316,7 @@ async function classicSaveName(text) {
     localStorage.setItem(k, JSON.stringify(l));
   } catch (e) {}
   await addMessage(`Anotado: ${nombre}. Me has superado esta vez. Disfruta tu victoria; volveré mejor preparado.`, 'mind');
-  classicEnd({wonBy:'player', nombre, descripcion:'El Cerebro no logró identificar tu personaje.'});
+  const known=findKnownCharacter(nombre); const saved=localStorage.getItem('mind_character_description_'+nombre)||''; classicEnd({wonBy:'player', nombre, descripcion:(known&&known.descripcion)||saved||'El Cerebro no logró identificar tu personaje.'});
 }
 
 const CLASSIC_WIN_LINES = [
@@ -325,19 +334,21 @@ const CLASSIC_LOSE_LINES = [
   'Un buen intento, pero mi mente ha sido más rápida.'
 ];
 function pickLine(lines) { return lines[Math.floor(Math.random() * lines.length)]; }
+function findKnownCharacter(name){try{return (PERSONAJES||[]).find(p=>MindLogic.normalizar(p.nombre)===MindLogic.normalizar(name))||null;}catch{return null;}}
 async function classicEnd(result = {}) {
   if (classic.phase !== 'end') window.MatchHistory?.finish(result.wonBy === 'brain' ? 'Victoria del Cerebro' : result.wonBy === 'player' ? 'Victoria del jugador' : 'Finalizada', {modo:'clásico', personaje: result.nombre || ''});
   classic.phase = 'end'; classic.cur = null; classicBusy = true;
   clearInterval(state.timerId);
   document.body.classList.remove('name-phase');
   $cl('classicPanel').classList.add('hidden');
-  const panel = $cl('classicEnd');
-  const resultBox = $cl('classicResult');
-  if (resultBox) {
-    const wonByBrain = result.wonBy === 'brain';
-    resultBox.innerHTML = `<h3 class="classic-result-title">${wonByBrain ? 'HAS PERDIDO' : 'HAS GANADO'}</h3><p class="classic-result-status">${wonByBrain ? 'VICTORIA DEL CEREBRO' : 'VICTORIA DEL JUGADOR'}</p><p class="classic-result-character">${result.nombre ? `El personaje era: <strong>${escapeHtml(result.nombre)}</strong>` : ''}</p><p>${escapeHtml(result.descripcion || '')}</p><p class="classic-result-taunt">${escapeHtml(result.frase || (wonByBrain ? pickLine(CLASSIC_LOSE_LINES) : pickLine(CLASSIC_WIN_LINES)))}</p>`;
-  }
-  panel.classList.remove('hidden');
+  const wonByBrain = result.wonBy === 'brain';
+  el('classicCharacterNameForm').classList.add('hidden'); el('resultActions').classList.remove('hidden');
+  ui.resultTag.textContent = 'MODO CLÁSICO';
+  ui.resultTitle.textContent = wonByBrain ? 'HAS PERDIDO' : '¡HAS GANADO!';
+  ui.resultCharacter.textContent = result.nombre ? `Tu personaje era: ${result.nombre}` : 'Personaje no identificado';
+  ui.resultDescription.textContent = `${result.descripcion || ''} ${result.frase || (wonByBrain ? pickLine(CLASSIC_LOSE_LINES) : pickLine(CLASSIC_WIN_LINES))}`.trim();
+  const editBtn=el('editCharacterBtn'); if(editBtn) editBtn.classList.toggle('hidden', !result.nombre || !!((findKnownCharacter(result.nombre)||{}).descripcion || localStorage.getItem('mind_character_description_'+result.nombre)));
+  show(ui.result); arcadeAudio.fx(wonByBrain ? 'lose' : 'win');
   ui.input.placeholder = 'Pregunta de sí/no...';
   classicBusy = false;
 }
@@ -359,7 +370,7 @@ async function classicAnswer(ans) {
     return;
   }
   classic.fails++; Clasico.rechazar(classic.s, c.i);
-  if (classic.fails >= 2 || !Clasico.mejor(classic.s)) return classicName();
+  if (classic.fails >= 3 || !Clasico.mejor(classic.s)) return classicName();
   await addMessage('Esa no era. No importa: reajusto mis deducciones y continúo.', 'mind');
   classicBusy = false;
   await nextClassic();
@@ -570,9 +581,6 @@ function isCorrectGuess(raw) {
 
 function openGuess() {
   if (!state.active || state.busy) return;
-  el('guessTitle').textContent = '¿PODÉS DESCIFRARLO?';
-  el('guessModal').querySelector('.guess-lead').textContent = 'El Cerebro está listo para comprobar tu teoría.';
-  el('guessInput').classList.remove('hidden'); el('guessModal').querySelector('label[for="guessInput"]').classList.remove('hidden'); el('guessHint').classList.remove('hidden'); el('classicGuessCharacter').classList.add('hidden'); el('normalGuessActions').classList.remove('hidden'); el('classicGuessActions').classList.add('hidden');
   ui.guessHint.textContent = `Te quedan ${state.guessesLeft} intento${state.guessesLeft === 1 ? '' : 's'}.`;
   ui.guessInput.value = '';
   ui.guessModal.classList.remove('hidden');
@@ -712,12 +720,15 @@ function closeModalFromTarget(target) {
   const id = target.dataset.close;
   if (id) el(id)?.classList.add('hidden');
 }
-function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; el('gameMenuTitle').textContent = 'MENÚ DE PARTIDA'; el('menuSurrenderBtn').querySelector('span').textContent = state.mode==='classic' ? 'Retirarse' : 'Rendirse'; el('menuExitBtn').querySelector('span').textContent = 'Salir de la partida'; el('gameMenuModal').classList.remove('hidden'); }
-function leaveGame(){ el('gameMenuModal').classList.add('hidden'); if(state.mode!=='classic' && state.active){ if(confirm('¿Querés salir de esta partida? El progreso actual se perderá.')) openStage(); } else openStage(); }
+function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; const menu=el('gameMenuModal');const opening=menu.classList.contains('hidden');menu.classList.toggle('hidden',!opening);el('menuBtn').setAttribute('aria-expanded',String(opening));el('menuBtn').setAttribute('aria-label',opening?'Cerrar menú':'Abrir menú');el('menuSurrenderBtn').querySelector('span').textContent=document.body.classList.contains('duel-online')?'Rendirse':state.mode==='classic'?'Retirarse':'Rendirse'; }
+function leaveGame(){ el('gameMenuModal').classList.add('hidden'); if(document.body.classList.contains('duel-online')) { if(confirm('¿Querés salir de esta partida?')) window.dispatchEvent(new CustomEvent('mindduel-leave')); return; } if(state.mode!=='classic' && state.active){ if(confirm('¿Querés salir de esta partida? El progreso actual se perderá.')) openStage(); } else openStage(); }
 
 
-document.addEventListener('click', e => closeModalFromTarget(e.target));
-el('startBtn').onclick = openStage;
+document.addEventListener('click', e => { closeModalFromTarget(e.target); const menu=el('gameMenuModal'); if(menu&&!menu.classList.contains('hidden')&&!e.target.closest('.header-menu-wrap')){menu.classList.add('hidden');el('menuBtn').setAttribute('aria-expanded','false');el('menuBtn').setAttribute('aria-label','Abrir menú');} });
+el('startBtn').onclick = () => { arcadeAudio.music(true); arcadeAudio.fx('open'); openStage(); };
+el('musicToggleBtn').onclick = () => arcadeAudio.music(el('musicToggleBtn').classList.contains('sound-off'));
+el('sfxToggleBtn').onclick = () => arcadeAudio.effects(el('sfxToggleBtn').classList.contains('sound-off'));
+document.addEventListener('click', e => { if(e.target.closest('button')) arcadeAudio.fx('click'); });
 el('exitBtn').onclick = shutdown;
 
 // BOTONES DEL TEATRO (ACEPTAR Y HUIR)
@@ -733,9 +744,9 @@ ui.espejoBtn.onclick = async () => { ui.stageMenu.classList.add('hidden'); await
 ui.dueloBtn.onclick = () => {};
 
 el('menuBtn').onclick = openGameMenu;
-el('menuResumeBtn').onclick = () => el('gameMenuModal').classList.add('hidden');
+el('menuResumeBtn').onclick = () => {el('gameMenuModal').classList.add('hidden');el('menuBtn').setAttribute('aria-expanded','false');};
 el('menuHistoryBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); if(el('matchHistoryModal')) el('matchHistoryModal').classList.remove('hidden'); else addMessage('El historial está disponible al terminar la partida.', 'system'); };
-el('menuSurrenderBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); if(state.mode==='classic') classicEnd({wonBy:'brain',nombre:classic.cur?.p?.nombre || Clasico.mejor(classic.s)?.p?.nombre || 'personaje secreto',descripcion:'Te rendiste antes de descubrirlo.',frase:pickLine(CLASSIC_LOSE_LINES)}); else if(state.active) finish(false,'Te has rendido.'); };
+el('menuSurrenderBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); if(document.body.classList.contains('duel-online')) { window.dispatchEvent(new CustomEvent('mindduel-surrender')); return; } if(state.mode==='classic') classicEnd({wonBy:'brain',nombre:classic.cur?.p?.nombre || Clasico.mejor(classic.s)?.p?.nombre || 'personaje secreto',descripcion:'Te rendiste antes de descubrirlo.',frase:pickLine(CLASSIC_LOSE_LINES)}); else if(state.active) finish(false,'Te has rendido.'); };
 el('menuExitBtn').onclick = leaveGame;
 ui.form.onsubmit = e => {
   e.preventDefault();
@@ -745,16 +756,19 @@ ui.form.onsubmit = e => {
 };
 ui.guess.onclick = openGuess;
 el('confirmGuessBtn').onclick = confirmGuess;
-el('classicGuessYesBtn').onclick = async () => { el('guessModal').classList.add('hidden'); el('classicGuessActions').classList.add('hidden'); el('normalGuessActions').classList.remove('hidden'); el('guessInput').classList.remove('hidden'); el('guessModal').querySelector('label[for="guessInput"]').classList.remove('hidden'); el('guessHint').classList.remove('hidden'); const p=classic.cur?.p; if(p) await classicEnd({wonBy:'brain',nombre:p.nombre,descripcion:p.descripcion || 'El personaje que estabas pensando.',frase:pickLine(CLASSIC_LOSE_LINES)}); };
-el('classicGuessNoBtn').onclick = async () => { el('guessModal').classList.add('hidden'); el('classicGuessActions').classList.add('hidden'); el('normalGuessActions').classList.remove('hidden'); el('guessInput').classList.remove('hidden'); el('guessModal').querySelector('label[for="guessInput"]').classList.remove('hidden'); el('guessHint').classList.remove('hidden'); const c=classic.cur; if(!c) return; classicBusy=true; classic.fails++; Clasico.rechazar(classic.s,c.i); if(classic.fails>=2 || !Clasico.mejor(classic.s)) return classicName(); await addMessage('¡Rayos! No era ese. Tendré que seguir pensando…','mind'); classicBusy=false; await nextClassic(); };
 ui.guessInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') confirmGuess();
 });
 ui.suggest.onclick = openSuggestions;
 el('rerollSuggestionsBtn').onclick = rerollSuggestions;
-el('playAgainBtn').onclick = startGame;
+el('classicCharacterNameForm').onsubmit = e => { e.preventDefault(); const value=el('classicCharacterNameInput').value.trim(); if(value) classicSaveName(value); };
+el('playAgainBtn').onclick = () => { if(state.mode==='classic') startClassic(); else if(document.body.classList.contains('duel-online')) { document.body.classList.remove('duel-online'); openStage(); } else startGame(); };
 el('resultMenuBtn').onclick = openStage;
 el('resultExitBtn').onclick = shutdown;
+el('editCharacterBtn').onclick = () => { const name=(el('resultCharacter').textContent||'').replace(/^Tu personaje era:\s*/, '').trim(); el('characterEditTitle').textContent='DESCRIPCIÓN DE '+name.toUpperCase(); el('characterDescriptionInput').value=localStorage.getItem('mind_character_description_'+name)||''; el('characterEditModal').classList.remove('hidden'); };
+el('cancelCharacterDescriptionBtn').onclick = () => el('characterEditModal').classList.add('hidden');
+el('saveCharacterDescriptionBtn').onclick = () => { const name=(el('resultCharacter').textContent||'').replace(/^Tu personaje era:\s*/, '').trim(); const desc=el('characterDescriptionInput').value.trim(); if(!name||!desc)return; try{localStorage.setItem('mind_character_description_'+name,desc);const rows=JSON.parse(localStorage.getItem('mind_personajes_nuevos')||'[]');const idx=rows.findIndex(x=>MindLogic.normalizar(x.nombre)===MindLogic.normalizar(name));if(idx>=0)rows[idx].descripcion=desc;else rows.push({nombre:name,descripcion:desc,fecha:new Date().toISOString()});localStorage.setItem('mind_personajes_nuevos',JSON.stringify(rows));}catch{} el('resultDescription').textContent=desc;el('characterEditModal').classList.add('hidden');el('editCharacterBtn').classList.add('hidden'); };
+el('viewMatchHistoryBtn').onclick = () => { if(el('matchHistoryModal')) el('matchHistoryModal').classList.remove('hidden'); else if(el('viewClassicHistoryBtn')) el('viewClassicHistoryBtn').click(); };
 el('restartBtn').onclick = () => location.reload();
 
 titleSequence();

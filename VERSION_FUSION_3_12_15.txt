@@ -1,5 +1,2 @@
 MIND DUEL FUSION 3.12.15
-- Menú de partida desplegable desde el botón MENÚ en todos los modos, sin opción Sugerencias del Cerebro.
-- Menú con Volver a la partida, Historial, Rendirse/Retirarse y Salir de la partida.
-- Adivinanza del modo clásico presentada en modal con personaje visible y opciones Sí/No.
-- Dos oportunidades de adivinanza en modo clásico.
+Menú hamburguesa compacto desplegable; pantalla final compartida para modo clásico y multijugador; captura del personaje al final del modo clásico; descripción local de personajes nuevos; música arcade sintetizada y efectos de sonido con controles independientes.

@@ -1,9 +1,11 @@
-Mind Duel Fusion 3.12.15
+MIND DUEL FUSION 3.12.15
 
-Cambios:
-* Menú hamburguesa ahora se despliega bajo el botón MENÚ y ofrece volver, historial, rendirse/retirarse y salir.
-* Se elimina del menú la opción Sugerencias del Cerebro.
-* Cuando el Cerebro intenta adivinar en el modo clásico, se abre una ventana con su frase, el nombre del personaje y opciones para confirmar o negar.
-* El modo clásico tiene dos oportunidades de adivinanza; si se equivoca, sigue preguntando mientras queden candidatos.
+Cambios principales:
+- Menú hamburguesa compacto debajo del botón; se abre/cierra con el botón, se cierra al tocar fuera y desaparece al elegir una acción.
+- Menú simplificado: volver a la partida, historial, rendirse/retirarse y salir de la partida.
+- Pantalla final compartida para clásico y multijugador con victoria/derrota, personaje y descripción.
+- En clásico, cuando el Cerebro no identifica el personaje, el nombre se solicita en la propia pantalla final.
+- Personajes nuevos pueden recibir una descripción, guardada localmente en ese navegador/dispositivo.
+- Música arcade sintetizada localmente y efectos de sonido activables por separado; no se descargan pistas externas. La música se inicia después de tocar JUGAR por las restricciones de reproducción automática del navegador.
 
-Abrí index.html en un navegador moderno. Esta entrega fue validada con comprobación sintáctica e integridad del ZIP; la interfaz completa debe probarse en navegador y en móvil.
+Pruebas realizadas: comprobación de sintaxis JavaScript con Node.js para script.js, multijugador.js y clasico.js; validación de integridad del ZIP al empaquetar. No se ejecutó una prueba interactiva completa en navegador ni se probó una sesión real entre dos dispositivos.

@@ -79,7 +79,7 @@
     <section id="gameScreen" class="screen game-screen hidden">
       <div class="game-ambient" aria-hidden="true"><div class="mini-sun"></div></div>
       <header class="game-header">
-        <button id="menuBtn" class="header-btn" aria-label="Menú">MENÚ</button>
+        <div class="header-menu-wrap"><button id="menuBtn" class="header-btn hamburger-btn" aria-label="Abrir menú" aria-expanded="false">☰</button><div id="gameMenuModal" class="game-menu-dropdown hidden" role="menu" aria-label="Menú de partida"><button id="menuResumeBtn" class="menu-option" role="menuitem">↩ <span>Volver a la partida</span></button><button id="menuHistoryBtn" class="menu-option" role="menuitem">▤ <span>Historial</span></button><button id="menuSurrenderBtn" class="menu-option menu-danger" role="menuitem">⚑ <span>Rendirse</span></button><button id="menuExitBtn" class="menu-option menu-danger" role="menuitem">⌂ <span>Salir de la partida</span></button></div></div><div class="sound-controls"><button id="musicToggleBtn" class="header-btn sound-btn sound-off" aria-label="Activar o desactivar música" title="Música: apagada">♫</button><button id="sfxToggleBtn" class="header-btn sound-btn" aria-label="Activar o desactivar efectos" title="Efectos: activados">♪</button></div>
         <div class="mind-sign">MIND DUEL</div>
         <div class="hud">
           <span class="hud-item"><b id="timer">00:00</b><small>TIEMPO</small></span>
@@ -131,8 +131,10 @@
         <h2 id="resultTitle">VICTORIA</h2>
         <h3 id="resultCharacter"></h3>
         <p id="resultDescription"></p>
-        <div class="stack compact">
+        <form id="classicCharacterNameForm" class="classic-name-form hidden"><label for="classicCharacterNameInput">¿EN QUÉ PERSONAJE ESTABAS PENSANDO?</label><input id="classicCharacterNameInput" maxlength="80" autocomplete="off" placeholder="Nombre del personaje"><button class="btn btn-green" type="submit">CONFIRMAR PERSONAJE</button></form>
+        <div id="resultActions" class="stack compact">
           <button id="viewMatchHistoryBtn" class="btn btn-green">VER PARTIDA</button>
+          <button id="editCharacterBtn" class="btn btn-purple hidden">AÑADIR / EDITAR DESCRIPCIÓN</button>
           <button id="playAgainBtn" class="btn btn-green">JUGAR DE NUEVO</button>
           <button id="resultMenuBtn" class="btn btn-purple">MENÚ PRINCIPAL</button>
           <button id="resultExitBtn" class="btn btn-red">SALIR</button>
@@ -149,14 +151,9 @@
       <label class="guess-hint" for="guessInput">ESCRIBÍ EL NOMBRE DEL PERSONAJE</label>
       <input id="guessInput" autocomplete="off" maxlength="80" placeholder="¿Quién es?">
       <p id="guessHint" class="guess-hint">Tienes 2 intentos.</p>
-      <div id="classicGuessCharacter" class="classic-guess-character hidden"></div>
-      <div class="modal-actions" id="normalGuessActions">
+      <div class="modal-actions">
         <button id="confirmGuessBtn" class="btn btn-green">CONFIRMAR TEORÍA</button>
         <button data-close="guessModal" class="btn btn-red">SEGUIR PENSANDO</button>
-      </div>
-      <div class="modal-actions hidden" id="classicGuessActions">
-        <button id="classicGuessYesBtn" class="btn btn-green">SÍ, ES ESE</button>
-        <button id="classicGuessNoBtn" class="btn btn-red">NO, SEGUÍ PENSANDO</button>
       </div>
     </div>
   </div>
@@ -171,14 +168,8 @@
   </div>
 
 
-  <div id="gameMenuModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="gameMenuTitle">
-    <div class="modal-card game-menu-card"><div class="suggestion-title-row"><span class="neon-brain brain-sm" aria-hidden="true"></span><h2 id="gameMenuTitle">MENÚ DE PARTIDA</h2></div>
-      <button id="menuResumeBtn" class="menu-option">↩ <span>Volver a la partida</span></button>
-      <button id="menuHistoryBtn" class="menu-option">▤ <span>Historial</span></button>
-      <button id="menuSurrenderBtn" class="menu-option menu-danger">⚑ <span>Rendirse</span></button>
-      <button id="menuExitBtn" class="menu-option menu-danger">⌂ <span>Salir de la partida</span></button>
-    </div>
-  </div>
+
+  <div id="characterEditModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="characterEditTitle"><div class="modal-card character-edit-card"><h2 id="characterEditTitle">MEJOREMOS ESTE PERSONAJE</h2><p>Podés guardar una descripción para reconocerlo mejor en futuras partidas.</p><label for="characterDescriptionInput">DESCRIPCIÓN DEL PERSONAJE</label><textarea id="characterDescriptionInput" maxlength="600" rows="5" placeholder="Quién es, de qué obra viene y qué lo caracteriza…"></textarea><div class="modal-actions"><button id="saveCharacterDescriptionBtn" class="btn btn-green">GUARDAR</button><button id="cancelCharacterDescriptionBtn" class="btn btn-red">AHORA NO</button></div></div></div>
   <div id="duelModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="duelTitle">
     <div class="modal-card duel-card">
       <div class="neon-brain brain-sm"></div><h2 id="duelTitle">DUELO ONLINE</h2>
