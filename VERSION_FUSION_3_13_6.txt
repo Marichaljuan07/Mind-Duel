@@ -1,0 +1,2 @@
+Mind Duel Fusion 3.13.6
+Biblioteca de partidas separada del historial; la intro no se salta al cargar el enlace.

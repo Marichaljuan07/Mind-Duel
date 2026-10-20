@@ -9,7 +9,7 @@ const ONLINE_SAVE_KEY='mindduel_online_progress_v1';
 const ONLINE_SESSION_KEY='mindduel_online_session_v1';
 let localTranscript=[],lastOnlineQuestion='',lastOnlineAnswer='',restoreSnapshot=null,restoreMatchId='',offlineRecovery=false;
 function readSavedSession(){try{const x=JSON.parse(localStorage.getItem(ONLINE_SESSION_KEY)||'null');return x&&typeof x==='object'?x:null;}catch{return null;}}
-function refreshRestoreButton(){const b=$('restoreSavedDuelBtn');if(!b)return;const saved=readSavedSession();b.classList.toggle('hidden',!saved||!saved.roomId||connected);}
+function refreshRestoreButton(){const b=$('restoreSavedDuelBtn');if(!b)return;const saved=readSavedSession();let hasLibrary=false;try{hasLibrary=!!window.SavedMatches?.list?.().length}catch{}b.classList.toggle('hidden',(!(saved&&saved.roomId)&&!hasLibrary)||connected);}
 function retryRestoreSavedSession(){const saved=readSavedSession();if(!saved||!saved.roomId){status('No hay ninguna partida guardada para recuperar.');refreshRestoreButton();return;}try{if(conn)conn.close();}catch{}try{if(peer)peer.destroy();}catch{}conn=null;peer=null;connected=false;reconnecting=true;status('Intentando recuperar la partida guardada…');restoreSavedSession();refreshRestoreButton();}
 window.addEventListener('mind:restore-history-online',e=>{const snapshot=e.detail?.snapshot;const fallback=readSavedSession();const chosen=(snapshot&&snapshot.roomId)?snapshot:fallback;if(!chosen||!chosen.roomId||!chosen.myRole){showModal();status('El historial encontró la partida, pero este dispositivo no conserva una sesión completa para reconstruir tu lado. Si tu amigo conserva la suya, puede abrirla y compartir un código de recuperación.');return;}restoreMatchId=String(e.detail?.matchId||'');try{localStorage.setItem(ONLINE_SESSION_KEY,JSON.stringify(chosen));}catch{}restoreSnapshotOffline(chosen);});
 function restoreSnapshotOffline(saved){
@@ -25,7 +25,7 @@ function persistSession(){
  if(!host&&!remotePeerId&&!myRole&&!onlineStartedAt)return;
  const snapshot={version:1,host,roomId:host?String($('roomCode')?.textContent||'').trim():remotePeerId,localPeerId,remotePlayerPeerId:host?remotePeerId:remotePlayerPeerId,myRole,theirRole,secret:myRole==='brain'?secret:'',startedAt:onlineStartedAt,questionCount:onlineQuestionCount,answerCount:onlineAnswerCount,guessesLeft:onlineGuessesLeft,pendingQuestion,waitingForAnswer,waitingForGuess,pendingOnlineGuess,lastQuestion:lastOnlineQuestion,lastAnswer:lastOnlineAnswer,transcript:localTranscript.slice(-500),questionBox:$('onlineQuestionBox')?.textContent||'',readingStatus:$('onlineReadingStatus')?.textContent||'',savedAt:Date.now(),inGame:document.body.classList.contains('duel-online')};
  try{localStorage.setItem(ONLINE_SESSION_KEY,JSON.stringify(snapshot));}catch{}
- try{window.MatchHistory?.setOnlineSession(snapshot);if(restoreMatchId)window.MatchHistory?.attachSnapshot?.(restoreMatchId,snapshot);}catch{}
+ try{window.MatchHistory?.setOnlineSession(snapshot);if(restoreMatchId)window.MatchHistory?.attachSnapshot?.(restoreMatchId,snapshot);window.SavedMatches?.save(snapshot,restoreMatchId||window.MatchHistory?.getCurrent?.()?.id||'');}catch{}
  refreshRestoreButton();
 }
 function saveOnlineProgress(){if(!document.body.classList.contains('duel-online')&&!host&&!remotePeerId)return;try{localStorage.setItem(ONLINE_SAVE_KEY,JSON.stringify({startedAt:onlineStartedAt,role:myRole,questionCount:onlineQuestionCount,answerCount:onlineAnswerCount,guessesLeft:onlineGuessesLeft,secret:myRole==='brain'?secret:'',savedAt:Date.now(),events:window.MatchHistory?.getCurrent()?.events||[]}));}catch{}persistSession();}
@@ -241,11 +241,12 @@ on('chatBubbleBtn','click',()=>{$('floatingChat').classList.toggle('hidden');$('
 on('duelWinBtn','click',()=>{send({type:'result',result:'win',name:saveName()});showResult(true,'Confirmaste la victoria',secret);});
 on('duelLoseBtn','click',()=>{send({type:'result',result:'lose',name:saveName()});showResult(false,'Confirmaste la derrota',secret);});
 on('closeDuelBtn','click',()=>{modal.classList.add('hidden');reset();document.body.classList.remove('duel-online','duel-brain','duel-guess');});if(modal)modal.addEventListener('click',e=>{if(e.target===modal){modal.classList.add('hidden');reset();}});
-on('restoreSavedDuelBtn','click',retryRestoreSavedSession);
+// El botón de recuperación abre la biblioteca; no intenta conectar por su cuenta.
 
 const inviteCode=new URLSearchParams(location.search).get('room');
 const priorSession=readSavedSession();
 refreshRestoreButton();
-if(priorSession&&priorSession.roomId){setTimeout(restoreSavedSession,500);}
-else if(inviteCode){setTimeout(()=>{showModal();$('joinRoom').classList.remove('hidden');$('roomInput').value=inviteCode;status('Te invitaron a una sala. Revisá tu nombre y tocá CONECTAR.');},350);}
+// No reabrir una partida automáticamente: al entrar por el enlace se conserva la intro.
+// La recuperación se inicia manualmente desde la biblioteca.
+if(inviteCode){setTimeout(()=>{showModal();$('joinRoom').classList.remove('hidden');$('roomInput').value=inviteCode;status('Te invitaron a una sala. Revisá tu nombre y tocá CONECTAR.');},350);}
 })();

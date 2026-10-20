@@ -221,7 +221,9 @@
   <button id="chatBubbleBtn" class="chat-bubble hidden" aria-label="Abrir chat con tu rival">💬<span id="chatUnread" class="chat-unread hidden">•</span></button>
   <aside id="floatingChat" class="floating-chat hidden" aria-label="Chat con tu rival"><header class="floating-chat-head"><span>CHAT DEL DUELO</span><button id="floatingChatClose" aria-label="Cerrar chat">×</button></header><div id="floatingMessages" class="duel-messages" aria-live="polite"></div><form id="floatingChatForm" class="duel-chat-form"><input id="floatingChatInput" maxlength="300" placeholder="Escribile a tu amigo…" autocomplete="off"><button class="btn btn-green" type="submit">➤</button></form></aside>
 
-  <div id="matchHistoryModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="matchHistoryTitle"><div class="modal-card history-card"><h2 id="matchHistoryTitle">REGISTRO DE PARTIDAS</h2><label class="duel-label" for="historyMatchSelect">ELEGÍ UNA PARTIDA GUARDADA</label><select id="historyMatchSelect" class="history-select"></select><div id="matchHistoryBody" class="match-history-body"></div><button id="restoreOnlineHistoryBtn" class="btn btn-purple hidden" type="button" style="width:100%">↻ CARGAR MI LADO DE ESTA PARTIDA</button><div class="modal-actions"><button id="clearMatchHistoryBtn" class="btn btn-red">BORRAR HISTORIAL</button><button id="closeMatchHistoryBtn" class="btn btn-purple">CERRAR</button></div></div></div>
+  <div id="savedMatchesModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="savedMatchesTitle"><div class="modal-card saved-library-card"><h2 id="savedMatchesTitle">BIBLIOTECA DE PARTIDAS</h2><p class="saved-library-intro">Elegí una partida guardada para recuperar tu lado en este dispositivo. Esto no abre el juego automáticamente al cargar el enlace.</p><div id="savedMatchesList" class="saved-matches-list"></div><div class="modal-actions"><button id="closeSavedMatchesBtn" class="btn btn-purple">VOLVER</button></div></div></div>
+
+  <div id="matchHistoryModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="matchHistoryTitle"><div class="modal-card history-card"><h2 id="matchHistoryTitle">REGISTRO DE PARTIDAS</h2><label class="duel-label" for="historyMatchSelect">ELEGÍ UNA PARTIDA GUARDADA</label><select id="historyMatchSelect" class="history-select"></select><div id="matchHistoryBody" class="match-history-body"></div><div class="modal-actions"><button id="clearMatchHistoryBtn" class="btn btn-red">BORRAR HISTORIAL</button><button id="closeMatchHistoryBtn" class="btn btn-purple">CERRAR</button></div></div></div>
 
   <div id="shutdownScreen" class="shutdown-screen hidden">
     <div class="shutdown-line"></div>
@@ -237,6 +239,7 @@
   <script src="sugeridor.js"></script>
   <script src="clasico.js"></script>
   <script src="match_history.js"></script>
+  <script src="saved_matches.js"></script>
   <script src="script.js"></script>
   <script src="multijugador.js"></script>
 </body>
