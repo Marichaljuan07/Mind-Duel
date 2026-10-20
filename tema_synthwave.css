@@ -217,3 +217,58 @@ body.duel-online.duel-brain #questionInput{flex:1;min-width:0;}
 body.duel-online.duel-brain #sendBtn{flex:0 0 auto;}
 body.duel-online.duel-brain .action-row{display:none!important}
 body.duel-online #classicPanel [data-ans]{grid-row:auto;}
+
+/* 3.12.9 — público de teatro, escenario estable y ritmo orgánico */
+.theatre-audience{
+ position:absolute;left:0;right:0;bottom:0;height:clamp(62px,11vh,100px);z-index:12;pointer-events:none;
+ background:
+  radial-gradient(ellipse at 4% 100%,#03020a 0 24px,transparent 25px),
+  radial-gradient(ellipse at 10% 100%,#05030c 0 30px,transparent 31px),
+  radial-gradient(ellipse at 17% 100%,#03020a 0 25px,transparent 26px),
+  radial-gradient(ellipse at 24% 100%,#05030c 0 32px,transparent 33px),
+  radial-gradient(ellipse at 32% 100%,#03020a 0 27px,transparent 28px),
+  radial-gradient(ellipse at 40% 100%,#05030c 0 31px,transparent 32px),
+  radial-gradient(ellipse at 49% 100%,#03020a 0 28px,transparent 29px),
+  radial-gradient(ellipse at 58% 100%,#05030c 0 32px,transparent 33px),
+  radial-gradient(ellipse at 67% 100%,#03020a 0 27px,transparent 28px),
+  radial-gradient(ellipse at 76% 100%,#05030c 0 32px,transparent 33px),
+  radial-gradient(ellipse at 85% 100%,#03020a 0 27px,transparent 28px),
+  radial-gradient(ellipse at 94% 100%,#05030c 0 33px,transparent 34px),
+  linear-gradient(0deg,#020108 0 24%,transparent 25%);
+ filter:drop-shadow(0 -5px 8px rgba(0,0,0,.45));
+}
+.theatre-audience::before{
+ content:"";position:absolute;left:0;right:0;bottom:20%;height:70%;
+ background:radial-gradient(circle at 4% 35%,#05030c 0 9px,transparent 10px),radial-gradient(ellipse at 4% 100%,#05030c 0 17px,transparent 18px),
+ radial-gradient(circle at 13% 24%,#07040e 0 11px,transparent 12px),radial-gradient(ellipse at 13% 100%,#07040e 0 20px,transparent 21px),
+ radial-gradient(circle at 23% 38%,#04020a 0 8px,transparent 9px),radial-gradient(ellipse at 23% 100%,#04020a 0 16px,transparent 17px),
+ radial-gradient(circle at 34% 24%,#07040e 0 11px,transparent 12px),radial-gradient(ellipse at 34% 100%,#07040e 0 21px,transparent 22px),
+ radial-gradient(circle at 46% 35%,#04020a 0 9px,transparent 10px),radial-gradient(ellipse at 46% 100%,#04020a 0 18px,transparent 19px),
+ radial-gradient(circle at 56% 23%,#07040e 0 11px,transparent 12px),radial-gradient(ellipse at 56% 100%,#07040e 0 21px,transparent 22px),
+ radial-gradient(circle at 68% 36%,#04020a 0 9px,transparent 10px),radial-gradient(ellipse at 68% 100%,#04020a 0 18px,transparent 19px),
+ radial-gradient(circle at 79% 23%,#07040e 0 11px,transparent 12px),radial-gradient(ellipse at 79% 100%,#07040e 0 21px,transparent 22px),
+ radial-gradient(circle at 91% 34%,#04020a 0 9px,transparent 10px),radial-gradient(ellipse at 91% 100%,#04020a 0 18px,transparent 19px);
+}
+/* Mantener el cerebro fijo en los focos: el texto cambia dentro de una caja estable. */
+.stage-content{padding:0!important;display:block!important;transform:none!important}
+.stage-pedestal{position:absolute!important;top:clamp(58px,8vh,86px)!important;left:0;right:0;height:clamp(82px,13vh,112px);display:flex;align-items:center;justify-content:center;z-index:3}
+.stage-pedestal .neon-brain{font-size:clamp(58px,9vh,78px)!important}
+.stage-pedestal::before{width:220px;height:150px;margin:-75px 0 0 -110px}
+.oracle-card{position:absolute!important;top:clamp(150px,23vh,205px)!important;left:50%!important;transform:translateX(-50%);width:min(84vw,520px)!important;height:clamp(130px,22vh,178px)!important;min-height:0!important;max-height:clamp(130px,22vh,178px)!important;margin:0!important;padding:14px 16px!important;overflow-y:auto!important;scrollbar-width:thin}
+.stage-actions{position:absolute!important;top:calc(clamp(150px,23vh,205px) + clamp(130px,22vh,178px) + 14px)!important;left:50%!important;transform:translateX(-50%);width:min(82vw,360px)!important;max-height:calc(100% - clamp(150px,23vh,205px) - clamp(130px,22vh,178px) - 100px)!important;overflow-y:auto;gap:7px!important;margin:0!important;z-index:22}
+.stage-actions .btn{flex-shrink:0}
+.oracle-card.typing::after{display:block!important;content:"EL CEREBRO ESTÁ ESCRIBIENDO  ···";position:sticky;bottom:0;left:0;margin-top:8px;padding-top:4px;background:linear-gradient(90deg,rgba(34,12,85,.96),rgba(16,5,47,.96));font:7px/1.6 'Press Start 2P',monospace;color:#19f0ff;animation:oracleTypingPulse 1s steps(2,end) infinite}
+@keyframes oracleTypingPulse{50%{opacity:.35}}
+#curtainLeft,#curtainRight,#curtainLeft.open,#curtainRight.open{transition:transform 2.6s cubic-bezier(.42,0,.2,1)!important}
+/* El piso se mueve un poco más rápido y el sol recupera algo de presencia. */
+.title-layout::after{animation-duration:2.15s!important}
+.sun-title{width:min(47vw,265px)!important;height:min(47vw,265px)!important}
+@media(max-height:700px){
+ .stage-pedestal{top:48px!important;height:72px}
+ .stage-pedestal .neon-brain{font-size:54px!important}
+ .oracle-card{top:125px!important;height:115px!important;max-height:115px!important;font-size:8px!important;line-height:1.7!important}
+ .stage-actions{top:250px!important;max-height:calc(100% - 310px)!important}
+ .stage-actions .btn{padding:8px 6px!important;font-size:9px!important}
+ .theatre-audience{height:55px}
+}
+@media(prefers-reduced-motion:reduce){.oracle-card.typing::after{animation:none!important}}

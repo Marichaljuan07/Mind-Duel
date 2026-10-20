@@ -1,0 +1,7 @@
+MIND DUEL FUSION 3.12.9
+Cambios:
+- Siluetas de público en la parte inferior del escenario teatral.
+- Posición fija del Cerebro bajo los focos; el diálogo mantiene un área estable y no empuja el avatar hacia arriba.
+- Indicador visible de escritura del Oráculo y ritmo de escritura más pausado, con pausas en puntuación.
+- Telón más lento, con transición de aproximadamente 2.6 segundos.
+- Sol de la intro un poco más grande y suelo synthwave más rápido.
