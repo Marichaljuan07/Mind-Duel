@@ -1,0 +1,7 @@
+Mind Duel Fusion 3.13.3
+
+Multijugador: se agrega el botón visible “RECUPERAR PARTIDA GUARDADA” en la ventana de duelo online. Permite volver a intentar la recuperación manualmente, además del intento automático al abrir la página.
+
+Se conserva la función de mostrar el personaje seleccionado en la pantalla del Cerebro de la versión 3.13.2.
+
+Nota: la recuperación depende de que PeerJS permita recuperar el identificador de sala y de que el otro jugador pueda volver a conectarse. No se realizó una prueba real entre dos dispositivos en esta edición.
