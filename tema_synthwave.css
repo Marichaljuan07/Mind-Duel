@@ -375,3 +375,8 @@ body.duel-online #onlineReadingStatus{font-size:15px;line-height:1.2;margin:6px 
 
 /* Multijugador: herramientas de sala y revancha */
 .room-tools{margin-top:10px}.room-tools .btn{flex:1 1 135px;min-width:0}.room-code-row .btn{flex:0 0 auto}#resultScreen #playAgainSwapRolesBtn{border-color:var(--cy);box-shadow:0 0 10px rgba(0,245,255,.12)}@media(max-width:420px){.room-tools .btn{flex:1 1 100%;width:100%}#resultScreen .result-actions .btn{width:100%}}
+
+
+/* 3.13.2 — el Cerebro ve su personaje elegido también al recuperar una partida */
+body.duel-online .online-secret-label{display:block;margin:0 0 9px;padding:8px 11px;border:1px solid rgba(0,245,255,.55);border-radius:8px;background:linear-gradient(90deg,rgba(0,245,255,.12),rgba(180,0,255,.10));color:var(--cy,#00f5ff);font-family:'VT323',monospace;font-size:clamp(16px,4vw,21px);line-height:1.15;letter-spacing:.04em;text-shadow:0 0 7px rgba(0,245,255,.28);overflow-wrap:anywhere}
+body.duel-online.duel-guess .online-secret-label,body.duel-online.duel-guess #onlineSecretLabel{display:none!important}

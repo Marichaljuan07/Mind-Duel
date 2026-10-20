@@ -93,6 +93,7 @@ function enterGame(startAt,restoring=false){
  modal.classList.add('hidden');
  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
  $('gameScreen').classList.remove('hidden');$('chatBubbleBtn').classList.remove('hidden');
+ const secretLabel=$('onlineSecretLabel');if(secretLabel){const showSecret=myRole==='brain'&&!!String(secret||'').trim();secretLabel.textContent=showSecret?'PERSONAJE ELEGIDO: '+String(secret).trim():'';secretLabel.classList.toggle('hidden',!showSecret);}
  document.body.classList.add('duel-online');document.body.classList.toggle('duel-brain',myRole==='brain');document.body.classList.toggle('duel-guess',myRole==='guess');document.body.classList.remove('classic','name-phase');
  $('classicEnd').classList.add('hidden');$('brainInlinePanel').classList.remove('hidden');$('classicPanel').classList.toggle('hidden',myRole!=='brain');
  $('suggestBtn').classList.add('hidden');$('guessBtn').classList.toggle('hidden',myRole==='brain');
