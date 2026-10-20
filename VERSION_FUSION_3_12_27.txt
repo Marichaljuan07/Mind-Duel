@@ -1,0 +1,4 @@
+Mind Duel Fusion 3.12.27
+- Muestra en la ventana de adivinanza del modo Clásico la descripción existente del personaje, respetando la descripción personalizada guardada.
+- El botón "Seguir pensando" del intento de adivinanza en Solo ahora registra una frase contextual del jugador, en lugar de cerrar la ventana sin explicar que decidió continuar preguntando.
+- La descripción queda oculta si el personaje no tiene una descripción disponible.

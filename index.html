@@ -155,7 +155,7 @@
       <p id="guessHint" class="guess-hint">Tienes 2 intentos.</p>
       <div class="modal-actions">
         <button id="confirmGuessBtn" class="btn btn-green">CONFIRMAR TEORÍA</button>
-        <button data-close="guessModal" class="btn btn-red">SEGUIR PENSANDO</button>
+        <button id="continueThinkingBtn" type="button" class="btn btn-red">SEGUIR PENSANDO</button>
       </div>
     </div>
   </div>
@@ -177,6 +177,7 @@
       <h2 id="classicGuessTitle">EL CEREBRO SE ARRIESGA</h2>
       <p class="guess-lead">He analizado tus respuestas. ¿Es este tu personaje?</p>
       <div id="classicGuessCharacter" class="classic-guess-character"></div>
+      <p id="classicGuessDescription" class="classic-guess-description"></p>
       <div class="modal-actions"><button id="classicGuessYes" class="btn btn-green">SÍ, ES ESE</button><button id="classicGuessNo" class="btn btn-red">NO, SEGUÍ PENSANDO</button></div>
     </div>
   </div>
@@ -192,7 +193,7 @@
 
 
 
-  <div id="characterEditModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="characterEditTitle"><div class="modal-card character-edit-card"><h2 id="characterEditTitle">MEJOREMOS ESTE PERSONAJE</h2><p>Podés guardar una descripción para reconocerlo mejor en futuras partidas.</p><label for="characterDescriptionInput">DESCRIPCIÓN DEL PERSONAJE</label><textarea id="characterDescriptionInput" maxlength="600" rows="5" placeholder="Quién es, de qué obra viene y qué lo caracteriza…"></textarea><div class="modal-actions"><button id="saveCharacterDescriptionBtn" class="btn btn-green">GUARDAR</button><button id="cancelCharacterDescriptionBtn" class="btn btn-red">AHORA NO</button></div></div></div>
+  <div id="characterEditModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="characterEditTitle"><div class="modal-card character-edit-card"><h2 id="characterEditTitle">MEJOREMOS ESTE PERSONAJE</h2><p>Podés guardar una descripción para reconocerlo mejor en futuras partidas.</p><label for="characterDescriptionInput">DESCRIPCIÓN DEL PERSONAJE</label><textarea id="characterDescriptionInput" maxlength="600" rows="5" placeholder="Quién es, de qué obra viene y qué lo caracteriza…"></textarea><div class="modal-actions"><button id="editCharacterDescriptionBtn" class="btn btn-purple">EDITAR</button><button id="saveCharacterDescriptionBtn" class="btn btn-green">GUARDAR</button><button id="viewOriginalCharacterDescriptionBtn" class="btn btn-purple">VER ORIGINAL</button><button id="restoreOriginalCharacterDescriptionBtn" class="btn btn-purple">USAR ORIGINAL</button><button id="cancelCharacterDescriptionBtn" class="btn btn-red">CANCELAR</button></div></div></div>
   <div id="duelModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="duelTitle">
     <div class="modal-card duel-card">
       <div class="neon-brain brain-sm"></div><h2 id="duelTitle">DUELO ONLINE</h2>

@@ -664,3 +664,6 @@ button, input {
 .classic-guess-character{margin:18px auto;padding:16px 12px;border:1px solid var(--neon-cyan);border-radius:10px;background:rgba(0,216,255,.07);color:var(--neon-cyan);font:clamp(24px,5vw,34px)/1.2 'VT323',monospace;text-align:center;overflow-wrap:anywhere;box-shadow:0 0 18px rgba(0,216,255,.12)}
 .classic-guess-card .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:420px){.classic-guess-card .modal-actions{grid-template-columns:1fr}}
+
+.classic-guess-description{margin:0 auto 16px;max-width:42ch;color:var(--text-main,#e8e2ff);font:clamp(17px,3.7vw,21px)/1.35 'VT323',monospace;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;opacity:.94}
+.classic-guess-description.hidden{display:none!important}

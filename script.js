@@ -285,6 +285,9 @@ async function classicGuess(announce = false) {
     await addMessage(lines[Math.floor(Math.random() * lines.length)], 'mind');
   }
   el('classicGuessCharacter').textContent = m.p.nombre;
+  const knownDescription = getCharacterDescription(m.p.nombre, m.p.descripcion || '');
+  const descriptionEl = el('classicGuessDescription');
+  if (descriptionEl) { descriptionEl.textContent = knownDescription; descriptionEl.classList.toggle('hidden', !knownDescription); }
   el('classicGuessModal').classList.remove('hidden');
   classicBusy = false;
 }
@@ -774,12 +777,41 @@ el('rerollSuggestionsBtn').onclick = rerollSuggestions;
 el('classicCharacterNameForm').onsubmit = e => { e.preventDefault(); const value=el('classicCharacterNameInput').value.trim(); if(value) classicSaveName(value); };
 el('classicGuessYes').onclick = () => classicAnswer('si');
 el('classicGuessNo').onclick = () => classicAnswer('no');
+el('continueThinkingBtn').onclick = async () => {
+  el('guessModal').classList.add('hidden');
+  const lines = [
+    'Mejor voy a seguir preguntando; todavía me falta una pista.',
+    'Voy a dejar esa teoría en pausa y continuar investigando.',
+    'Aún no me convence del todo. Prefiero hacer otra pregunta.',
+    'No voy a arriesgarme todavía; necesito afinar mis deducciones.',
+    'Cambio de estrategia: seguiré preguntando antes de adivinar.'
+  ];
+  await addMessage(pickLine(lines), 'player');
+};
 el('playAgainBtn').onclick = () => { if(state.mode==='classic') startClassic(); else if(document.body.classList.contains('duel-online')) { document.body.classList.remove('duel-online'); openStage(); } else startGame(); };
 el('resultMenuBtn').onclick = openStage;
 el('resultExitBtn').onclick = shutdown;
-el('editCharacterBtn').onclick = () => { const name=(el('resultCharacter').textContent||'').replace(/^Tu personaje era:\s*/, '').trim(); el('characterEditTitle').textContent='DESCRIPCIÓN DE '+name.toUpperCase(); el('characterDescriptionInput').value=localStorage.getItem('mind_character_description_'+name)||''; el('characterEditModal').classList.remove('hidden'); };
+let descriptionEditingName=''; let descriptionOriginal='';
+function getOriginalCharacterDescription(name){
+  try { const people=(typeof PERSONAJES!=='undefined'?PERSONAJES:window.PERSONAJES)||[]; const n=MindLogic.normalizar(name); const known=people.find(p=>MindLogic.normalizar(p.nombre)===n||((p.alias||[]).some(a=>MindLogic.normalizar(a)===n))); if(known&&String(known.descripcion||'').trim()) return String(known.descripcion).trim(); } catch {}
+  return '';
+}
+function openCharacterDescriptionEditor(){
+  const name=(el('resultCharacter').textContent||'').replace(/^Tu personaje era:\s*/, '').trim(); if(!name)return;
+  descriptionEditingName=name; descriptionOriginal=getOriginalCharacterDescription(name);
+  const custom=localStorage.getItem('mind_character_description_'+name)||'';
+  el('characterEditTitle').textContent='DESCRIPCIÓN DE '+name.toUpperCase();
+  el('characterDescriptionInput').value=custom.trim()||descriptionOriginal;
+  el('characterDescriptionInput').readOnly=true;
+  el('editCharacterDescriptionBtn').classList.remove('hidden');
+  el('characterEditModal').classList.remove('hidden');
+}
+el('editCharacterBtn').onclick = openCharacterDescriptionEditor;
+el('editCharacterDescriptionBtn').onclick=()=>{el('characterDescriptionInput').readOnly=false;el('characterDescriptionInput').focus();};
+el('viewOriginalCharacterDescriptionBtn').onclick=()=>{el('characterDescriptionInput').value=descriptionOriginal;el('characterDescriptionInput').readOnly=true;};
+el('restoreOriginalCharacterDescriptionBtn').onclick=()=>{if(!descriptionEditingName)return;try{localStorage.removeItem('mind_character_description_'+descriptionEditingName);}catch{}el('resultDescription').textContent=descriptionOriginal;el('characterDescriptionInput').value=descriptionOriginal;el('characterDescriptionInput').readOnly=true;};
 el('cancelCharacterDescriptionBtn').onclick = () => el('characterEditModal').classList.add('hidden');
-el('saveCharacterDescriptionBtn').onclick = () => { const name=(el('resultCharacter').textContent||'').replace(/^Tu personaje era:\s*/, '').trim(); const desc=el('characterDescriptionInput').value.trim(); if(!name||!desc)return; try{localStorage.setItem('mind_character_description_'+name,desc);const rows=JSON.parse(localStorage.getItem('mind_personajes_nuevos')||'[]');const idx=rows.findIndex(x=>MindLogic.normalizar(x.nombre)===MindLogic.normalizar(name));if(idx>=0)rows[idx].descripcion=desc;else rows.push({nombre:name,descripcion:desc,fecha:new Date().toISOString()});localStorage.setItem('mind_personajes_nuevos',JSON.stringify(rows));}catch{} el('resultDescription').textContent=desc;el('characterEditModal').classList.add('hidden');el('editCharacterBtn').classList.add('hidden'); };
+el('saveCharacterDescriptionBtn').onclick = () => { const name=descriptionEditingName; const desc=el('characterDescriptionInput').value.trim(); if(!name||!desc)return; try{localStorage.setItem('mind_character_description_'+name,desc);const rows=JSON.parse(localStorage.getItem('mind_personajes_nuevos')||'[]');const idx=rows.findIndex(x=>MindLogic.normalizar(x.nombre)===MindLogic.normalizar(name));if(idx>=0)rows[idx].descripcion=desc;else rows.push({nombre:name,descripcion:desc,fecha:new Date().toISOString()});localStorage.setItem('mind_personajes_nuevos',JSON.stringify(rows));}catch{} el('resultDescription').textContent=desc;el('characterEditModal').classList.add('hidden'); };
 el('viewMatchHistoryBtn').onclick = () => { if(window.MatchHistory) window.MatchHistory.show(); else if(el('matchHistoryModal')) el('matchHistoryModal').classList.remove('hidden'); else if(el('viewClassicHistoryBtn')) el('viewClassicHistoryBtn').click(); };
 el('restartBtn').onclick = () => location.reload();
 
