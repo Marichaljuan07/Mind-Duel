@@ -49,10 +49,13 @@ function renderOnlineSequence(question){
  if(hint)hint.classList.add('hidden');
  if(myRole==='brain'){
   if(box)box.textContent='Pregunta recibida: '+question;
-  if(reading){reading.classList.remove('hidden');reading.textContent='Leyendo la pregunta del jugador: «'+question+'»';}
+  // La pregunta ya aparece arriba: no repetirla en el estado inferior.
+  if(reading){reading.classList.add('hidden');reading.textContent='';}
+  if(hint){const result=suggestedAnswer(question);hint.textContent='Sugerencia del Cerebro: '+result.suggestion+' · '+result.source;hint.classList.remove('hidden');}
  }else{
   if(box)box.textContent='Pregunta enviada: '+question;
   if(reading){reading.classList.remove('hidden');reading.textContent='Esperando la respuesta del Cerebro…';}
+  // El Descubridor no recibe sugerencias: solo ve su pregunta y el estado.
   if(hint)hint.classList.add('hidden');
  }
 }
@@ -71,7 +74,7 @@ function enterGame(startAt){
  nativeChat.innerHTML='';window.MatchHistory?.begin('online', {rol:myRole});$('questionsHud').textContent='0/20';$('guessesHud').textContent='2';if($('modeHud'))$('modeHud').textContent='ONLINE';if($('questionCountLabel'))$('questionCountLabel').textContent=myRole==='brain'?'RESP.':'PREG.';updateOnlineHud();saveOnlineProgress();
  const updateOnlineClock=()=>{const sec=Math.max(0,Math.floor((Date.now()-onlineStartedAt)/1000));$('timer').textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');};updateOnlineClock();onlineTimerId=setInterval(()=>{updateOnlineClock();saveOnlineProgress();},1000);send({type:'progress',count:onlineQuestionCount,startedAt:onlineStartedAt});
  $('questionInput').placeholder=myRole==='brain'?'Escribí una respuesta…':'Escribí tu pregunta…';$('sendBtn').textContent=myRole==='brain'?'Responder':'Enviar';
- if($('brainSuggestionStatus')){ $('brainSuggestionStatus').textContent='La sugerencia aparecerá aquí cuando llegue la pregunta.'; $('brainSuggestionStatus').classList.toggle('hidden',myRole!=='brain');}
+ if($('brainSuggestionStatus')){ $('brainSuggestionStatus').textContent=''; $('brainSuggestionStatus').classList.add('hidden');}
  if($('onlineQuestionBox'))$('onlineQuestionBox').textContent=myRole==='brain'?'Esperando la pregunta del Descubridor…':'Esperando enviar tu primera pregunta…';
  if($('onlineReadingStatus'))$('onlineReadingStatus').textContent=myRole==='brain'?'Esperando la pregunta del Descubridor…':'Cuando envíes una pregunta, aquí verás el estado de la respuesta.';
  const seqTitle=document.querySelector('.sequence-heading');if(seqTitle)seqTitle.lastChild.textContent=myRole==='brain'?' SECUENCIA DEL CEREBRO':' SECUENCIA DEL DESCUBRIDOR';

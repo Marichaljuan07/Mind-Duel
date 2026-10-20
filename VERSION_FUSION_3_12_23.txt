@@ -1,0 +1,5 @@
+Mind Duel Fusion 3.12.23
+- El panel online muestra la pregunta una sola vez arriba.
+- La sugerencia compacta (respuesta y fuente/datos) aparece solo para el Cerebro.
+- Se elimina cualquier sugerencia para el Descubridor.
+- El resto del HUD y los estilos de la versión 3.12.22 se conservan.

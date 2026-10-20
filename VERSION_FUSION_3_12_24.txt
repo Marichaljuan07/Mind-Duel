@@ -1,0 +1,2 @@
+Mind Duel Fusion 3.12.24
+Corrección puntual: el menú hamburguesa vuelve a desplegarse completo debajo del encabezado. Se eliminó el recorte por overflow:hidden del HUD compacto y se ajustó la capa visual del menú.
