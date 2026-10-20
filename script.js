@@ -243,6 +243,7 @@ async function startClassic() {
   show(ui.game);
   await addMessage('Piensa en un personaje, real o ficticio. Yo intentaré descubrirlo. Respondé cada pregunta con los botones.', 'mind');
   startTimer();
+  // La pregunta inicial se solicita después de que termine la presentación.
   classicBusy = false;
   await nextClassic();
 }
@@ -253,7 +254,12 @@ async function nextClassic() {
   const s = classic.s;
   state.questionCount = s.n; state.guessesLeft = 3 - classic.fails; updateHud();
   if (Clasico.debeAdivinar(s) || s.n >= MAX_QUESTIONS) return classicGuess(true);
-  const q = Clasico.pregunta(s, MindLogic);
+  let q = Clasico.pregunta(s, MindLogic);
+  // El banco puede no dividir al conjunto inicial; no dejar nunca al Cerebro sin preguntar.
+  if (!q) {
+    const fallback = ['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es conocido principalmente por la ciencia?','¿Es conocido por el entretenimiento?'];
+    q = fallback.find(x => !s.asked.has(x));
+  }
   if (!q) return classicGuess(true);
   classic.cur = { tipo: 'q', q };
   await addMessage(Clasico.frase(q), 'mind');
@@ -376,7 +382,8 @@ function updateHud() {
   ui.guesses.textContent = String(state.guessesLeft);
   ui.suggest.textContent = `SUGERENCIAS (${state.suggestionUses})`;
   ui.suggest.classList.remove('locked');
-  ui.suggest.disabled = state.suggestionUses <= 0;
+  ui.suggest.disabled = state.suggestionUses <= 0 || state.questionCount < 3;
+  ui.suggest.title = state.questionCount < 3 ? 'Disponible después de 3 preguntas' : 'Sugerencias del Cerebro';
 }
 
 function startTimer() {
@@ -596,7 +603,11 @@ function buildSuggestionPool(excluded = []) {
   // Solo preguntas no respondidas y que dividan de verdad a los personajes compatibles.
   const pool = window.Sugeridor ? Sugeridor.sugerir(MindLogic, PERSONAJES, state.facts, state.asked, 30) : [];
   const blocked = new Set([...excluded, ...state.asked].map(x => MindLogic.normalizar(typeof x === 'string' ? x : '')));
-  return pool.filter(q => !blocked.has(MindLogic.normalizar(q))).slice(0, 5);
+  const filtered = pool.filter(q => !blocked.has(MindLogic.normalizar(q)));
+  if (filtered.length) return filtered.slice(0, 5);
+  // Respaldo: nunca mostrar una caja vacía. Evita preguntas ya respondidas y prioriza las generales restantes.
+  const safe = ['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es conocido principalmente por la ciencia?','¿Es conocido por el entretenimiento?','¿Es de Europa?','¿Es de América?','¿Es conocido por aparecer en películas?'];
+  return safe.filter(q => !blocked.has(MindLogic.normalizar(q))).slice(0, 5);
 }
 
 function renderSuggestions() {
@@ -636,7 +647,7 @@ function rerollSuggestions() {
 }
 
 function openSuggestions() {
-  if (!state.active || state.busy || state.suggestionUses <= 0) return;
+  if (!state.active || state.busy || state.suggestionUses <= 0 || state.questionCount < 3) return;
   const session = state.suggestionSession;
   // Cerrar y reabrir conserva exactamente las preguntas y los cambios restantes.
   if (!session.initialized) {
@@ -688,7 +699,7 @@ function closeModalFromTarget(target) {
   const id = target.dataset.close;
   if (id) el(id)?.classList.add('hidden');
 }
-function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; el('gameMenuModal').classList.remove('hidden'); }
+function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; const hints=el('menuHintsBtn'); if(hints) hints.classList.toggle('hidden', state.mode==='classic'); el('gameMenuTitle').textContent = state.mode==='classic' ? 'MENÚ CLÁSICO' : state.mode==='multiplayer' ? 'MENÚ MULTIJUGADOR' : 'MENÚ DE PARTIDA'; el('menuSurrenderBtn').querySelector('span').textContent = state.mode==='classic' ? 'Retirarse' : 'Rendirse'; el('menuExitBtn').querySelector('span').textContent = 'Salir de la partida'; el('gameMenuModal').classList.remove('hidden'); }
 function leaveGame(){ el('gameMenuModal').classList.add('hidden'); if(state.mode!=='classic' && state.active){ if(confirm('¿Querés salir de esta partida? El progreso actual se perderá.')) openStage(); } else openStage(); }
 
 

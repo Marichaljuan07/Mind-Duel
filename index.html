@@ -142,14 +142,16 @@
   </main>
 
   <div id="guessModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="guessTitle">
-    <div class="modal-card">
-      <div class="neon-brain brain-sm"></div>
-      <h2 id="guessTitle">TU ADIVINANZA</h2>
-      <p id="guessHint">Tienes 2 intentos.</p>
-      <input id="guessInput" autocomplete="off" maxlength="80" placeholder="Nombre del personaje">
+    <div class="modal-card guess-card">
+      <div class="guess-orbit"><span class="neon-brain brain-sm" aria-hidden="true"></span><span>LECTURA MENTAL · MIND DUEL</span></div>
+      <h2 id="guessTitle">¿PODÉS DESCIFRARLO?</h2>
+      <p class="guess-lead">El Cerebro está listo para comprobar tu teoría.</p>
+      <label class="guess-hint" for="guessInput">ESCRIBÍ EL NOMBRE DEL PERSONAJE</label>
+      <input id="guessInput" autocomplete="off" maxlength="80" placeholder="¿Quién es?">
+      <p id="guessHint" class="guess-hint">Tienes 2 intentos.</p>
       <div class="modal-actions">
-        <button id="confirmGuessBtn" class="btn btn-green">CONFIRMAR</button>
-        <button data-close="guessModal" class="btn btn-red">CANCELAR</button>
+        <button id="confirmGuessBtn" class="btn btn-green">CONFIRMAR TEORÍA</button>
+        <button data-close="guessModal" class="btn btn-red">SEGUIR PENSANDO</button>
       </div>
     </div>
   </div>
