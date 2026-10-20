@@ -1,0 +1,6 @@
+MIND DUEL FUSION 3.12.7
+- Corregidos iconos de los avatares para evitar triángulos/fallbacks visuales.
+- Chat flotante reservado a mensajes escritos por los jugadores; preguntas, respuestas e intentos se registran en el historial de partida.
+- Respuesta personalizada del Cerebro además de los botones rápidos.
+- Registro local de partidas solo, clásico y online, con revisión al finalizar.
+- Animación synthwave en la intro: suelo en movimiento, sol oscilante y leve efecto de cámara alejándose.

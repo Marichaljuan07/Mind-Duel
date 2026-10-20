@@ -205,6 +205,7 @@ async function chooseClassic() {
 async function startClassic() {
   resetGame();
   classicSetMode(true);
+  window.MatchHistory?.begin('clásico');
   classic.s = Clasico.nuevo(PERSONAJES);
   classic.cur = null; classic.fails = 0; classic.phase = 'ask';
   state.guessesLeft = 3; updateHud();
@@ -256,6 +257,7 @@ function classicSaveName(text) {
 }
 
 function classicEnd() {
+  if (classic.phase !== 'end') window.MatchHistory?.finish('Finalizada', {modo:'clásico'});
   classic.phase = 'end'; classic.cur = null;
   clearInterval(state.timerId);
   document.body.classList.remove('name-phase');
@@ -321,6 +323,7 @@ function avatarFor(kind) {
 }
 
 function addMessage(text, kind = 'system') {
+  window.MatchHistory?.record(kind === 'player' ? 'TÚ' : kind === 'mind' ? 'CEREBRO' : 'SISTEMA', text, kind);
   const row = document.createElement('div');
   row.className = `message message-${kind}`;
   const avatar = document.createElement('div');
@@ -340,6 +343,7 @@ async function startGame() {
   if (state.pendingMode === 'classic') { state.pendingMode = null; return startClassic(); }
   classicSetMode(false);
   resetGame();
+  window.MatchHistory?.begin('solo', {personaje: state.secret?.nombre || ''});
   show(ui.game);
   addMessage('He elegido a alguien. Tienes veinte preguntas. Empieza.', 'mind');
   startTimer();
@@ -510,6 +514,8 @@ function openSuggestions() {
 }
 
 function finish(win, reason) {
+  window.MatchHistory?.record('SISTEMA', reason, 'result');
+  window.MatchHistory?.finish(win ? 'Victoria' : 'Derrota', {personaje: state.secret?.nombre || ''});
   state.active = false;
   lockInput(true);
   clearInterval(state.timerId);

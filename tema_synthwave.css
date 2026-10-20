@@ -172,3 +172,32 @@ body.duel-online #guessBtn:disabled{opacity:.38;filter:grayscale(.7);cursor:not-
 body.duel-online .role-panel .duel-chat-form,
 body.duel-online #guessRolePanel input,
 body.duel-online #guessRolePanel button:not(#submitCharacterGuess){display:none!important}
+
+/* 3.12.7: iconos de rol legibles incluso si el navegador no soporta máscaras SVG */
+.avatar-mind::before{content:"🧠";display:block;width:auto;height:auto;background:none;-webkit-mask-image:none;mask-image:none;font-size:22px;line-height:1}
+.avatar-player::before{content:"👤";display:block;width:auto;height:auto;background:none;-webkit-mask-image:none;mask-image:none;font-size:21px;line-height:1}
+.avatar-system::before{content:""}
+
+/* Respuesta personalizada del Cerebro online */
+.custom-answer-form{display:flex;gap:8px;flex-wrap:wrap;width:100%;margin-top:10px}
+.custom-answer-form input{flex:1 1 160px;min-width:0;box-sizing:border-box;padding:10px;border:1px solid var(--cy);border-radius:7px;background:#05051a;color:#fff;font:20px 'VT323',monospace}
+.custom-answer-form .btn{flex:0 0 auto;font-size:9px;padding:10px}
+
+/* Registro completo y reproducible de la conversación de cada partida */
+.history-card{width:min(94vw,720px);max-height:88vh;display:flex;flex-direction:column;gap:10px}
+.match-history-body{overflow:auto;min-height:100px;max-height:62vh;padding:10px;border:1px solid var(--vi);border-radius:8px;background:rgba(2,1,15,.75);text-align:left}
+.history-summary{position:sticky;top:-10px;padding:8px;margin:-10px -10px 10px;background:#10052f;color:var(--cy);font:9px 'Press Start 2P',monospace;line-height:1.8}
+.history-event{padding:6px 4px;border-bottom:1px solid rgba(138,77,255,.18);font:19px 'VT323',monospace;line-height:1.2;overflow-wrap:anywhere;color:#e8e4ff}
+.history-event b{color:var(--gr)}
+
+/* Intro synthwave con perspectiva, suelo en movimiento y sol oscilante */
+.title-layout{animation:titleCameraPull 8s ease-in-out infinite}
+.title-layout::after{background-size:38px 26px;animation:titleFloorTravel 2.8s linear infinite}
+.sun-title{animation:titleSunDrift 6s ease-in-out infinite;will-change:top,transform}
+.title-mountains{animation:titleMountainsDrift 9s ease-in-out infinite;will-change:transform}
+@keyframes titleFloorTravel{0%{background-position:0 0,0 0,0 0;transform:perspective(260px) rotateX(58deg) scale(1)}100%{background-position:0 52px,0 0,0 26px;transform:perspective(260px) rotateX(58deg) scale(1.04)}}
+@keyframes titleSunDrift{0%,100%{top:5%;transform:translateY(0) scale(.98)}50%{top:13%;transform:translateY(10px) scale(1.04)}}
+@keyframes titleMountainsDrift{0%,100%{transform:translateY(0) scaleX(1)}50%{transform:translateY(7px) scaleX(1.025)}}
+@keyframes titleCameraPull{0%,100%{scale:1}50%{scale:.975}}
+@media(prefers-reduced-motion:reduce){.title-layout,.title-layout::after,.sun-title,.title-mountains{animation:none!important}}
+.history-select{width:100%;padding:10px;border:1px solid var(--cy);border-radius:7px;background:#05051a;color:#fff;font:18px 'VT323',monospace}
