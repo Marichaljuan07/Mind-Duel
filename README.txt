@@ -1,3 +1,6 @@
+VERSIÓN ACTUAL DEL PAQUETE: 3.12.16
+Para los cambios más recientes, consultar README_3_12_16.txt.
+
 VERSIÓN ACTUAL DEL PAQUETE: 3.12.15
 Para los cambios más recientes, consultar README_3_12_15.txt.
 

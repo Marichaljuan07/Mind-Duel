@@ -78,16 +78,6 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function show(screen) { sayToken++; [ui.title, ui.stage, ui.game, ui.result].forEach(s => s.classList.add('hidden')); screen.classList.remove('hidden'); }
 function flash() { ui.flash.classList.remove('fire'); void ui.flash.offsetWidth; ui.flash.classList.add('fire'); }
 
-// Audio arcade sintetizado localmente: no requiere archivos ni servicios externos.
-const arcadeAudio = (() => { let ctx=null, musicOn=false, sfxOn=true, loop=null, step=0; const notes=[110,164.81,220,164.81,130.81,196,261.63,196];
- function audio(){ if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(AC)ctx=new AC();} if(ctx&&ctx.state==='suspended')ctx.resume().catch(()=>{});return ctx;}
- function tone(freq,duration=.12,type='square',volume=.025,delay=0){const c=audio();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.0001,c.currentTime+delay);g.gain.exponentialRampToValueAtTime(volume,c.currentTime+delay+.012);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+delay+duration);o.connect(g);g.connect(c.destination);o.start(c.currentTime+delay);o.stop(c.currentTime+delay+duration+.025);}
- function tick(){if(!musicOn)return;tone(notes[step%notes.length],.18,'triangle',.012);if(step%2===0)tone(notes[(step+3)%notes.length]/2,.16,'square',.007,.03);step++;}
- function music(on){musicOn=!!on;const b=el('musicToggleBtn');if(b){b.classList.toggle('sound-off',!musicOn);b.title='Música: '+(musicOn?'activada':'apagada');}if(musicOn){audio();if(!loop){tick();loop=setInterval(tick,260);}}else if(loop){clearInterval(loop);loop=null;}}
- function fx(kind='click'){if(!sfxOn)return;const seq={click:[660],open:[440,660,880],yes:[523,659,784],no:[330,247],win:[523,659,784,1046],lose:[440,370,294]};(seq[kind]||seq.click).forEach((n,i)=>tone(n,.09,'square',.025,i*.075));}
- function effects(on){sfxOn=!!on;const b=el('sfxToggleBtn');if(b){b.classList.toggle('sound-off',!sfxOn);b.title='Efectos: '+(sfxOn?'activados':'desactivados');}}
- return {music,effects,fx}; })();
-
 
 // =========================================================
 // SEQUENCIA CINEMATOGRÁFICA DE INICIO (CEREBRO + RAYOS)
@@ -284,7 +274,8 @@ async function classicGuess(announce = false) {
   if (!m) return classicName();
   classic.cur = { tipo: 'g', i: m.i, p: m.p };
   if (announce) await addMessage('He analizado tus respuestas. Ha llegado el momento de arriesgarme… voy a adivinar.', 'mind');
-  await addMessage(`¿Tu personaje es ${m.p.nombre}?`, 'mind');
+  el('classicGuessCharacter').textContent = m.p.nombre;
+  el('classicGuessModal').classList.remove('hidden');
   classicBusy = false;
 }
 
@@ -348,7 +339,7 @@ async function classicEnd(result = {}) {
   ui.resultCharacter.textContent = result.nombre ? `Tu personaje era: ${result.nombre}` : 'Personaje no identificado';
   ui.resultDescription.textContent = `${result.descripcion || ''} ${result.frase || (wonByBrain ? pickLine(CLASSIC_LOSE_LINES) : pickLine(CLASSIC_WIN_LINES))}`.trim();
   const editBtn=el('editCharacterBtn'); if(editBtn) editBtn.classList.toggle('hidden', !result.nombre || !!((findKnownCharacter(result.nombre)||{}).descripcion || localStorage.getItem('mind_character_description_'+result.nombre)));
-  show(ui.result); arcadeAudio.fx(wonByBrain ? 'lose' : 'win');
+  show(ui.result);
   ui.input.placeholder = 'Pregunta de sí/no...';
   classicBusy = false;
 }
@@ -358,12 +349,13 @@ async function classicAnswer(ans) {
   const c = classic.cur;
   if (!c || classicBusy || classic.phase === 'end') return;
   classicBusy = true;
-  await addMessage(CL_LABEL[ans], 'player');
+  if (c.tipo === 'q') await addMessage(CL_LABEL[ans], 'player');
   if (c.tipo === 'q') {
     Clasico.responder(classic.s, MindLogic, c.q, ans);
     classicBusy = false;
     return nextClassic();
   }
+  el('classicGuessModal').classList.add('hidden');
   if (ans === 'si' || ans === 'psi') {
     await addMessage(`¡Lo sabía! Eras ${c.p.nombre}.`, 'mind');
     await classicEnd({wonBy:'brain', nombre:c.p.nombre, descripcion:c.p.descripcion || 'El personaje que estabas pensando.', frase:pickLine(CLASSIC_LOSE_LINES)});
@@ -725,10 +717,7 @@ function leaveGame(){ el('gameMenuModal').classList.add('hidden'); if(document.b
 
 
 document.addEventListener('click', e => { closeModalFromTarget(e.target); const menu=el('gameMenuModal'); if(menu&&!menu.classList.contains('hidden')&&!e.target.closest('.header-menu-wrap')){menu.classList.add('hidden');el('menuBtn').setAttribute('aria-expanded','false');el('menuBtn').setAttribute('aria-label','Abrir menú');} });
-el('startBtn').onclick = () => { arcadeAudio.music(true); arcadeAudio.fx('open'); openStage(); };
-el('musicToggleBtn').onclick = () => arcadeAudio.music(el('musicToggleBtn').classList.contains('sound-off'));
-el('sfxToggleBtn').onclick = () => arcadeAudio.effects(el('sfxToggleBtn').classList.contains('sound-off'));
-document.addEventListener('click', e => { if(e.target.closest('button')) arcadeAudio.fx('click'); });
+el('startBtn').onclick = () => openStage();
 el('exitBtn').onclick = shutdown;
 
 // BOTONES DEL TEATRO (ACEPTAR Y HUIR)
@@ -762,6 +751,8 @@ ui.guessInput.addEventListener('keydown', e => {
 ui.suggest.onclick = openSuggestions;
 el('rerollSuggestionsBtn').onclick = rerollSuggestions;
 el('classicCharacterNameForm').onsubmit = e => { e.preventDefault(); const value=el('classicCharacterNameInput').value.trim(); if(value) classicSaveName(value); };
+el('classicGuessYes').onclick = () => classicAnswer('si');
+el('classicGuessNo').onclick = () => classicAnswer('no');
 el('playAgainBtn').onclick = () => { if(state.mode==='classic') startClassic(); else if(document.body.classList.contains('duel-online')) { document.body.classList.remove('duel-online'); openStage(); } else startGame(); };
 el('resultMenuBtn').onclick = openStage;
 el('resultExitBtn').onclick = shutdown;

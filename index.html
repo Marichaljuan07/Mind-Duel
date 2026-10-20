@@ -79,7 +79,7 @@
     <section id="gameScreen" class="screen game-screen hidden">
       <div class="game-ambient" aria-hidden="true"><div class="mini-sun"></div></div>
       <header class="game-header">
-        <div class="header-menu-wrap"><button id="menuBtn" class="header-btn hamburger-btn" aria-label="Abrir menú" aria-expanded="false">☰</button><div id="gameMenuModal" class="game-menu-dropdown hidden" role="menu" aria-label="Menú de partida"><button id="menuResumeBtn" class="menu-option" role="menuitem">↩ <span>Volver a la partida</span></button><button id="menuHistoryBtn" class="menu-option" role="menuitem">▤ <span>Historial</span></button><button id="menuSurrenderBtn" class="menu-option menu-danger" role="menuitem">⚑ <span>Rendirse</span></button><button id="menuExitBtn" class="menu-option menu-danger" role="menuitem">⌂ <span>Salir de la partida</span></button></div></div><div class="sound-controls"><button id="musicToggleBtn" class="header-btn sound-btn sound-off" aria-label="Activar o desactivar música" title="Música: apagada">♫</button><button id="sfxToggleBtn" class="header-btn sound-btn" aria-label="Activar o desactivar efectos" title="Efectos: activados">♪</button></div>
+        <div class="header-menu-wrap"><button id="menuBtn" class="header-btn hamburger-btn" aria-label="Abrir menú" aria-expanded="false">☰</button><div id="gameMenuModal" class="game-menu-dropdown hidden" role="menu" aria-label="Menú de partida"><button id="menuResumeBtn" class="menu-option" role="menuitem">↩ <span>Volver a la partida</span></button><button id="menuHistoryBtn" class="menu-option" role="menuitem">▤ <span>Historial</span></button><button id="menuSurrenderBtn" class="menu-option menu-danger" role="menuitem">⚑ <span>Rendirse</span></button><button id="menuExitBtn" class="menu-option menu-danger" role="menuitem">⌂ <span>Salir de la partida</span></button></div></div>
         <div class="mind-sign">MIND DUEL</div>
         <div class="hud">
           <span class="hud-item"><b id="timer">00:00</b><small>TIEMPO</small></span>
@@ -155,6 +155,16 @@
         <button id="confirmGuessBtn" class="btn btn-green">CONFIRMAR TEORÍA</button>
         <button data-close="guessModal" class="btn btn-red">SEGUIR PENSANDO</button>
       </div>
+    </div>
+  </div>
+
+  <div id="classicGuessModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="classicGuessTitle">
+    <div class="modal-card guess-card classic-guess-card">
+      <div class="guess-orbit"><span class="neon-brain brain-sm" aria-hidden="true"></span><span>MODO CLÁSICO · DEDUCCIÓN</span></div>
+      <h2 id="classicGuessTitle">EL CEREBRO SE ARRIESGA</h2>
+      <p class="guess-lead">He analizado tus respuestas. ¿Es este tu personaje?</p>
+      <div id="classicGuessCharacter" class="classic-guess-character"></div>
+      <div class="modal-actions"><button id="classicGuessYes" class="btn btn-green">SÍ, ES ESE</button><button id="classicGuessNo" class="btn btn-red">NO, SEGUÍ PENSANDO</button></div>
     </div>
   </div>
 
