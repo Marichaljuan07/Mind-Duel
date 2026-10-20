@@ -1,0 +1,6 @@
+Mind Duel Fusion 3.12.25
+- Limpieza visual/estado al iniciar una nueva partida o cambiar de modo.
+- Indicador de modo consistente: SOLO, CLÁSICO y ONLINE.
+- Pantalla final reutiliza descripción personalizada guardada; si el personaje es conocido, usa su descripción de la base como respaldo.
+- En Online, personaje nuevo sin descripción aparece con descripción vacía; los personajes conocidos muestran su descripción guardada o la de la base.
+- Permite abrir edición de descripción también para personajes conocidos, conservando el override personalizado.

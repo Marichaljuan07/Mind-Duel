@@ -218,6 +218,7 @@ const $cl = id => document.getElementById(id);
 
 function classicSetMode(on) {
   document.body.classList.toggle('classic', on);
+  const modeHud = el('modeHud'); if (modeHud) modeHud.textContent = on ? 'CLÁSICO' : 'SOLO';
   document.body.classList.remove('name-phase');
   $cl('classicPanel').classList.toggle('hidden', !on);
   $cl('classicEnd').classList.add('hidden');
@@ -326,6 +327,12 @@ const CLASSIC_LOSE_LINES = [
 ];
 function pickLine(lines) { return lines[Math.floor(Math.random() * lines.length)]; }
 function findKnownCharacter(name){try{return (PERSONAJES||[]).find(p=>MindLogic.normalizar(p.nombre)===MindLogic.normalizar(name))||null;}catch{return null;}}
+function getCharacterDescription(name, fallback=''){
+  const key='mind_character_description_'+String(name||'');
+  try { const custom=localStorage.getItem(key); if(custom && custom.trim()) return custom.trim(); } catch {}
+  const known=findKnownCharacter(name);
+  return String((known && known.descripcion) || fallback || '').trim();
+}
 async function classicEnd(result = {}) {
   if (classic.phase !== 'end') window.MatchHistory?.finish(result.wonBy === 'brain' ? 'Victoria del Cerebro' : result.wonBy === 'player' ? 'Victoria del jugador' : 'Finalizada', {modo:'clásico', personaje: result.nombre || ''});
   classic.phase = 'end'; classic.cur = null; classicBusy = true;
@@ -337,8 +344,9 @@ async function classicEnd(result = {}) {
   ui.resultTag.textContent = 'MODO CLÁSICO';
   ui.resultTitle.textContent = wonByBrain ? 'HAS PERDIDO' : '¡HAS GANADO!';
   ui.resultCharacter.textContent = result.nombre ? `Tu personaje era: ${result.nombre}` : 'Personaje no identificado';
-  ui.resultDescription.textContent = `${result.descripcion || ''} ${result.frase || (wonByBrain ? pickLine(CLASSIC_LOSE_LINES) : pickLine(CLASSIC_WIN_LINES))}`.trim();
-  const editBtn=el('editCharacterBtn'); if(editBtn) editBtn.classList.toggle('hidden', !result.nombre || !!((findKnownCharacter(result.nombre)||{}).descripcion || localStorage.getItem('mind_character_description_'+result.nombre)));
+  const characterDescription = getCharacterDescription(result.nombre, result.descripcion);
+  ui.resultDescription.textContent = [characterDescription, result.frase || (wonByBrain ? pickLine(CLASSIC_LOSE_LINES) : pickLine(CLASSIC_WIN_LINES))].filter(Boolean).join(' ');
+  const editBtn=el('editCharacterBtn'); if(editBtn) editBtn.classList.toggle('hidden', !result.nombre);
   show(ui.result);
   ui.input.placeholder = 'Pregunta de sí/no...';
   classicBusy = false;
@@ -461,6 +469,7 @@ async function startGame() {
   await sleep(500);
   if (state.pendingMode === 'classic') { state.pendingMode = null; return startClassic(); }
   classicSetMode(false);
+  const modeHud = el('modeHud'); if (modeHud) modeHud.textContent = 'SOLO';
   resetGame();
   window.MatchHistory?.begin('solo', {personaje: state.secret?.nombre || ''});
   show(ui.game);
@@ -696,10 +705,11 @@ function finish(win, reason) {
   lockInput(true);
   clearInterval(state.timerId);
   show(ui.result);
-  ui.resultTag.textContent = win ? 'ACCESO CONCEDIDO' : 'ACCESO DENEGADO';
+  ui.resultTag.textContent = 'MODO SOLO';
+  const modeHud=el('modeHud'); if(modeHud) modeHud.textContent='SOLO';
   ui.resultTitle.textContent = win ? 'VICTORIA' : 'DERROTA';
   ui.resultCharacter.textContent = state.secret.nombre;
-  ui.resultDescription.textContent = `${reason} ${state.secret.descripcion}`;
+  ui.resultDescription.textContent = [reason, getCharacterDescription(state.secret.nombre, state.secret.descripcion)].filter(Boolean).join(' ');
 }
 
 async function shutdown() {
