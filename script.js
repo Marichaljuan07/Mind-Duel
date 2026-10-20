@@ -447,6 +447,8 @@ function renderMessage(text, kind = 'system') {
 }
 
 function addMessage(text, kind = 'system') {
+  // Guardar cada intervención en el historial persistente de la partida actual.
+  window.MatchHistory?.record(kind === 'player' ? 'TÚ' : kind === 'mind' ? 'CEREBRO' : 'SISTEMA', text, kind);
   const task = messageQueue.then(() => renderMessage(text, kind));
   // Mantener la cola viva incluso si un navegador rechaza una operación de interfaz.
   messageQueue = task.catch(err => console.warn('[MIND] No se pudo mostrar un mensaje:', err));
@@ -734,7 +736,7 @@ ui.dueloBtn.onclick = () => {};
 
 el('menuBtn').onclick = openGameMenu;
 el('menuResumeBtn').onclick = () => {el('gameMenuModal').classList.add('hidden');el('menuBtn').setAttribute('aria-expanded','false');};
-el('menuHistoryBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); if(el('matchHistoryModal')) el('matchHistoryModal').classList.remove('hidden'); else addMessage('El historial está disponible al terminar la partida.', 'system'); };
+el('menuHistoryBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn').setAttribute('aria-expanded','false'); if(window.MatchHistory) window.MatchHistory.show(); else if(el('matchHistoryModal')) el('matchHistoryModal').classList.remove('hidden'); else addMessage('El historial todavía no está disponible.', 'system'); };
 el('menuSurrenderBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); if(document.body.classList.contains('duel-online')) { window.dispatchEvent(new CustomEvent('mindduel-surrender')); return; } if(state.mode==='classic') classicEnd({wonBy:'brain',nombre:classic.cur?.p?.nombre || Clasico.mejor(classic.s)?.p?.nombre || 'personaje secreto',descripcion:'Te rendiste antes de descubrirlo.',frase:pickLine(CLASSIC_LOSE_LINES)}); else if(state.active) finish(false,'Te has rendido.'); };
 el('menuExitBtn').onclick = leaveGame;
 ui.form.onsubmit = e => {
@@ -759,7 +761,7 @@ el('resultExitBtn').onclick = shutdown;
 el('editCharacterBtn').onclick = () => { const name=(el('resultCharacter').textContent||'').replace(/^Tu personaje era:\s*/, '').trim(); el('characterEditTitle').textContent='DESCRIPCIÓN DE '+name.toUpperCase(); el('characterDescriptionInput').value=localStorage.getItem('mind_character_description_'+name)||''; el('characterEditModal').classList.remove('hidden'); };
 el('cancelCharacterDescriptionBtn').onclick = () => el('characterEditModal').classList.add('hidden');
 el('saveCharacterDescriptionBtn').onclick = () => { const name=(el('resultCharacter').textContent||'').replace(/^Tu personaje era:\s*/, '').trim(); const desc=el('characterDescriptionInput').value.trim(); if(!name||!desc)return; try{localStorage.setItem('mind_character_description_'+name,desc);const rows=JSON.parse(localStorage.getItem('mind_personajes_nuevos')||'[]');const idx=rows.findIndex(x=>MindLogic.normalizar(x.nombre)===MindLogic.normalizar(name));if(idx>=0)rows[idx].descripcion=desc;else rows.push({nombre:name,descripcion:desc,fecha:new Date().toISOString()});localStorage.setItem('mind_personajes_nuevos',JSON.stringify(rows));}catch{} el('resultDescription').textContent=desc;el('characterEditModal').classList.add('hidden');el('editCharacterBtn').classList.add('hidden'); };
-el('viewMatchHistoryBtn').onclick = () => { if(el('matchHistoryModal')) el('matchHistoryModal').classList.remove('hidden'); else if(el('viewClassicHistoryBtn')) el('viewClassicHistoryBtn').click(); };
+el('viewMatchHistoryBtn').onclick = () => { if(window.MatchHistory) window.MatchHistory.show(); else if(el('matchHistoryModal')) el('matchHistoryModal').classList.remove('hidden'); else if(el('viewClassicHistoryBtn')) el('viewClassicHistoryBtn').click(); };
 el('restartBtn').onclick = () => location.reload();
 
 titleSequence();
