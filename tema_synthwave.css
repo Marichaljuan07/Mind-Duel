@@ -401,3 +401,12 @@ body.duel-online.duel-guess .online-secret-label,body.duel-online.duel-guess #on
 .offline-recovery-actions button{border:1px solid rgba(0,245,255,.38);border-radius:6px;background:rgba(15,35,73,.9);color:#d9ffff;padding:5px 7px;font:inherit;font-size:10px;white-space:nowrap;cursor:pointer}
 .offline-recovery-actions button:first-child{border-color:rgba(74,255,197,.55);color:#8effd8}
 @media(max-width:420px){.offline-recovery-strip{align-items:flex-start;flex-direction:column}.offline-recovery-actions{width:100%;justify-content:flex-end}.offline-recovery-actions button{padding:6px 8px}}
+/* Biblioteca ampliada: importación y acciones por partida */
+.saved-library-tools{display:flex;gap:8px;flex-wrap:wrap}
+.saved-library-tools .btn{font-size:11px;padding:10px 12px}
+.saved-library-notice{color:#78fff0;font-size:12px;line-height:1.4;min-height:0}
+.saved-library-notice:empty{display:none}
+.saved-match-actions-multi{display:flex;flex-direction:column;gap:5px;min-width:128px}
+.saved-match-actions-multi .btn{font-size:10px;padding:8px 9px;white-space:nowrap}
+.saved-match-card{align-items:center}
+@media(max-width:520px){.saved-match-card{align-items:stretch;flex-direction:column}.saved-match-actions-multi{display:grid;grid-template-columns:1fr 1fr;min-width:0}.saved-match-actions-multi .btn{white-space:normal}.saved-library-tools .btn{width:100%}}
