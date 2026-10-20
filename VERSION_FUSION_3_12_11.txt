@@ -1,3 +1,7 @@
 Mind Duel Fusion 3.12.11
-
-Diálogo progresivo universal para preguntas y respuestas, pausa de 2 segundos entre pregunta y respuesta, escenario estable y público teatral. Se eliminó el indicador textual de escritura.
+- Cola de mensajes: sistema, jugador y Cerebro se muestran de a uno, con escritura progresiva y pausa final; evita que las frases se atropellen.
+- Modo clásico: los controles esperan a que termine cada intervención; el Cerebro anuncia antes de adivinar.
+- Resultado clásico explícito: HAS GANADO / HAS PERDIDO, personaje revelado y frase de victoria/derrota elegida entre varias líneas.
+- Limpieza del bocadillo al cerrar y volver a abrir el telón, evitando que persista el diálogo anterior.
+- Intro synthwave: movimiento pendular suave del sol y balanceo sutil del Cerebro.
+- Se conserva el banco actual de 100 personajes; la estructura permite ampliarlo con datos completos y preguntas útiles.

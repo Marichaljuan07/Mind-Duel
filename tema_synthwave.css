@@ -190,7 +190,7 @@ body.duel-online #guessRolePanel button:not(#submitCharacterGuess){display:none!
 /* Intro synthwave con perspectiva, suelo en movimiento y sol oscilante */
 .title-layout{animation:titleCameraPull 8s ease-in-out infinite}
 .title-layout::after{background-size:38px 26px;animation:titleFloorTravel 2.8s linear infinite}
-.sun-title{animation:titleSunDrift 6s ease-in-out infinite;will-change:top,transform}
+.sun-title{animation:titleSunPendulum 6s ease-in-out infinite;transform-origin:50% 75%;will-change:top,transform}
 .title-mountains{animation:titleMountainsDrift 9s ease-in-out infinite;will-change:transform}
 @keyframes titleFloorTravel{0%{background-position:0 0,0 0,0 0;transform:perspective(260px) rotateX(58deg) scale(1)}100%{background-position:0 52px,0 0,0 26px;transform:perspective(260px) rotateX(58deg) scale(1.04)}}
 @keyframes titleSunDrift{0%,100%{top:5%;transform:translateY(0) scale(.98)}50%{top:13%;transform:translateY(10px) scale(1.04)}}
@@ -294,5 +294,22 @@ body.duel-online #classicPanel [data-ans]{grid-row:auto;}
  .stage-screen .stage-actions{top:calc(37vh + 112px)!important;max-height:calc(100% - 48vh - 80px)!important}
 }
 
-/* 3.12.11: diálogo progresivo sin indicador de escritura. */
-.oracle-card.typing::after{content:none!important;display:none!important}
+
+/* 3.12.11 — el sol y el Cerebro oscilan juntos; el diálogo clásico tiene resultado propio. */
+@keyframes titleSunPendulum{
+  0%,100%{top:5%;transform:translateY(0) rotate(-3deg) scale(.98)}
+  50%{top:12%;transform:translateY(8px) rotate(3deg) scale(1.035)}
+}
+.title-layout>.neon-brain{transform-origin:50% 70%;animation:titleBrainSway 6s ease-in-out infinite;will-change:transform}
+@keyframes titleBrainSway{
+  0%,100%{transform:translateY(0) rotate(1.5deg)}
+  50%{transform:translateY(5px) rotate(-1.5deg)}
+}
+.classic-result{grid-column:1/-1;width:100%;flex:1 0 100%;box-sizing:border-box;padding:12px;margin:0 0 10px;border:1px solid var(--cy);border-radius:10px;background:linear-gradient(145deg,rgba(6,25,48,.94),rgba(25,5,53,.96));text-align:center;box-shadow:0 0 15px rgba(0,245,255,.13)}
+.classic-result-title{margin:2px 0 10px;color:var(--mg);font:clamp(12px,2.1vw,16px)/1.6 'Press Start 2P',monospace;text-shadow:0 0 10px rgba(255,45,149,.5)}
+.classic-result-character,.classic-result p{margin:7px 0;color:#eee8ff;font:21px/1.25 'VT323',monospace}
+.classic-result-character strong{color:var(--cy)}
+.classic-result-taunt{padding-top:8px;border-top:1px solid rgba(138,77,255,.45);color:var(--gr)!important;font-size:24px!important}
+@media(prefers-reduced-motion:reduce){.title-layout>.neon-brain{animation:none!important}.sun-title{animation:none!important}}
+
+.classic-result-status{margin:0 0 8px;color:var(--cy);font:8px/1.7 'Press Start 2P',monospace}

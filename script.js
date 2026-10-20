@@ -69,6 +69,8 @@ const suggestionPool = [
 ];
 
 let sayToken = 0;
+let messageQueue = Promise.resolve();
+let classicBusy = false;
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function show(screen) { sayToken++; [ui.title, ui.stage, ui.game, ui.result].forEach(s => s.classList.add('hidden')); screen.classList.remove('hidden'); }
 function flash() { ui.flash.classList.remove('fire'); void ui.flash.offsetWidth; ui.flash.classList.add('fire'); }
@@ -146,14 +148,18 @@ async function say(html, ms = 42) {
 
 async function closeStageCurtain(wait = 2600) {
   ui.stage.classList.remove('stage-ready', 'spotlight-on');
+  // Vaciar el bocadillo antes de que el telón se cierre: nunca debe sobrevivir el diálogo anterior.
+  ui.stageDialog.innerHTML = '';
   ui.curtainLeft.classList.remove('open');
   ui.curtainRight.classList.remove('open');
   await sleep(wait);
 }
 async function openStageCurtain(wait = 2600) {
+  ui.stageDialog.innerHTML = '';
   ui.curtainLeft.classList.add('open');
   ui.curtainRight.classList.add('open');
   await sleep(wait);
+  ui.stageDialog.innerHTML = '';
 }
 
 async function openStage() {
@@ -230,74 +236,115 @@ async function startClassic() {
   window.MatchHistory?.begin('clásico');
   classic.s = Clasico.nuevo(PERSONAJES);
   classic.cur = null; classic.fails = 0; classic.phase = 'ask';
+  classicBusy = true;
   state.guessesLeft = 3; updateHud();
   show(ui.game);
-  addMessage('Piensa en un personaje, real o ficticio. Responde con los botones y yo lo adivinaré.', 'mind');
+  await addMessage('Piensa en un personaje, real o ficticio. Responde con los botones y yo lo adivinaré.', 'system');
   startTimer();
-  await sleep(1400);
-  nextClassic();
+  await sleep(350);
+  await nextClassic();
 }
 
-function nextClassic() {
+async function nextClassic() {
+  if (classicBusy || classic.phase === 'end' || classic.phase === 'name') return;
+  classicBusy = true;
   const s = classic.s;
   state.questionCount = s.n; state.guessesLeft = 3 - classic.fails; updateHud();
-  if (Clasico.debeAdivinar(s) || s.n >= MAX_QUESTIONS) return classicGuess();
+  if (Clasico.debeAdivinar(s) || s.n >= MAX_QUESTIONS) return classicGuess(true);
   const q = Clasico.pregunta(s, MindLogic);
-  if (!q) return classicGuess();
+  if (!q) return classicGuess(true);
   classic.cur = { tipo: 'q', q };
-  addMessage(Clasico.frase(q), 'mind');
+  await addMessage(Clasico.frase(q), 'mind');
+  classicBusy = false;
 }
 
-function classicGuess() {
+async function classicGuess(announce = false) {
+  classicBusy = true;
   const m = Clasico.mejor(classic.s);
   if (!m) return classicName();
   classic.cur = { tipo: 'g', i: m.i, p: m.p };
-  addMessage(`¿Tu personaje es ${m.p.nombre}?`, 'mind');
+  if (announce) await addMessage('He analizado tus respuestas. Ha llegado el momento de arriesgarme… voy a adivinar.', 'mind');
+  await addMessage(`¿Tu personaje es ${m.p.nombre}?`, 'mind');
+  classicBusy = false;
 }
 
-function classicName() {
+async function classicName() {
+  classicBusy = true;
   classic.cur = null; classic.phase = 'name';
-  addMessage('Me rindo... ¿En quién pensabas? Escribe su nombre.', 'mind');
+  await addMessage('Me rindo. Esta vez has vencido tú. ¿En quién pensabas? Escribe su nombre.', 'mind');
   document.body.classList.add('name-phase');
   $cl('classicPanel').classList.add('hidden');
   ui.input.placeholder = 'Nombre del personaje...';
   ui.input.disabled = false; ui.send.disabled = false; ui.input.focus();
 }
 
-function classicSaveName(text) {
+async function classicSaveName(text) {
   const nombre = text.trim();
   if (!nombre) return;
-  addMessage(nombre, 'player');
+  await addMessage(nombre, 'player');
   try {
     const k = 'mind_personajes_nuevos';
     const l = JSON.parse(localStorage.getItem(k) || '[]');
     l.push({ nombre, fecha: new Date().toISOString(), respuestas: classic.s.log });
     localStorage.setItem(k, JSON.stringify(l));
   } catch (e) {}
-  addMessage(`Anotado: ${nombre}. La próxima vez estaré preparado.`, 'mind');
-  classicEnd();
+  await addMessage(`Anotado: ${nombre}. Me has superado esta vez. Disfruta tu victoria; volveré mejor preparado.`, 'mind');
+  classicEnd({wonBy:'player', nombre, descripcion:'El Cerebro no logró identificar tu personaje.'});
 }
 
-function classicEnd() {
-  if (classic.phase !== 'end') window.MatchHistory?.finish('Finalizada', {modo:'clásico'});
-  classic.phase = 'end'; classic.cur = null;
+const CLASSIC_WIN_LINES = [
+  'Impresionante. Has demostrado que tu mente merece mi respeto.',
+  'Una victoria digna. No cualquiera logra confundirme de esta manera.',
+  'Bien jugado, mortal. Hoy has estado un paso por delante de mí.',
+  'Admito tu triunfo. Tu elección ha sido más astuta de lo que esperaba.',
+  'Extraordinario. Has escapado de mi lógica… por ahora.'
+];
+const CLASSIC_LOSE_LINES = [
+  'Ja. Sabía que acabarías cayendo en mis redes.',
+  'Demasiado predecible. Otra mente descifrada.',
+  'Victoria para el Cerebro. Tu secreto ya no lo es.',
+  'La lógica ha hablado. Inténtalo otra vez si te atreves.',
+  'Un buen intento, pero mi mente ha sido más rápida.'
+];
+function pickLine(lines) { return lines[Math.floor(Math.random() * lines.length)]; }
+async function classicEnd(result = {}) {
+  if (classic.phase !== 'end') window.MatchHistory?.finish(result.wonBy === 'brain' ? 'Victoria del Cerebro' : result.wonBy === 'player' ? 'Victoria del jugador' : 'Finalizada', {modo:'clásico', personaje: result.nombre || ''});
+  classic.phase = 'end'; classic.cur = null; classicBusy = true;
   clearInterval(state.timerId);
   document.body.classList.remove('name-phase');
   $cl('classicPanel').classList.add('hidden');
-  $cl('classicEnd').classList.remove('hidden');
+  const panel = $cl('classicEnd');
+  const resultBox = $cl('classicResult');
+  if (resultBox) {
+    const wonByBrain = result.wonBy === 'brain';
+    resultBox.innerHTML = `<h3 class="classic-result-title">${wonByBrain ? 'HAS PERDIDO' : 'HAS GANADO'}</h3><p class="classic-result-status">${wonByBrain ? 'VICTORIA DEL CEREBRO' : 'VICTORIA DEL JUGADOR'}</p><p class="classic-result-character">${result.nombre ? `El personaje era: <strong>${escapeHtml(result.nombre)}</strong>` : ''}</p><p>${escapeHtml(result.descripcion || '')}</p><p class="classic-result-taunt">${escapeHtml(result.frase || (wonByBrain ? pickLine(CLASSIC_LOSE_LINES) : pickLine(CLASSIC_WIN_LINES)))}</p>`;
+  }
+  panel.classList.remove('hidden');
   ui.input.placeholder = 'Pregunta de sí/no...';
+  classicBusy = false;
 }
+function escapeHtml(value) { return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-function classicAnswer(ans) {
+async function classicAnswer(ans) {
   const c = classic.cur;
-  if (!c) return;
-  addMessage(CL_LABEL[ans], 'player');
-  if (c.tipo === 'q') { Clasico.responder(classic.s, MindLogic, c.q, ans); return nextClassic(); }
-  if (ans === 'si' || ans === 'psi') { addMessage(`¡Lo sabía! Eras ${c.p.nombre}.`, 'mind'); return classicEnd(); }
+  if (!c || classicBusy || classic.phase === 'end') return;
+  classicBusy = true;
+  await addMessage(CL_LABEL[ans], 'player');
+  if (c.tipo === 'q') {
+    Clasico.responder(classic.s, MindLogic, c.q, ans);
+    classicBusy = false;
+    return nextClassic();
+  }
+  if (ans === 'si' || ans === 'psi') {
+    await addMessage(`¡Lo sabía! Eras ${c.p.nombre}.`, 'mind');
+    await classicEnd({wonBy:'brain', nombre:c.p.nombre, descripcion:c.p.descripcion || 'El personaje que estabas pensando.', frase:pickLine(CLASSIC_LOSE_LINES)});
+    return;
+  }
   classic.fails++; Clasico.rechazar(classic.s, c.i);
   if (classic.fails >= 3 || !Clasico.mejor(classic.s)) return classicName();
-  addMessage('Entonces sigo preguntando...', 'mind');
-  nextClassic();
+  await addMessage('Esa no era. No importa: reajusto mis deducciones y continúo.', 'mind');
+  classicBusy = false;
+  await nextClassic();
 }
 
 function resetGame() {
@@ -344,27 +391,42 @@ function avatarFor(kind) {
   return { txt: '', cls: 'avatar-system' };
 }
 
-async function addMessage(text, kind = 'system') {
-  window.MatchHistory?.record(kind === 'player' ? 'TÚ' : kind === 'mind' ? 'CEREBRO' : 'SISTEMA', text, kind);
-  const row = document.createElement('div');
-  row.className = `message message-${kind}`;
-  const avatar = document.createElement('div');
-  avatar.className = 'avatar';
-  const a = avatarFor(kind);
-  avatar.textContent = a.txt;
-  avatar.classList.add(a.cls);
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  row.append(avatar, bubble);
-  ui.chat.append(row);
-  const prefix = kind === 'player' ? 'TÚ: ' : kind === 'mind' ? 'CEREBRO: ' : '';
-  const fullText = prefix + text;
-  for (let i = 1; i <= fullText.length; i++) {
-    bubble.textContent = fullText.slice(0, i);
+function renderMessage(text, kind = 'system') {
+  return new Promise(async resolve => {
+    window.MatchHistory?.record(kind === 'player' ? 'TÚ' : kind === 'mind' ? 'CEREBRO' : 'SISTEMA', text, kind);
+    const row = document.createElement('div');
+    row.className = `message message-${kind}`;
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    const a = avatarFor(kind);
+    avatar.textContent = a.txt;
+    avatar.classList.add(a.cls);
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    row.append(avatar, bubble);
+    ui.chat.append(row);
+    const prefix = kind === 'player' ? 'TÚ: ' : kind === 'mind' ? 'CEREBRO: ' : 'SISTEMA: ';
+    const fullText = prefix + String(text);
+    // Todos los mensajes tienen su turno: ninguno aparece completo encima de otro.
+    const speed = kind === 'mind' ? 30 : kind === 'system' ? 22 : 12;
+    for (let i = 1; i <= fullText.length; i++) {
+      bubble.textContent = fullText.slice(0, i);
+      ui.chat.scrollTop = ui.chat.scrollHeight;
+      const ch = fullText[i - 1];
+      await sleep(/[.!?…]/.test(ch) ? speed * 4 : /[,;:]/.test(ch) ? speed * 2 : speed);
+    }
     ui.chat.scrollTop = ui.chat.scrollHeight;
-    await sleep(/[.!?…]/.test(fullText[i - 1]) ? 110 : /[,;:]/.test(fullText[i - 1]) ? 48 : 22);
-  }
-  ui.chat.scrollTop = ui.chat.scrollHeight;
+    // Pausa final: permite leer incluso una frase corta antes de que hable el siguiente.
+    await sleep(fullText.length < 24 ? 650 : 850);
+    resolve();
+  });
+}
+
+function addMessage(text, kind = 'system') {
+  const task = messageQueue.then(() => renderMessage(text, kind));
+  // Mantener la cola viva incluso si un navegador rechaza una operación de interfaz.
+  messageQueue = task.catch(err => console.warn('[MIND] No se pudo mostrar un mensaje:', err));
+  return task;
 }
 
 async function startGame() {
@@ -393,17 +455,14 @@ async function askQuestion(text) {
   const clean = text.trim();
   if (!clean) return;
 
-  lockInput(true);
   if (state.asked.has(MindLogic.normalizar(clean))) {
-    await addMessage(clean, 'player');
-    await sleep(2000);
-    await addMessage(ORACULO.repetida, 'mind');
-    lockInput(false); ui.input.focus();
+    addMessage(clean, 'player');
+    addMessage(ORACULO.repetida, 'mind');
     return;
   }
-  await addMessage(clean, 'player');
-  await sleep(2000);
+  addMessage(clean, 'player');
   state.asked.add(MindLogic.normalizar(clean));
+  lockInput(true);
 
   let answer = MindLogic.evaluarPregunta(clean, state.secret);
   let source = 'logic';
@@ -420,7 +479,7 @@ async function askQuestion(text) {
   }
 
   if (answer === null) {
-    await addMessage('Todavía no entiendo esa pregunta. La guardo para aprenderla. Probá decirlo de otra forma.', 'mind');
+    addMessage('Todavía no entiendo esa pregunta. La guardo para aprenderla. Probá decirlo de otra forma.', 'mind');
     lockInput(false);
     ui.input.focus();
     return;
