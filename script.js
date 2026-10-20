@@ -362,6 +362,7 @@ function getCharacterDescription(name, fallback=''){
   return String((known && known.descripcion) || fallback || '').trim();
 }
 async function classicEnd(result = {}) {
+  el('playAgainBtn')?.classList.add('hidden');
   if (classic.phase !== 'end') window.MatchHistory?.finish(result.wonBy === 'brain' ? 'Victoria del Cerebro' : result.wonBy === 'player' ? 'Victoria del jugador' : 'Finalizada', {modo:'clásico', personaje: result.nombre || ''});
   classic.phase = 'end'; classic.cur = null; classicBusy = true;
   clearInterval(state.timerId);
@@ -727,6 +728,7 @@ function buildBrainHint(character) {
 }
 
 function finish(win, reason) {
+  el('playAgainBtn')?.classList.add('hidden');
   window.MatchHistory?.record('SISTEMA', reason, 'result');
   window.MatchHistory?.finish(win ? 'Victoria' : 'Derrota', {personaje: state.secret?.nombre || ''});
   state.active = false;

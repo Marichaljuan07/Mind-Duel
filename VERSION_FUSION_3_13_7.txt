@@ -1,0 +1,6 @@
+Mind Duel Fusion 3.13.7
+- La biblioteca de partidas incorpora las partidas ONLINE en curso detectadas en el historial.
+- Si el historial no contiene una sesión completa, la partida se muestra pero se indica que falta la copia necesaria para restaurar el lado local.
+- Los botones de revancha ya no aparecen en Solo ni Clásico.
+- En la pantalla final del modo Online queda únicamente «JUGAR DE VUELTA»; se elimina «CAMBIAR ROLES Y JUGAR».
+- La entrada inicial del juego y la intro no se modifican.
