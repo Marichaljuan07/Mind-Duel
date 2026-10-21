@@ -466,3 +466,34 @@ body.duel-online .chat-unread.hidden{display:none!important}
 .saved-match-actions-multi .btn{max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .saved-match-transcript{max-height:260px;overflow:auto;overflow-wrap:anywhere}
 @media(max-width:480px){.saved-library-tools{align-items:stretch}.saved-library-tabs{width:100%}.saved-library-tools>#importSavedMatchBtn{width:100%}.saved-match-actions-multi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.saved-match-actions-multi .btn{min-width:0;font-size:.72rem;padding:9px 5px}}
+
+/* 3.13.28 — biblioteca: tarjetas con espacio real y controles compactos en cabecera. */
+#savedMatchesModal{align-items:stretch!important;justify-content:center!important;overflow:hidden!important;padding:10px!important;box-sizing:border-box}
+#savedMatchesModal .saved-library-card{width:min(96vw,820px)!important;height:calc(100dvh - 20px)!important;max-height:calc(100dvh - 20px)!important;min-height:0!important;display:flex!important;flex-direction:column!important;gap:10px!important;padding:14px!important;overflow:hidden!important}
+#savedMatchesModal .saved-library-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto;min-width:0}
+#savedMatchesModal .saved-library-header h2{margin:0 0 4px!important;font-size:clamp(18px,4.8vw,26px)!important;line-height:1.15}
+#savedMatchesModal .saved-library-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex:0 0 auto}
+#savedMatchesModal .saved-library-header-actions .btn{width:auto!important;min-width:0!important;padding:8px 10px!important;font-size:10px!important;white-space:nowrap}
+#savedMatchesModal .saved-library-header-actions .saved-trash-button.active{border-color:#ff4fbd!important;color:#ffd5f1!important;box-shadow:0 0 9px #ff39bd66}
+#savedMatchesModal .saved-library-intro{font-size:11px;line-height:1.3}
+#savedMatchesModal .saved-library-notice{flex:0 0 auto;max-height:70px;overflow:auto}
+#savedMatchesModal .saved-matches-list{display:flex!important;flex:1 1 0!important;min-height:0!important;height:auto!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;gap:12px!important;padding:3px 4px 12px!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-y:contain!important}
+#savedMatchesModal .saved-match-card{display:flex;flex:0 0 auto!important;width:100%;box-sizing:border-box;align-items:stretch;gap:12px;padding:14px!important;overflow:visible!important}
+#savedMatchesModal .saved-match-info{flex:1 1 240px;min-width:0;gap:7px}
+#savedMatchesModal .saved-match-info strong{font-size:14px!important;line-height:1.35;overflow-wrap:anywhere}
+#savedMatchesModal .saved-match-info span{font-size:12px!important;line-height:1.4;overflow-wrap:anywhere}
+#savedMatchesModal .saved-match-info small{font-size:11px!important;line-height:1.55;overflow-wrap:anywhere;white-space:normal}
+#savedMatchesModal .saved-match-actions-multi{flex:0 1 190px;min-width:0;align-content:start;gap:7px}
+#savedMatchesModal .saved-match-actions-multi .btn{min-width:0;white-space:normal;line-height:1.25;padding:10px 8px!important}
+#savedMatchesModal .saved-library-card>.modal-actions{flex:0 0 auto;margin-top:0!important}
+@media(max-width:520px){
+ #savedMatchesModal{padding:6px!important}
+ #savedMatchesModal .saved-library-card{width:100%!important;height:calc(100dvh - 12px)!important;max-height:calc(100dvh - 12px)!important;padding:10px!important;gap:8px!important}
+ #savedMatchesModal .saved-library-header{align-items:flex-start}
+ #savedMatchesModal .saved-library-header-actions{gap:5px}
+ #savedMatchesModal .saved-library-header-actions .btn{padding:7px 6px!important;font-size:9px!important}
+ #savedMatchesModal .saved-library-header h2{font-size:18px!important}
+ #savedMatchesModal .saved-match-card{flex-direction:column!important;align-items:stretch!important;padding:12px!important}
+ #savedMatchesModal .saved-match-actions-multi{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%;flex:0 0 auto}
+ #savedMatchesModal .saved-match-actions-multi .btn{font-size:10px!important;padding:9px 5px!important}
+}
