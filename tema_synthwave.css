@@ -715,3 +715,14 @@ body.classic #onlineSecretLabel {
 #savedMatchesModal .saved-match-history-fallback>p:first-child{color:#ff9be8!important;font-weight:bold}
 @media(max-width:520px){#savedMatchesModal .saved-match-review{padding:10px!important}#savedMatchesModal .saved-match-transcript{max-height:35vh!important}#savedMatchesModal .saved-match-transcript p{font-size:11px!important;padding:7px!important}}
 .stage-screen.curtain-fast-open #curtainLeft,.stage-screen.curtain-fast-open #curtainRight{transition-duration:.08s!important}
+
+
+/* 3.13.42 — HUD y consola online: separar bordes sin perder la estética neón. */
+body.duel-online .game-header{position:relative;z-index:5;margin-bottom:0;isolation:isolate}
+body.duel-online .mind-console{margin-top:5px;min-width:0;flex-shrink:1;border-width:1px;box-shadow:0 0 12px rgba(138,77,255,.22),inset 0 0 14px rgba(138,77,255,.08)}
+body.duel-online .console-title{flex:0 0 auto;margin:0;padding:7px 10px;border-bottom:1px solid rgba(138,77,255,.35);line-height:1.25}
+body.duel-online.duel-brain .game-header{margin-bottom:2px}
+body.duel-online.duel-brain .mind-console{margin-top:2px}
+body.duel-online.duel-brain #brainInlinePanel{border-width:1px;box-shadow:none;margin-bottom:2px}
+body.duel-online.duel-brain #brainSuggestionStatus{padding:0;margin:2px 0 0;border:0;box-shadow:none}
+body.duel-online.duel-brain .controls{padding-top:2px}

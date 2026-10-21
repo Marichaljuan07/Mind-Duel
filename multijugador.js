@@ -81,7 +81,7 @@ window.addEventListener('mindduel-save-current',()=>{if(!document.body.classList
 function getSavedElapsedSeconds(saved){if(Number.isFinite(Number(saved?.elapsedSeconds))&&Number(saved?.elapsedSeconds)>0)return Math.max(0,Number(saved.elapsedSeconds));if(!saved?.reconstructedFromHistory&&Number(saved?.savedAt)>0&&Number(saved?.startedAt)>0)return Math.max(0,(Number(saved.savedAt)-Number(saved.startedAt))/1000);return 0;}
 function getOnlineElapsedSeconds(){return Math.max(0,clockElapsedBase+(clockPaused?0:(Date.now()-clockRunStartedAt)/1000));}
 function pauseOnlineClock(){if(!clockPaused){clockElapsedBase=getOnlineElapsedSeconds();clockPaused=true;clockRunStartedAt=0;}if(onlineTimerId){clearInterval(onlineTimerId);onlineTimerId=null;}updateOnlineClockDisplay();}
-function resumeOnlineClock(){if(clockPaused){clockPaused=false;clockRunStartedAt=Date.now();}if(!onlineTimerId)onlineTimerId=setInterval(()=>{updateOnlineClockDisplay();saveOnlineProgress();},1000);updateOnlineClockDisplay();}
+function resumeOnlineClock(){if(clockPaused){clockPaused=false;clockRunStartedAt=Date.now();}if(onlineTimerId)clearInterval(onlineTimerId);onlineTimerId=setInterval(()=>{updateOnlineClockDisplay();saveOnlineProgress();},1000);updateOnlineClockDisplay();}
 function updateOnlineClockDisplay(){const el=$('timer');if(!el)return;const sec=Math.floor(getOnlineElapsedSeconds());el.textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');}
 function saveOnlineProgress(){if(!document.body.classList.contains('duel-online')&&!host&&!remotePeerId)return;try{localStorage.setItem(ONLINE_SAVE_KEY,JSON.stringify({startedAt:onlineStartedAt,role:myRole,questionCount:onlineQuestionCount,answerCount:onlineAnswerCount,guessesLeft:onlineGuessesLeft,secret:myRole==='brain'?secret:'',savedAt:Date.now(),events:window.MatchHistory?.getCurrent()?.events||[]}));}catch{}persistSession();}
 function restoreTranscript(){if(!nativeChat)return;nativeChat.innerHTML='';for(const ev of localTranscript){const row=document.createElement('div');row.className='message message-'+(ev.kind==='player'?'player':ev.kind==='mind'?'mind':'system');const avatar=document.createElement('div');avatar.className='avatar '+(ev.kind==='mind'?'avatar-mind':ev.kind==='player'?'avatar-player':'avatar-system');const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=ev.text;row.append(avatar,bubble);nativeChat.append(row);}nativeChat.scrollTop=nativeChat.scrollHeight;}
@@ -214,7 +214,7 @@ function renderOnlineSequence(question){
 }
 function enterGame(startAt,restoring=false){
  onlineMatchFinished=false;onlineCleanupInProgress=false;
- clearInterval(onlineTimerId);onlineStartedAt=Number(startAt)||Date.now();if(!restoring){onlineQuestionCount=0;onlineAnswerCount=0;onlineGuessesLeft=2;}
+ clearInterval(onlineTimerId);onlineTimerId=null;onlineStartedAt=Number(startAt)||Date.now();if(!restoring){onlineQuestionCount=0;onlineAnswerCount=0;onlineGuessesLeft=2;}
  window.MindDuelMode='multiplayer';window.setMindDuelMode&&window.setMindDuelMode('multiplayer');
  modal.classList.add('hidden');
  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
