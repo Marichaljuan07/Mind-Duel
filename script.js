@@ -167,6 +167,7 @@ async function openStageCurtain(wait = 2600) {
 }
 
 async function openStage() {
+  window.MindDuelCleanupForMode?.();
   classicSetMode(false);
   clearInterval(state.timerId);
   state.active = false;
@@ -217,6 +218,7 @@ const classic = { s: null, cur: null, fails: 0, phase: 'ask' };
 const $cl = id => document.getElementById(id);
 
 function classicSetMode(on) {
+  if(on) document.body.classList.remove('duel-online','duel-brain','duel-guess');
   document.body.classList.toggle('classic', on);
   const modeHud = el('modeHud'); if (modeHud) modeHud.textContent = on ? 'CLÁSICO' : 'SOLO';
   document.body.classList.remove('name-phase');
@@ -236,6 +238,7 @@ async function chooseClassic() {
 }
 
 async function startClassic() {
+  window.MindDuelCleanupForMode?.();
   resetGame();
   classicSetMode(true);
   window.MatchHistory?.begin('clásico');
@@ -494,6 +497,7 @@ function addMessage(text, kind = 'system') {
 }
 
 async function startGame() {
+  window.MindDuelCleanupForMode?.();
   ui.stage.classList.remove('stage-ready');
   ui.curtainLeft.classList.add('open'); ui.curtainRight.classList.add('open');
   await sleep(500);
@@ -808,7 +812,7 @@ el('continueThinkingBtn').onclick = async () => {
   ];
   await addMessage(pickLine(lines), 'player');
 };
-el('playAgainBtn').onclick = () => { if(state.mode==='classic') startClassic(); else if(document.body.classList.contains('duel-online')) { document.body.classList.remove('duel-online'); openStage(); } else startGame(); };
+el('playAgainBtn').onclick = () => { if(state.mode==='classic') startClassic(); else if(document.body.classList.contains('duel-online')) { window.MindDuelCleanupForMode?.(); openStage(); } else startGame(); };
 el('resultMenuBtn').onclick = openStage;
 el('resultExitBtn').onclick = shutdown;
 let descriptionEditingName=''; let descriptionOriginal='';

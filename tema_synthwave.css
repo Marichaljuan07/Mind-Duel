@@ -410,3 +410,30 @@ body.duel-online.duel-guess .online-secret-label,body.duel-online.duel-guess #on
 .saved-match-actions-multi .btn{font-size:10px;padding:8px 9px;white-space:nowrap}
 .saved-match-card{align-items:center}
 @media(max-width:520px){.saved-match-card{align-items:stretch;flex-direction:column}.saved-match-actions-multi{display:grid;grid-template-columns:1fr 1fr;min-width:0}.saved-match-actions-multi .btn{white-space:normal}.saved-library-tools .btn{width:100%}}
+
+
+/* 3.13.15 — Cerebro online: respuestas compactas para dar prioridad al historial. */
+body.duel-online.duel-brain .controls{padding:4px 0 0}
+body.duel-online.duel-brain #brainInlinePanel{padding:5px 7px;margin:0 auto 4px}
+body.duel-online.duel-brain #brainInlinePanel .sequence-heading{font-size:clamp(7px,1.8vw,9px);line-height:1.25}
+body.duel-online.duel-brain #onlineQuestionBox{margin-top:3px;padding:5px 7px;font-size:clamp(16px,4.2vw,19px);line-height:1.12}
+body.duel-online.duel-brain #classicPanel{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:0;margin:0}
+body.duel-online.duel-brain #classicPanel [data-ans]{grid-column:auto!important;min-width:0;width:100%;min-height:32px;padding:5px 3px;font-size:clamp(9px,2.6vw,11px);line-height:1.1;border-radius:7px}
+body.duel-online.duel-brain #classicPanel [data-ans="nose"]{grid-column:span 2!important;min-height:29px}
+body.duel-online.duel-brain .game-screen{padding:5px;gap:5px}
+body.duel-online.duel-brain .mind-console{padding:5px 7px;min-height:0}
+body.duel-online.duel-brain .console-title{margin-bottom:3px;font-size:8px;line-height:1.2}
+body.duel-online.duel-brain #chat{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto}
+body.duel-online.duel-brain .online-secret-label{margin-bottom:4px;padding:4px 6px;font-size:15px}
+body.duel-online.duel-brain #onlineReadingStatus,body.duel-online.duel-brain #brainSuggestionStatus{margin:3px 0 0;font-size:13px;line-height:1.1}
+body.duel-online .chat-unread{min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:0 4px;border-radius:12px;background:#ff2d95;color:#fff;font:700 11px Arial,sans-serif;text-shadow:none;box-shadow:0 0 8px rgba(255,45,149,.7)}
+body.duel-online .chat-unread.hidden{display:none!important}
+@media(max-width:420px){
+ body.duel-online.duel-brain .game-header{min-height:0;padding:3px 4px;gap:3px}
+ body.duel-online.duel-brain .game-screen{padding:4px}
+ body.duel-online.duel-brain .mind-console{padding:4px 5px}
+ body.duel-online.duel-brain #chat{flex:1 1 auto;min-height:0;max-height:none}
+ body.duel-online.duel-brain #classicPanel{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+ body.duel-online.duel-brain #classicPanel [data-ans]{min-height:30px;padding:5px 2px;font-size:9px}
+ body.duel-online.duel-brain #classicPanel [data-ans="nose"]{grid-column:span 2!important;min-height:28px}
+}
