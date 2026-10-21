@@ -39,6 +39,13 @@ function finish(result='Finalizada',meta={}){
   const done=current;latestMatch=done;current=null;return done;
 }
 function getCurrent(){return current;}
+function resume(id,mode='solo'){
+  const wanted=String(mode||'solo').toLowerCase();
+  const rows=read();
+  const found=id?rows.find(m=>m.id===id&&m.status==='in_progress'):null;
+  if(found){current=found;latestMatch=found;return current;}
+  return begin(wanted,{continuada:true});
+}
 function setOnlineSession(snapshot){
   if(!snapshot||typeof snapshot!=='object')return;
   if(current&&String(current.mode||'').toLowerCase()==='online'&&current.status==='in_progress'){
@@ -57,20 +64,21 @@ function render(container,match){
   if(!events.length){const empty=document.createElement('p');empty.textContent='La partida todavía no tiene intervenciones registradas.';container.append(empty);}
   events.forEach(ev=>{const row=document.createElement('div');row.className='history-event';const who=document.createElement('b');who.textContent=(ev.speaker||'Sistema')+': ';const msg=document.createElement('span');msg.textContent=String(ev.text||'');row.append(who,msg);container.append(row);});
 }
-function show(match){
+function show(match,modeFilter=null){
   const modal=document.getElementById('matchHistoryModal'),body=document.getElementById('matchHistoryBody'),select=document.getElementById('historyMatchSelect');
   if(!modal||!body)return;
-  const rows=read().slice().reverse();
+  const wanted=modeFilter?String(modeFilter).toLowerCase():'';
+  const rows=read().filter(m=>!wanted||String(m.mode||'').toLowerCase()===wanted).slice().reverse();
   // Si hay una partida en curso que aún no quedó en storage por alguna restricción,
   // incluirla en la lista de esta apertura.
-  if(current&&!rows.some(m=>m.id===current.id))rows.unshift(current);
+  if(current&&(!wanted||String(current.mode||'').toLowerCase()===wanted)&&!rows.some(m=>m.id===current.id))rows.unshift(current);
   if(select){
     select.textContent='';
     if(rows.length){
       rows.forEach(m=>{const o=document.createElement('option');o.value=m.id;const date=new Date(m.startedAt).toLocaleString();o.textContent=`${date} · ${m.mode||'Partida'} · ${m.result||'Finalizada'}${m.status==='in_progress'?' (en curso)':''}`;select.append(o)});
     }else{const o=document.createElement('option');o.value='';o.textContent='Todavía no hay partidas guardadas';select.append(o);}
   }
-  const selected=match||(current&&rows.find(m=>m.id===current.id))||rows[0]||null;
+  const selected=(match&&(!wanted||String(match.mode||'').toLowerCase()===wanted)?match:null)||(current&&(!wanted||String(current.mode||'').toLowerCase()===wanted)&&rows.find(m=>m.id===current.id))||rows[0]||null;
   render(body,selected);
   if(select&&selected)select.value=selected.id;
   modal.classList.remove('hidden');
@@ -83,7 +91,7 @@ function clear(){
   try { if(keep) write([keep]); else localStorage.removeItem(KEY); } catch {}
   show(keep||null);
 }
-window.MatchHistory={begin,record,finish,getCurrent,setOnlineSession,attachSnapshot,show,list,clear};
+window.MatchHistory={begin,record,finish,getCurrent,resume,setOnlineSession,attachSnapshot,show,list,clear};
 document.addEventListener('click',e=>{
   if(e.target.closest('#viewMatchHistoryBtn')||e.target.closest('#viewClassicHistoryBtn')){e.preventDefault();show();}
   if(e.target.closest('#closeMatchHistoryBtn'))document.getElementById('matchHistoryModal')?.classList.add('hidden');

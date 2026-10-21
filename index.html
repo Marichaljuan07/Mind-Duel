@@ -67,7 +67,8 @@
         </div>
         <div id="machineModeChoice" class="stack stage-actions hidden">
           <button id="machineNewGameBtn" class="btn btn-green">NUEVA PARTIDA</button>
-          <button id="machineSavedGamesBtn" class="btn btn-purple">MIS PARTIDAS GUARDADAS</button>
+          <button id="machineContinueBtn" class="btn btn-cyan hidden">CONTINUAR PARTIDA</button>
+          <button id="machineHistoryBtn" class="btn btn-purple">HISTORIAL</button>
           <button id="machineChoiceBackBtn" class="btn btn-red">VOLVER</button>
         </div>
         <form id="classicSecretNameForm" class="classic-name-form hidden">
@@ -235,7 +236,7 @@
 
   <div id="savedMatchesModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="savedMatchesTitle"><div class="modal-card saved-library-card"><header class="saved-library-header"><div><h2 id="savedMatchesTitle">TUS PARTIDAS</h2><p class="saved-library-intro">Partidas guardadas en este dispositivo</p></div><div class="saved-library-header-actions"><button id="importSavedMatchBtn" type="button" class="btn btn-purple" title="Importar una copia JSON">⇧ IMPORTAR</button><button id="savedMatchesTrashTab" type="button" class="btn saved-trash-button" title="Ver partidas eliminadas">▤ PAPELERA</button><input id="importSavedMatchFile" type="file" accept="application/json,.json" hidden></div></header><div id="savedMatchesNotice" class="saved-library-notice" role="status" aria-live="polite"></div><div id="savedMatchesList" class="saved-matches-list"></div><div class="modal-actions"><button id="closeSavedMatchesBtn" class="btn btn-purple">VOLVER</button></div></div></div>
 
-  <div id="matchHistoryModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="matchHistoryTitle"><div class="modal-card history-card"><h2 id="matchHistoryTitle">REGISTRO DE PARTIDAS</h2><label class="duel-label" for="historyMatchSelect">ELEGÍ UNA PARTIDA GUARDADA</label><select id="historyMatchSelect" class="history-select"></select><div id="matchHistoryBody" class="match-history-body"></div><div class="modal-actions"><button id="clearMatchHistoryBtn" class="btn btn-red">BORRAR HISTORIAL</button><button id="closeMatchHistoryBtn" class="btn btn-purple">CERRAR</button></div></div></div>
+  <div id="matchHistoryModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="matchHistoryTitle"><div class="modal-card history-card"><h2 id="matchHistoryTitle">REGISTRO DE PARTIDAS</h2><label class="duel-label" for="historyMatchSelect">ELEGÍ UNA PARTIDA DEL HISTORIAL</label><select id="historyMatchSelect" class="history-select"></select><div id="matchHistoryBody" class="match-history-body"></div><div class="modal-actions"><button id="clearMatchHistoryBtn" class="btn btn-red">BORRAR HISTORIAL</button><button id="closeMatchHistoryBtn" class="btn btn-purple">CERRAR</button></div></div></div>
 
   <div id="shutdownScreen" class="shutdown-screen hidden">
     <div class="shutdown-line"></div>
