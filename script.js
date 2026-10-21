@@ -240,7 +240,7 @@ async function chooseSolo() {
   ui.stageMenu.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
-  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.solo}<br><br>He elegido a una entidad secreta.<br><span style="color:#00ff67">Tienes 20 preguntas y 2 intentos para adivinar.</span><br>Respuestas estrictas de SÍ o NO.<br><br>¿Aceptas el duelo?`, 42);
+  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.solo}<br><br>He elegido a una entidad secreta.<br><span style="color:#00ff67">Tienes 20 preguntas y 2 intentos para adivinar.</span><br>Respuestas estrictas de SÍ o NO.<br><br>¿Aceptas el duelo?`, 42, true, false);
   if (ok) { ui.stageActions.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); }
 }
 
@@ -282,7 +282,7 @@ async function chooseClassic() {
   ui.stageMenu.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
-  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.clasico}<br><br>Responderás con los botones: SÍ, NO, NO LO SÉ, PROBABLEMENTE SÍ o PROBABLEMENTE NO.<br><br>¿Aceptas el duelo?`, 42);
+  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.clasico}<br><br>Responderás con los botones: SÍ, NO, NO LO SÉ, PROBABLEMENTE SÍ o PROBABLEMENTE NO.<br><br>¿Aceptas el duelo?`, 42, true, false);
   if (ok) { ui.stageActions.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); }
 }
 
@@ -857,7 +857,7 @@ function leaveGame(){ el('gameMenuModal').classList.add('hidden'); if(document.b
 
 let lastStageDialogueTap = 0;
 document.addEventListener('pointerdown', e => {
-  // Saltar solo la presentación inicial del menú principal, nunca las normas ni los diálogos de partida.
+  // El doble toque completa cualquier diálogo del teatro; la frase dinámica solo se añade en la bienvenida principal.
   const speaking = activeStageDialogue;
   if (!speaking || !speaking.allowDoubleTapSkip || !ui.stage || ui.stage.classList.contains('hidden')) return;
   if (e.target.closest('button, input, textarea, select, a')) return;

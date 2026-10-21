@@ -645,3 +645,50 @@ body.classic #onlineSecretLabel {
  #savedMatchesModal .saved-match-card{border-left-width:2px!important}
  .online-transient-notice{top:max(8px,env(safe-area-inset-top));padding:10px 12px;font-size:12px}
 }
+
+
+/* v3.13.38 — el sol flota verticalmente; biblioteca alineada con la consola principal. */
+.sun-title{
+  width:min(49vw,278px)!important;height:min(49vw,278px)!important;
+  top:5%!important;transform-origin:50% 50%!important;
+  animation:titleSunVertical 5.5s ease-in-out infinite!important;will-change:transform!important;
+}
+@keyframes titleSunVertical{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(13px)}
+}
+#savedMatchesModal .saved-library-card{
+  border:2px solid var(--vi,#8a4dff)!important;border-radius:16px!important;
+  background:linear-gradient(180deg,rgba(20,7,52,.98),rgba(5,4,22,.99))!important;
+  box-shadow:0 0 18px rgba(138,77,255,.32),inset 0 0 20px rgba(25,240,255,.055)!important;
+}
+#savedMatchesModal .saved-library-header{
+  border:1px solid rgba(138,77,255,.55)!important;border-radius:11px!important;
+  background:linear-gradient(110deg,rgba(34,12,76,.78),rgba(5,20,39,.86))!important;
+  padding:10px!important;
+}
+#savedMatchesModal .saved-library-header h2{color:#fff!important;text-shadow:0 0 8px rgba(255,47,214,.42)!important;letter-spacing:.045em!important}
+#savedMatchesModal .saved-library-intro{color:#c9c6e7!important;max-width:none!important;font-size:12px!important;line-height:1.45!important}
+#savedMatchesModal .saved-library-counter{border-color:rgba(25,255,168,.48)!important;background:rgba(25,255,168,.07)!important;color:#b5ffe2!important;box-shadow:none!important}
+#savedMatchesModal .saved-matches-list{gap:9px!important;padding:4px 3px 10px!important}
+#savedMatchesModal .saved-match-card{
+  border:1px solid rgba(138,77,255,.58)!important;border-left:3px solid var(--vi,#8a4dff)!important;border-radius:10px!important;
+  background:linear-gradient(135deg,rgba(18,7,48,.96),rgba(5,14,31,.96))!important;
+  box-shadow:inset 0 0 12px rgba(138,77,255,.07)!important;
+}
+#savedMatchesModal .saved-match-info strong{color:#f1eaff!important;text-shadow:0 0 5px rgba(138,77,255,.28)!important}
+#savedMatchesModal .saved-match-info span{color:#aefaff!important}
+#savedMatchesModal .saved-match-info small{color:#c1bddc!important}
+#savedMatchesModal .saved-match-actions-multi .btn{border-radius:8px!important;min-height:34px!important}
+#savedMatchesModal .saved-match-review{width:100%;flex-basis:100%;box-sizing:border-box;max-height:44vh;overflow:hidden;display:flex;flex-direction:column;gap:8px;margin-top:8px;padding:10px;border:1px solid rgba(138,77,255,.58);border-radius:9px;background:rgba(2,4,20,.86)}
+#savedMatchesModal .saved-match-review>strong{flex:0 0 auto;color:#bdfbff!important;font-size:12px;letter-spacing:.04em}
+#savedMatchesModal .saved-match-transcript{max-height:34vh;overflow-y:auto;overscroll-behavior:contain;border:1px solid rgba(25,240,255,.18);background:rgba(2,1,15,.75)}
+#savedMatchesModal .saved-match-transcript p{font:15px/1.35 'Share Tech Mono','Courier New',monospace;padding:6px 4px;overflow-wrap:anywhere}
+#savedMatchesModal .saved-match-transcript b{color:#a8f8ff!important}
+@media(max-width:520px){
+  .sun-title{width:min(49vw,278px)!important;height:min(49vw,278px)!important}
+  #savedMatchesModal .saved-library-header{padding:8px!important}
+  #savedMatchesModal .saved-library-intro{font-size:11px!important}
+  #savedMatchesModal .saved-match-review{max-height:42vh;padding:8px}
+  #savedMatchesModal .saved-match-transcript{max-height:32vh}
+}
