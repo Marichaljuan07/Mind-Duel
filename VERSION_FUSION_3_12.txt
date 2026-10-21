@@ -1,4 +1,0 @@
-MIND DUEL FUSION 3.12 — DUELO ONLINE INTEGRADO
-Base: Fusion 3.9 + ajustes visuales y sistema de salas online.
-El modo online utiliza la pantalla de juego original para preguntas/respuestas; el chat libre es flotante.
-Requiere internet y conexión al servicio PeerJS. Probar en dos dispositivos reales antes de publicar como beta.

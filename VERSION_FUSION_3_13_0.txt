@@ -1,5 +1,0 @@
-MIND DUEL FUSION 3.13.0 — MULTIJUGADOR Y REVANCHAS
-
-Incluye generación de un nuevo código de sala sin reiniciar la configuración, compartir invitación por enlace/código, detección del código desde el enlace, revancha con los mismos roles y revancha intercambiando roles. El historial local sigue guardando partidas y conserva la partida activa al limpiar registros.
-
-Limitación conocida: las partidas y el historial se conservan localmente. La recuperación completa de una partida en otro dispositivo o después de que ambos navegadores se cierren requiere un backend compartido y no se considera garantizada en esta versión.

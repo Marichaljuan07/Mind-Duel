@@ -1,2 +1,0 @@
-MIND DUEL FUSION 3.12.15
-Menú hamburguesa compacto desplegable; pantalla final compartida para modo clásico y multijugador; captura del personaje al final del modo clásico; descripción local de personajes nuevos; música arcade sintetizada y efectos de sonido con controles independientes.

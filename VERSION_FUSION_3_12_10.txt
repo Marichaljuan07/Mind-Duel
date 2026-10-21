@@ -1,5 +1,0 @@
-Mind Duel Fusion 3.12.10
-- Quitado el indicador textual de escritura del Oráculo.
-- Escena teatral: telón abierto con escenario oscuro, luego foco y pausa antes de hablar.
-- Cerebro centrado y fijo; bocadillo y controles debajo, público en primer plano.
-- Diálogos de juego del Cerebro con escritura progresiva dentro de su burbuja.

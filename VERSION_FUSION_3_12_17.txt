@@ -1,5 +1,0 @@
-Mind Duel Fusion 3.12.17
-- Botón hamburguesa de una sola línea de tres barras, sin icono duplicado.
-- El menú Historial abre y carga correctamente las partidas guardadas.
-- Se registran de nuevo los mensajes del modo clásico y del modo individual en cada partida.
-- Se conserva el almacenamiento local existente mind_duel_match_history.

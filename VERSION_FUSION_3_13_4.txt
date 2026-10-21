@@ -1,4 +1,0 @@
-Mind Duel Fusion 3.13.4
-Recuperación de partidas online desde el historial.
-Las sesiones online en curso guardan una instantánea local dentro de los metadatos de la partida. Al seleccionar una partida online en curso en Historial, se ofrece “RECUPERAR ESTA PARTIDA ONLINE” y se intenta restablecer la sala con su estado guardado.
-Limitación: la sala debe seguir disponible en PeerJS y la instantánea solo existe para partidas guardadas después de esta versión; las partidas antiguas sin instantánea solo se pueden recuperar si todavía existe la sesión local anterior.

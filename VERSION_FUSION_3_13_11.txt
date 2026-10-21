@@ -1,3 +1,0 @@
-Mind Duel Fusion 3.13.11
-Biblioteca de partidas ampliada: importar guardados JSON, exportar respaldos individuales, renombrar y eliminar copias sin borrar el historial general.
-Los respaldos importados se agregan como partidas independientes y recuperan únicamente el rol/estado presente en ese archivo. No se inventan datos faltantes ni se fusionan automáticamente las dos perspectivas.

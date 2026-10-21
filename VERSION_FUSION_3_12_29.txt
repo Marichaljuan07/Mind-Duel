@@ -1,5 +1,0 @@
-Mind Duel Fusion 3.12.29
-- Burlas sarcásticas claras en victoria y derrota, en Solo, Clásico y Online.
-- Reacciones específicas para Julio César, Albert Einstein y Napoleón; frases generales para cualquier personaje nuevo.
-- Borrar historial elimina partidas anteriores y conserva la partida actual o la que acaba de terminar.
-- Conserva las funciones de la versión 3.12.28: descripción original y descripción personalizada.

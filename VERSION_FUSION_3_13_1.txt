@@ -1,5 +1,0 @@
-MIND DUEL FUSION 3.13.1 — RECONEXIÓN Y RECUPERACIÓN LOCAL DE PARTIDAS ONLINE
-
-Incluye identidad persistente de sala/anfitrión y jugador invitado, guardado local del estado de la partida, reconexión manual tras cortes de conexión y restauración del rol, personaje secreto en el dispositivo del Cerebro, contadores, pregunta pendiente, intentos de adivinanza y transcripción local al reabrir el juego.
-
-Limitaciones: el estado se guarda en el almacenamiento local de cada navegador; no hay backend de persistencia compartida. Para recuperar después de cerrar el navegador, ambos jugadores deben volver a abrir el juego desde el mismo dispositivo/navegador, y el anfitrión debe poder recuperar su ID PeerJS. PeerJS puede tardar en liberar un ID tras un cierre abrupto; si falla, esperar unos segundos y recargar. No garantiza recuperar desde otro dispositivo, si se borran los datos del navegador o si el anfitrión no vuelve a estar disponible. No probado aún en una sesión real de dos dispositivos.

@@ -1,5 +1,0 @@
-MIND DUEL FUSION 3.12.8
-- Respuesta personalizada integrada en la barra inferior del Cerebro online, debajo de los botones de respuesta.
-- Restaurados los iconos SVG originales de Cerebro y jugador; Cerebro morado y jugador verde.
-- Sol de la intro más pequeño.
-- Telón animado entre selecciones y frases del Oráculo; diálogo ajustado dentro del escenario y contenido ligeramente elevado al completarse.

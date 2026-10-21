@@ -1,2 +1,0 @@
-Mind Duel Fusion 3.12.20
-Mejoras de continuidad de partida, contador online, sugerencias contextuales y borrado del historial.

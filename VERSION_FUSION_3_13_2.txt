@@ -1,5 +1,0 @@
-MIND DUEL FUSION 3.13.2 — PERSONAJE DEL CEREBRO VISIBLE AL RECUPERAR
-
-Se agrega una etiqueta sobre la consola de juego que muestra “PERSONAJE ELEGIDO: [nombre]” únicamente en la pantalla del Cerebro. El nombre se vuelve a pintar al entrar o restaurar la partida usando el secreto ya guardado localmente. En la pantalla del Descubridor permanece oculto.
-
-Basada en la versión 3.13.1 de reconexión y recuperación local. La reconexión sigue dependiendo del almacenamiento local de cada navegador y de PeerJS; no existe persistencia compartida en servidor.

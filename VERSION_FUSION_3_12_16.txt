@@ -1,3 +1,0 @@
-MIND DUEL FUSION 3.12.16
-
-Correcciones: se conserva el estilo visual de la versión anterior; un solo botón de menú compacto; el intento de adivinanza del Cerebro en modo clásico aparece en una ventana propia, no como pregunta dentro del chat; pantalla final compartida para clásico y multijugador. Se retiró la música sintética provisional para no imponer una pista genérica: se podrá integrar el audio del usuario después.

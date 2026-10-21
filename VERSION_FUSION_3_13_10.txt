@@ -1,2 +1,0 @@
-Mind Duel Fusion 3.13.10
-Recuperación visual de partida, controles compactos sobre el chat y reloj pausado al desconectar.
