@@ -730,7 +730,6 @@ body.duel-online.duel-brain .controls{padding-top:2px}
 
 /* 3.13.44 — eliminar el estado vacío del panel Cerebro y convertir sincronización en aviso breve. */
 body.duel-online #brainSuggestionStatus.hidden{display:none!important}
-body.duel-online.duel-brain #brainSuggestionStatus{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;min-height:0!important}
 body.duel-online.duel-brain #brainSuggestionStatus:empty{display:none!important}
 body.duel-online .offline-recovery-strip.sync-toast{display:block!important;width:calc(100% - 20px)!important;max-width:760px!important;margin:8px auto!important;padding:8px 10px!important;border-color:rgba(74,255,197,.45)!important;background:rgba(4,24,35,.92)!important;text-align:center!important}
 body.duel-online .offline-recovery-strip.sync-toast .offline-recovery-actions{display:none!important}
@@ -746,35 +745,8 @@ body.duel-online.duel-brain .online-brain-panel .duel-status.hidden,
 body.duel-online.duel-brain .online-brain-panel .duel-status:empty{display:none!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important}
 
 
-/* 3.13.46 — integrar el panel de secuencia con los botones: eliminar el borde cian inferior. */
-body.duel-online.duel-brain #brainInlinePanel{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;border-radius:0!important;padding-bottom:0!important;margin-bottom:0!important}
-body.duel-online.duel-brain #brainSuggestionStatus{display:block;min-height:0!important;margin-bottom:0!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;padding-bottom:0!important}
-body.duel-online.duel-brain #brainSuggestionStatus.hidden,
-body.duel-online.duel-brain #brainSuggestionStatus:empty{display:none!important;min-height:0!important;margin:0!important;padding:0!important}
 
 
-/* 3.13.47 — el borde cian pertenece a la sugerencia visible, no a una franja vacía. */
-body.duel-online.duel-brain #brainSuggestionStatus:not(.hidden):not(:empty){
-  display:block!important;
-  box-sizing:border-box;
-  min-height:0!important;
-  margin:5px 0 0!important;
-  padding:5px 8px!important;
-  border:1px solid var(--cy)!important;
-  border-radius:7px!important;
-  outline:0!important;
-  box-shadow:0 0 8px rgba(0,245,255,.12)!important;
-  background:rgba(0,245,255,.045)!important;
-  line-height:1.15;
-}
-body.duel-online.duel-brain #brainSuggestionStatus.hidden,
-body.duel-online.duel-brain #brainSuggestionStatus:empty{
-  display:none!important;
-  min-height:0!important;
-  margin:0!important;
-  padding:0!important;
-  border:0!important;
-  outline:0!important;
-  box-shadow:none!important;
-  background:transparent!important;
-}
+/* 3.13.48 — restaurar únicamente la interfaz de Sugerencia del Cerebro de la 3.13.42. */
+body.duel-online.duel-brain #brainInlinePanel{border:1px solid var(--cy)!important;border-radius:8px!important;background:rgba(5,3,22,.82)!important;box-shadow:none!important;outline:0!important;padding:5px 7px!important;padding-bottom:5px!important;margin:0 auto 2px!important}
+body.duel-online.duel-brain #brainSuggestionStatus{padding:0!important;margin:2px 0 0!important;border:0!important;box-shadow:none!important;outline:0!important;background:transparent!important;min-height:0!important}
