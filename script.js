@@ -288,7 +288,8 @@ async function startClassic() {
   classicBusy = true;
   state.guessesLeft = MAX_GUESSES; updateHud();
   show(ui.game);
-  await addMessage('Piensa en un personaje, real o ficticio. Yo intentaré descubrirlo. Respondé cada pregunta con los botones.', 'mind');
+  const chosen=el('classicChosenCharacter'); if(chosen) chosen.textContent='TU PERSONAJE: '+classicSecretName;
+  await addMessage('Ya elegiste tu personaje. Voy a intentar descubrirlo con tus respuestas; no hace falta que me lo reveles en el chat.', 'mind');
   startTimer();
   // La pregunta inicial se solicita después de que termine la presentación.
   classicBusy = false;
@@ -791,7 +792,8 @@ function buildBrainHint(character) {
 }
 
 function finish(win, reason) {
-  el('playAgainBtn')?.classList.add('hidden');
+  el('playAgainBtn')?.classList.remove('hidden');
+  if (el('playAgainBtn')) el('playAgainBtn').textContent = 'JUGAR DE NUEVO';
   el('playAgainSwapRolesBtn')?.classList.add('hidden');
   window.MatchHistory?.record('SISTEMA', reason, 'result');
   window.MatchHistory?.finish(win ? 'Victoria' : 'Derrota', {personaje: state.secret?.nombre || ''});
@@ -803,7 +805,16 @@ function finish(win, reason) {
   const modeHud=el('modeHud'); if(modeHud) modeHud.textContent='SOLO';
   ui.resultTitle.textContent = win ? 'VICTORIA' : 'DERROTA';
   ui.resultCharacter.textContent = state.secret.nombre;
-  ui.resultDescription.textContent = [reason, getCharacterDescription(state.secret.nombre, state.secret.descripcion), mindDuelTaunt(state.secret.nombre, !win)].filter(Boolean).join(' '); machineAutosave();
+  const why = String(reason || '');
+  const asked = [...(state.asked || [])];
+  const lastQuestion = asked.length ? asked[asked.length - 1] : '';
+  const transcript = [...ui.chat.querySelectorAll('.message')].map(row => row.querySelector('.bubble')?.textContent || '').join(' ');
+  const wrongGuess = (transcript.match(/Adivino:\s*([^.!?]+)/gi) || []).slice(-1)[0]?.replace(/^Adivino:\s*/i, '').trim();
+  let contextualTaunt = mindDuelTaunt(state.secret.nombre, !win);
+  if (/rendid|retirad/i.test(why)) contextualTaunt = `¡JAJAJA! ¡Te rendiste antes de descubrirme! ${lastQuestion ? `Después de preguntarme «${lastQuestion}», todavía no tenías claro quién era yo.` : 'Ni siquiera llegaste a resolver el misterio.'} ¡Soy ${state.secret.nombre} y te bajaste del desafío!`;
+  else if (!win && wrongGuess) contextualTaunt = `¡JAJAJA! ¡Te la jugaste por ${wrongGuess} y fallaste! ${lastQuestion ? `Y eso después de preguntarme «${lastQuestion}».` : ''} ¡Al final era ${state.secret.nombre}! La próxima pensá mejor tu último intento.`;
+  else if (!win && lastQuestion) contextualTaunt = `¡JAJAJA! ¡Me preguntaste «${lastQuestion}» y aun así no lograste descubrirme! ¡Era ${state.secret.nombre}! ¡La próxima prestá más atención a las pistas!`;
+  ui.resultDescription.textContent = [reason, getCharacterDescription(state.secret.nombre, state.secret.descripcion), contextualTaunt].filter(Boolean).join(' '); machineAutosave();
 }
 
 async function shutdown() {
@@ -890,6 +901,7 @@ window.addEventListener('mind:restore-machine-match',async e=>{
  ui.chat.textContent='';for(const ev of (snap.transcript||[])){const row=document.createElement('div');row.className='message message-'+(ev.kind||'system');const av=document.createElement('div');av.className='avatar';const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=ev.text||'';row.append(av,bubble);ui.chat.append(row);}
  updateHud();ui.timer.textContent=String(Math.floor(state.seconds/60)).padStart(2,'0')+':'+String(state.seconds%60).padStart(2,'0');show(ui.game);startTimer();machineAutosave();
  if(state.mode==='classic'){
+  const chosen=el('classicChosenCharacter'); if(chosen) chosen.textContent='TU PERSONAJE: '+(classicSecretName||'Sin nombre');
   el('classicPanel').classList.add('hidden');el('classicCharacterNameForm').classList.add('hidden');el('classicGuessModal').classList.add('hidden');
   if(classic.phase==='name'){
    ui.resultTag.textContent='MODO CLÁSICO';ui.resultTitle.textContent='EL CEREBRO NO LO DESCIFRÓ';ui.resultCharacter.textContent='Tu personaje sigue siendo un misterio.';ui.resultDescription.textContent='Continuá desde donde quedó la partida.';el('resultActions').classList.add('hidden');el('classicCharacterNameForm').classList.remove('hidden');el('classicCharacterNameInput').value='';show(ui.result);el('classicCharacterNameInput').focus();
@@ -899,7 +911,7 @@ window.addEventListener('mind:restore-machine-match',async e=>{
  }else{el('classicPanel').classList.add('hidden');lockInput(false);}
 });
 
-el('playAgainBtn').onclick = () => { if(state.mode==='classic') openStage(); else if(document.body.classList.contains('duel-online')) { window.MindDuelCleanupForMode?.(); openStage(); } else startGame(); };
+el('playAgainBtn').onclick = () => { if(state.mode==='classic') { const name=classicSecretName; if(!name){state.pendingMode='classic';showMachineModeChoice();show(ui.stage);return;} startClassic(); } else if(document.body.classList.contains('duel-online')) { window.MindDuelCleanupForMode?.(); openStage(); } else startGame(); };
 el('resultMenuBtn').onclick = openStage;
 el('resultExitBtn').onclick = shutdown;
 let descriptionEditingName=''; let descriptionOriginal='';

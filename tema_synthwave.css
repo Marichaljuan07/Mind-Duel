@@ -497,3 +497,45 @@ body.duel-online .chat-unread.hidden{display:none!important}
  #savedMatchesModal .saved-match-actions-multi{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%;flex:0 0 auto}
  #savedMatchesModal .saved-match-actions-multi .btn{font-size:10px!important;padding:9px 5px!important}
 }
+
+/* v3.13.32: corregir estados visuales en la entrada y los resultados de Solo/Clásico */
+#machineContinueBtn.btn-cyan{background:linear-gradient(135deg,rgba(0,238,255,.22),rgba(0,94,255,.20));border:1px solid #19f0ff;color:#e8fdff;box-shadow:0 0 12px rgba(25,240,255,.22)}
+#machineContinueBtn.btn-cyan:not(.hidden){display:block}
+.neon-brain,.avatar::before{background-color:transparent}
+.neon-brain{-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain}
+#resultActions #playAgainBtn:not(.hidden){display:block}
+
+/* 3.13.33 — reparar el flujo de aceptación y selección de personaje en móvil */
+.stage-screen #machineModeChoice,
+.stage-screen #classicSecretNameForm {
+  position:absolute!important;
+  top:clamp(58vh,62vh,68vh)!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  width:min(84vw,360px)!important;
+  max-height:calc(100% - 60vh - 72px)!important;
+  overflow-y:auto!important;
+  display:flex;
+  flex-direction:column;
+  gap:8px!important;
+  margin:0!important;
+  padding:8px!important;
+  z-index:40!important;
+  background:rgba(3,3,10,.94);
+  border:1px solid rgba(240,0,255,.45);
+  border-radius:12px;
+}
+.stage-screen #classicSecretNameForm.hidden,
+.stage-screen #machineModeChoice.hidden {display:none!important}
+.stage-screen #classicSecretNameForm label {display:block;line-height:1.6;font-size:9px;color:var(--neon-cyan)}
+.stage-screen #classicSecretNameForm input {width:100%;min-width:0;min-height:42px;padding:10px;border:1px solid var(--neon-cyan);border-radius:8px;background:#08091a;color:#fff;font-size:16px}
+.stage-screen #machineModeChoice .btn,
+.stage-screen #classicSecretNameForm .btn {width:100%;min-height:40px;flex-shrink:0}
+.stage-screen #stageActions {top:clamp(59vh,63vh,68vh)!important;max-height:calc(100% - 60vh - 74px)!important;overflow-y:auto!important;padding:6px!important}
+.stage-screen #stageActions .btn {min-height:42px}
+.classic-chosen-character {grid-column:1/-1;width:100%;padding:8px 10px;margin-bottom:4px;border:1px solid rgba(0,216,255,.55);border-radius:8px;background:rgba(0,216,255,.08);color:#8deeff;font-size:11px;font-weight:bold;text-align:center;overflow-wrap:anywhere}
+.classic-panel {align-items:stretch}
+@media(max-height:700px){
+ .stage-screen #machineModeChoice,.stage-screen #classicSecretNameForm {top:56vh!important;max-height:calc(100% - 57vh - 64px)!important}
+ .stage-screen #stageActions {top:57vh!important;max-height:calc(100% - 58vh - 64px)!important}
+}
