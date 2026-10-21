@@ -72,6 +72,8 @@ const suggestionPool = [
 ];
 
 let sayToken = 0;
+let activeStageDialogue = null;
+let activeTypingMessage = null;
 let messageQueue = Promise.resolve();
 let classicBusy = false;
 let machineStartedAt = 0;
@@ -139,17 +141,22 @@ const ORACULO = {
 
 async function say(html, ms = 42) {
   const my = ++sayToken;
+  const speech = { token: my, skip: false };
+  activeStageDialogue = speech;
   let out = '', i = 0;
   ui.stageDialog.innerHTML = '';
   while (i < html.length) {
-    if (my !== sayToken) return false;
+    if (my !== sayToken) { if (activeStageDialogue === speech) activeStageDialogue = null; return false; }
+    if (speech.skip) { ui.stageDialog.innerHTML = html + '<br><br><em class="oracle-skip-taunt">¡No me apures, mortal! Ahí tienes las opciones para jugar.</em>'; break; }
     if (html[i] === '<') { const j = html.indexOf('>', i); out += html.slice(i, j + 1); i = j + 1; }
     else {
       const ch = html[i++]; out += ch;
       await sleep(/[.!?…]/.test(ch) ? ms * 5 : /[,;:]/.test(ch) ? ms * 2.2 : ms);
     }
+    if (speech.skip) { ui.stageDialog.innerHTML = html + '<br><br><em class="oracle-skip-taunt">¡No me apures, mortal! Ahí tienes las opciones para jugar.</em>'; break; }
     ui.stageDialog.innerHTML = out;
   }
+  if (activeStageDialogue === speech) activeStageDialogue = null;
   return my === sayToken;
 }
 
@@ -528,7 +535,6 @@ function avatarFor(kind) {
 
 function renderMessage(text, kind = 'system') {
   return new Promise(async resolve => {
-    // addMessage registra la intervención una sola vez antes de encolarla.
     const row = document.createElement('div');
     row.className = `message message-${kind}`;
     const avatar = document.createElement('div');
@@ -542,17 +548,20 @@ function renderMessage(text, kind = 'system') {
     ui.chat.append(row);
     const prefix = kind === 'player' ? 'TÚ: ' : kind === 'mind' ? 'CEREBRO: ' : 'SISTEMA: ';
     const fullText = prefix + String(text);
-    // Todos los mensajes tienen su turno: ninguno aparece completo encima de otro.
     const speed = kind === 'mind' ? 30 : kind === 'system' ? 22 : 12;
+    const typing = { skip: false, row };
+    activeTypingMessage = typing;
     for (let i = 1; i <= fullText.length; i++) {
+      if (typing.skip) { bubble.textContent = fullText; break; }
       bubble.textContent = fullText.slice(0, i);
       ui.chat.scrollTop = ui.chat.scrollHeight;
       const ch = fullText[i - 1];
       await sleep(/[.!?…]/.test(ch) ? speed * 4 : /[,;:]/.test(ch) ? speed * 2 : speed);
     }
+    bubble.textContent = fullText;
     ui.chat.scrollTop = ui.chat.scrollHeight;
-    // Pausa final: permite leer incluso una frase corta antes de que hable el siguiente.
-    await sleep(fullText.length < 24 ? 650 : 850);
+    if (!typing.skip) await sleep(fullText.length < 24 ? 650 : 850);
+    if (activeTypingMessage === typing) activeTypingMessage = null;
     resolve();
   });
 }
@@ -842,9 +851,19 @@ function closeModalFromTarget(target) {
   const id = target.dataset.close;
   if (id) el(id)?.classList.add('hidden');
 }
-function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; const online=document.body.classList.contains('duel-online'); ['menuSaveMatchBtn'].forEach(id=>el(id)?.classList.toggle('hidden',!online)); el('menuExportMatchBtn')?.classList.toggle('hidden',!online); const menu=el('gameMenuModal');const opening=menu.classList.contains('hidden');menu.classList.toggle('hidden',!opening);el('menuBtn').setAttribute('aria-expanded',String(opening));el('menuBtn').setAttribute('aria-label',opening?'Cerrar menú':'Abrir menú');el('menuSurrenderBtn').querySelector('span').textContent=online?'Rendirse':state.mode==='classic'?'Retirarse':'Rendirse'; }
+function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; const online=document.body.classList.contains('duel-online'); ['menuSaveMatchBtn'].forEach(id=>el(id)?.classList.toggle('hidden',!online)); el('menuExportMatchBtn')?.classList.toggle('hidden',!online); const menu=el('gameMenuModal');const opening=menu.classList.contains('hidden');menu.classList.toggle('hidden',!opening);el('menuBtn').setAttribute('aria-expanded',String(opening));el('menuBtn').setAttribute('aria-label',opening?'Cerrar menú':'Abrir menú');el('menuSurrenderBtn').querySelector('span').textContent='Rendirse'; }
 function leaveGame(){ el('gameMenuModal').classList.add('hidden'); if(document.body.classList.contains('duel-online')) { if(confirm('¿Querés salir de esta partida?')) window.dispatchEvent(new CustomEvent('mindduel-leave')); return; } if(state.mode!=='classic' && state.active){ if(confirm('¿Querés salir de esta partida? El progreso quedó guardado automáticamente y podrás retomarlo con CONTINUAR PARTIDA.')) openStage(); } else openStage(); }
 
+
+document.addEventListener('pointerdown', e => {
+  const speaking = activeStageDialogue || activeTypingMessage;
+  if (!speaking) return;
+  const inStage = ui.stage && !ui.stage.classList.contains('hidden');
+  const inGame = ui.game && !ui.game.classList.contains('hidden');
+  if (!inStage && !inGame) return;
+  if (e.target.closest('input, textarea, select')) return;
+  speaking.skip = true;
+}, true);
 
 document.addEventListener('click', e => { closeModalFromTarget(e.target); const menu=el('gameMenuModal'); if(menu&&!menu.classList.contains('hidden')&&!e.target.closest('.header-menu-wrap')){menu.classList.add('hidden');el('menuBtn').setAttribute('aria-expanded','false');el('menuBtn').setAttribute('aria-label','Abrir menú');} });
 el('startBtn').onclick = () => openStage();
@@ -874,7 +893,7 @@ el('menuResumeBtn').onclick = () => {el('gameMenuModal').classList.add('hidden')
 el('menuHistoryBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn').setAttribute('aria-expanded','false'); if(window.MatchHistory) window.MatchHistory.show(null,document.body.classList.contains('duel-online')?'online':state.mode==='classic'?'clásico':'solo'); else if(el('matchHistoryModal')) el('matchHistoryModal').classList.remove('hidden'); else addMessage('El historial todavía no está disponible.', 'system'); };
 el('menuSaveMatchBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn').setAttribute('aria-expanded','false'); if(document.body.classList.contains('duel-online'))window.dispatchEvent(new CustomEvent('mindduel-save-current')); };
 el('menuExportMatchBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn').setAttribute('aria-expanded','false'); if(!document.body.classList.contains('duel-online')){addMessage('Exportar partida está disponible en el modo Online.', 'system');return;} window.SavedMatches?.exportCurrent?.(); };
-el('menuSurrenderBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); if(document.body.classList.contains('duel-online')) { window.dispatchEvent(new CustomEvent('mindduel-surrender')); return; } if(state.mode==='classic') classicEnd({wonBy:'brain',nombre:classic.cur?.p?.nombre || Clasico.mejor(classic.s)?.p?.nombre || 'personaje secreto',descripcion:'Te rendiste antes de descubrirlo.',frase:pickLine(CLASSIC_LOSE_LINES)}); else if(state.active) finish(false,'Te has rendido.'); };
+el('menuSurrenderBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn')?.setAttribute('aria-expanded','false'); if(document.body.classList.contains('duel-online')) { window.dispatchEvent(new CustomEvent('mindduel-surrender')); return; } if(state.mode==='classic') { if(classic.phase==='end') return; classicEnd({wonBy:'brain',nombre:classicSecretName || classic.cur?.p?.nombre || Clasico.mejor(classic.s)?.p?.nombre || 'personaje elegido',descripcion:'Te rendiste antes de que el Cerebro terminara de descubrirlo.'}); return; } if(state.active) finish(false,'Te rendiste antes de terminar la partida.'); };
 el('menuExitBtn').onclick = leaveGame;
 ui.form.onsubmit = e => {
   e.preventDefault();

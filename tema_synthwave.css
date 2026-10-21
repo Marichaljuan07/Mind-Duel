@@ -559,3 +559,13 @@ body.classic #onlineSecretLabel {
 }
 body.classic #classicChosenCharacter {display:none!important}
 body.classic #suggestBtn:disabled {opacity:.55;filter:grayscale(.45)}
+
+
+/* 3.13.35 — personaje clásico en cian y diálogo acelerable con toque */
+body.classic #onlineSecretLabel {
+  border-color:rgba(0,245,255,.72)!important;
+  background:linear-gradient(90deg,rgba(0,245,255,.13),rgba(138,77,255,.08))!important;
+  color:var(--cy,#00f5ff)!important;
+  text-shadow:0 0 8px rgba(0,245,255,.35)!important;
+}
+.oracle-skip-taunt { color:var(--cy,#00f5ff); font-style:normal; text-shadow:0 0 6px rgba(0,245,255,.28); }
