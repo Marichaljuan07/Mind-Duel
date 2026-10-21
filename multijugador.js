@@ -249,7 +249,37 @@ on('createRoomBtn','click',()=>{reset();saveName();createRoomCode();});
 on('newRoomCodeBtn','click',()=>{if(connected){status('La sala ya tiene una partida conectada. Terminá o abandoná esa partida antes de generar otro código.');return;}createRoomCode();});
 on('shareRoomBtn','click',async()=>{const code=$('roomCode').textContent.trim();if(!code){status('Primero generá un código de sala.');return;}const url=new URL(location.href);url.searchParams.set('room',code);const text=`Te invito a jugar Mind Duel Fusion. Abrí este enlace y conectate con el código ${code}: ${url.href}`;try{if(navigator.share){await navigator.share({title:'Mind Duel Fusion · Invitación',text,url:url.href});status('Invitación compartida.');}else if(navigator.clipboard){await navigator.clipboard.writeText(text);status('Invitación completa copiada. Pegala en WhatsApp.');}else{window.prompt('Copiá esta invitación y mandala por WhatsApp:',text);status('Invitación preparada para compartir.');}}catch(e){if(e&&e.name!=='AbortError')status('No se pudo abrir el menú para compartir. Podés copiar el código.');}});
 on('joinRoomBtn','click',()=>{$('joinRoom').classList.remove('hidden');$('roomInput').focus();status('Ingresá el código que te compartió tu amigo.');});
-on('connectRoomBtn','click',()=>{if(!window.Peer){status('No se pudo cargar la conexión online.');return;}const id=$('roomInput').value.trim();if(!id){status('Ingresá el código de sala.');return;}const recoveryJoin=id.startsWith('mdfr-');const priorSaved=readSavedSession();reset();if(recoveryJoin&&priorSaved&&priorSaved.myRole&&priorSaved.startedAt){try{localStorage.setItem(ONLINE_SESSION_KEY,JSON.stringify(priorSaved));}catch{}restoreSnapshot=priorSaved;}remotePeerId=id;remotePlayerPeerId='';localPeerId='mdf-'+Array.from(crypto.getRandomValues(new Uint8Array(12))).map(x=>x.toString(16).padStart(2,'0')).join('');$('joinRoom').classList.remove('hidden');saveName();status(recoveryJoin?'Conectando a una sala de recuperación…':'Conectando…');peer=new Peer(localPeerId);peer.on('open',()=>{persistSession();ready(peer.connect(id,{reliable:true}));});peer.on('error',e=>status('No se pudo conectar ('+(e.type||'error')+'). Verificá el código.'));});
+on('connectRoomBtn','click',()=>{
+ if(!window.Peer){status('No se pudo cargar la conexión online.');return;}
+ const id=$('roomInput').value.trim();if(!id){status('Ingresá el código de sala.');return;}
+ const priorSaved=readSavedSession();
+ // Si el código coincide con la sala guardada de este jugador, esto es una reconexión,
+ // no una partida nueva: conservar rol, personaje, contadores y conversaciones.
+ const resumeExisting=!!(priorSaved&&priorSaved.myRole&&priorSaved.startedAt&&String(priorSaved.roomId||'')===id&&!priorSaved.host);
+ const recoveryJoin=id.startsWith('mdfr-');
+ reset();
+ remotePeerId=id;remotePlayerPeerId='';host=false;
+ localPeerId='mdf-'+Array.from(crypto.getRandomValues(new Uint8Array(12))).map(x=>x.toString(16).padStart(2,'0')).join('');
+ if(resumeExisting){
+  restoreSnapshot={...priorSaved,host:false,roomId:id,localPeerId,remotePlayerPeerId:'',savedAt:Date.now()};
+  restoreMatchId=String(priorSaved.matchId||'');
+  myRole=String(priorSaved.myRole||'');theirRole=String(priorSaved.theirRole||'');
+  secret=myRole==='brain'?String(priorSaved.secret||''):'';
+  onlineStartedAt=Number(priorSaved.startedAt)||Date.now();clockElapsedBase=getSavedElapsedSeconds(priorSaved);clockRunStartedAt=0;clockPaused=true;
+  onlineQuestionCount=Number(priorSaved.questionCount)||0;onlineAnswerCount=Number(priorSaved.answerCount)||0;
+  onlineGuessesLeft=Math.max(0,Math.min(2,Number(priorSaved.guessesLeft??2)));
+  pendingQuestion=String(priorSaved.pendingQuestion||'');waitingForAnswer=!!priorSaved.waitingForAnswer;waitingForGuess=!!priorSaved.waitingForGuess;
+  pendingOnlineGuess=String(priorSaved.pendingOnlineGuess||'');lastOnlineQuestion=String(priorSaved.lastQuestion||'');lastOnlineAnswer=String(priorSaved.lastAnswer||'');
+  localTranscript=recoverGameTranscript(priorSaved);phoneTranscript=recoverPhoneTranscript(priorSaved);
+  phoneUnreadCount=Math.max(0,Number(priorSaved.phoneUnreadCount)||0);
+  try{localStorage.setItem(ONLINE_SESSION_KEY,JSON.stringify(restoreSnapshot));}catch{}
+ }
+ $('joinRoom').classList.remove('hidden');saveName();
+ status(resumeExisting?'Reconectando a tu partida guardada y recuperando tu rol…':(recoveryJoin?'Conectando a una sala de recuperación…':'Conectando…'));
+ peer=new Peer(localPeerId);
+ peer.on('open',()=>{persistSession();ready(peer.connect(id,{reliable:true}));});
+ peer.on('error',e=>status('No se pudo conectar ('+(e.type||'error')+'). Verificá el código.'));
+});
 on('copyRoomBtn','click',async()=>{try{await navigator.clipboard.writeText($('roomCode').textContent);status('Código copiado. Mandáselo a tu amigo.');}catch{status('Mantené presionado el código para copiarlo.');}});
 on('roleBrainBtn','click',()=>{if(theirRole==='brain'){status('Tu amigo ya eligió ser el Cerebro.');return;}myRole='brain';send({type:'role',role:myRole});updateRoles();persistSession();});
 on('roleGuessBtn','click',()=>{if(theirRole==='guess'){status('Tu amigo ya eligió descubrir.');return;}myRole='guess';send({type:'role',role:myRole});updateRoles();persistSession();});
