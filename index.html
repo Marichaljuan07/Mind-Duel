@@ -65,6 +65,17 @@
           <button id="continueBtn" class="btn btn-green">ACEPTO</button>
           <button id="backTitleBtn" class="btn btn-red">HUIR</button>
         </div>
+        <div id="machineModeChoice" class="stack stage-actions hidden">
+          <button id="machineNewGameBtn" class="btn btn-green">NUEVA PARTIDA</button>
+          <button id="machineSavedGamesBtn" class="btn btn-purple">MIS PARTIDAS GUARDADAS</button>
+          <button id="machineChoiceBackBtn" class="btn btn-red">VOLVER</button>
+        </div>
+        <form id="classicSecretNameForm" class="classic-name-form hidden">
+          <label for="classicSecretNameInput">¿QUÉ PERSONAJE ELEGISTE? (NO SE LO MOSTRAREMOS AL CEREBRO)</label>
+          <input id="classicSecretNameInput" maxlength="80" autocomplete="off" placeholder="Nombre del personaje" required>
+          <button class="btn btn-green" type="submit">EMPEZAR PARTIDA</button>
+          <button id="classicSecretNameBackBtn" class="btn btn-red" type="button">VOLVER</button>
+        </form>
       </div>
 
       <!-- SILUETAS DEL PUBLICO: el jugador mira el escenario desde el teatro -->
