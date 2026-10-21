@@ -28,7 +28,7 @@ function showOfflineRecoveryBar(){
   const chat=$('chat');if(chat)chat.insertAdjacentElement('beforebegin',bar);else{const target=document.querySelector('#gameScreen .mind-console');if(target)target.append(bar);else document.body.append(bar);}
   if($('reopenSavedRoomBtn'))$('reopenSavedRoomBtn').addEventListener('click',reopenSavedRoom);if($('copySavedRoomCodeBtn'))$('copySavedRoomCodeBtn').addEventListener('click',copyRecoveryCode);
  }
- bar.classList.remove('hidden');
+ const actions=bar.querySelector('.offline-recovery-actions');if(actions)actions.classList.remove('hidden');bar.classList.remove('sync-toast');clearRecoveryBarTimer();bar.classList.remove('hidden');
 }
 async function copyRecoveryCode(){const code=String($('roomCode')?.textContent||readSavedSession()?.roomId||'').trim();if(!code){setText('offlineRecoveryText','Primero reabrí la sala para generar un código.');return;}try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(code);else throw new Error('clipboard unavailable');setText('offlineRecoveryText','CÓDIGO COPIADO: '+code+'. Compartilo con tu rival para volver a esta sala.');}catch{const ta=document.createElement('textarea');ta.value=code;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.append(ta);ta.select();let ok=false;try{ok=document.execCommand('copy');}catch{}ta.remove();setText('offlineRecoveryText',ok?'CÓDIGO COPIADO: '+code+'. Compartilo con tu rival para volver a esta sala.':'Código de sala: '+code+'. Mantené presionado el código para copiarlo.');}}
 
@@ -121,11 +121,15 @@ function randomDiscovererGuessLine(){return discovererGuessLines[Math.floor(Math
 const nativeChat=$('chat');
 function status(t){setText('duelStatus',t);}
 let onlineNoticeTimer=null;
+let recoveryBarTimer=null;
 let onlineMatchFinished=false;
 let onlineCleanupInProgress=false;
 function hideOnlineNotice(){if(onlineNoticeTimer){clearTimeout(onlineNoticeTimer);onlineNoticeTimer=null;}const node=$('onlineTransientNotice');if(node){node.classList.remove('visible');node.textContent='';}}
+function clearRecoveryBarTimer(){if(recoveryBarTimer){clearTimeout(recoveryBarTimer);recoveryBarTimer=null;}}
+function hideRecoveryBar(){clearRecoveryBarTimer();const bar=$('offlineRecoveryBar');if(bar){bar.classList.add('hidden');bar.classList.remove('sync-toast');const actions=bar.querySelector('.offline-recovery-actions');if(actions)actions.classList.remove('hidden');}}
+function showRecoverySyncToast(){const bar=$('offlineRecoveryBar');if(!bar)return;clearRecoveryBarTimer();bar.classList.add('sync-toast');const actions=bar.querySelector('.offline-recovery-actions');if(actions)actions.classList.add('hidden');setText('offlineRecoveryText','✓ PARTIDA SINCRONIZADA · AMBOS JUGADORES CONECTADOS · RELOJ EN MARCHA');bar.classList.remove('hidden');recoveryBarTimer=setTimeout(()=>{recoveryBarTimer=null;const current=$('offlineRecoveryBar');if(current===bar){bar.classList.add('hidden');bar.classList.remove('sync-toast');if(actions)actions.classList.remove('hidden');}},2600);}
 function clearOnlineTransientUi(){
- hideOnlineNotice();
+ hideOnlineNotice();hideRecoveryBar();
  $('chatBubbleBtn')?.classList.add('hidden');$('floatingChat')?.classList.add('hidden');$('offlineRecoveryBar')?.classList.add('hidden');$('reconnectDuelBtn')?.remove();
  $('onlineGuessConfirmModal')?.classList.add('hidden');$('guessModal')?.classList.add('hidden');$('gameMenuModal')?.classList.add('hidden');
  // No ocultar duelModal desde la limpieza genérica: reset() también se usa al crear sala.
@@ -296,7 +300,7 @@ function onData(d){if(!d||typeof d!=='object')return;
   }
   if(Number.isFinite(Number(d.guessesLeft)))onlineGuessesLeft=Math.max(0,Math.min(2,Number(d.guessesLeft)));
   if(myRole==='brain'&&pendingOnlineGuess){$('onlineGuessConfirmCharacter').textContent=pendingOnlineGuess;$('onlineGuessConfirmModal')?.classList.remove('hidden');}
-  updateOnlineHud();persistSession();if(myRole==='brain')send({type:'state_sync',version:2,startedAt:onlineStartedAt,role:myRole,questionsSeen:onlineQuestionCount,answersSeen:onlineAnswerCount,guessesLeft:onlineGuessesLeft,pendingQuestion,lastQuestion:lastOnlineQuestion,lastAnswer:lastOnlineAnswer,waitingForAnswer:!!pendingQuestion,waitingForGuess:false,pendingOnlineGuess,lastGuessResolution,transcript:localTranscript.slice(-500),phoneTranscript:phoneTranscript.slice(-300),questionBox:$('onlineQuestionBox')?.textContent||'',readingStatus:$('onlineReadingStatus')?.textContent||'',elapsedSeconds:Math.floor(getOnlineElapsedSeconds())});offlineRecovery=false;resumeOnlineClock();const rbbar=$('offlineRecoveryBar');if(rbbar){setText('offlineRecoveryText','✓ PARTIDA SINCRONIZADA · AMBOS JUGADORES CONECTADOS · RELOJ EN MARCHA');rbbar.classList.remove('hidden');setTimeout(()=>{const current=$('offlineRecoveryBar');if(current)current.classList.add('hidden');},5000);}status('✓ Partida reconectada y sincronizada. Ambos jugadores están conectados; se conservaron los roles y el turno.');return;
+  updateOnlineHud();persistSession();if(myRole==='brain')send({type:'state_sync',version:2,startedAt:onlineStartedAt,role:myRole,questionsSeen:onlineQuestionCount,answersSeen:onlineAnswerCount,guessesLeft:onlineGuessesLeft,pendingQuestion,lastQuestion:lastOnlineQuestion,lastAnswer:lastOnlineAnswer,waitingForAnswer:!!pendingQuestion,waitingForGuess:false,pendingOnlineGuess,lastGuessResolution,transcript:localTranscript.slice(-500),phoneTranscript:phoneTranscript.slice(-300),questionBox:$('onlineQuestionBox')?.textContent||'',readingStatus:$('onlineReadingStatus')?.textContent||'',elapsedSeconds:Math.floor(getOnlineElapsedSeconds())});offlineRecovery=false;resumeOnlineClock();showRecoverySyncToast();status('✓ Partida reconectada y sincronizada. Ambos jugadores están conectados; se conservaron los roles y el turno.');return;
  }
  if(d.type==='chat'){const text=String(d.text||'').slice(0,300);addMessage(d.name||'RIVAL',text,'remote');window.MatchHistory?.record(d.name||'RIVAL',text,'chat');if($('floatingChat')?.classList.contains('hidden')){phoneUnreadCount++;updatePhoneUnreadBadge();}persistSession();return;}
  if(d.type==='role'){theirRole=d.role;updateRoles();persistSession();return;}

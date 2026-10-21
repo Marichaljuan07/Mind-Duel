@@ -726,3 +726,21 @@ body.duel-online.duel-brain .mind-console{margin-top:2px}
 body.duel-online.duel-brain #brainInlinePanel{border-width:1px;box-shadow:none;margin-bottom:2px}
 body.duel-online.duel-brain #brainSuggestionStatus{padding:0;margin:2px 0 0;border:0;box-shadow:none}
 body.duel-online.duel-brain .controls{padding-top:2px}
+
+
+/* 3.13.44 — eliminar el estado vacío del panel Cerebro y convertir sincronización en aviso breve. */
+body.duel-online #brainSuggestionStatus.hidden{display:none!important}
+body.duel-online.duel-brain #brainSuggestionStatus{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;min-height:0!important}
+body.duel-online.duel-brain #brainSuggestionStatus:empty{display:none!important}
+body.duel-online .offline-recovery-strip.sync-toast{display:block!important;width:calc(100% - 20px)!important;max-width:760px!important;margin:8px auto!important;padding:8px 10px!important;border-color:rgba(74,255,197,.45)!important;background:rgba(4,24,35,.92)!important;text-align:center!important}
+body.duel-online .offline-recovery-strip.sync-toast .offline-recovery-actions{display:none!important}
+body.duel-online .offline-recovery-strip.sync-toast #offlineRecoveryText{display:block!important;width:100%!important;font-size:12px!important;color:#8effd8!important}
+
+
+/* 3.13.45 — corregir la especificidad de .hidden en la franja de recuperación y estados vacíos del Cerebro. */
+/* La regla anterior .offline-recovery-strip{display:grid!important} anulaba .hidden; esta regla gana por especificidad y orden. */
+body.duel-online .offline-recovery-strip.hidden,
+.offline-recovery-strip.hidden{display:none!important}
+/* Los párrafos de estado tienen min-height; al quedar vacíos/ocultos no deben reservar espacio ni dibujar una franja. */
+body.duel-online.duel-brain .online-brain-panel .duel-status.hidden,
+body.duel-online.duel-brain .online-brain-panel .duel-status:empty{display:none!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important}

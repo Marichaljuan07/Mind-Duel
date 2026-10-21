@@ -126,6 +126,10 @@ async function titleSequence() {
 // =========================================================
 const ORACULO = {
   main: 'Una elección audaz. El telón se alza. Veamos qué camino eliges, mortal.',
+  menuReturn: 'Bienvenido de nuevo, mortal. El escenario está listo: elegí cómo querés jugar o volvé cuando quieras.',
+  classicReturn: 'Muy bien, dejamos la revancha para después. Podés iniciar o continuar una partida, consultar el historial o volver al menú anterior.',
+  classicChooseCharacter: 'Pensá en un personaje real o ficticio y escribí su nombre. Cuando estés listo, empezamos una nueva partida clásica.',
+  classicSetupReturn: 'El modo clásico sigue disponible, mortal. Si querés probar de nuevo, aceptá y elegí un personaje; si no, podés volver al menú principal.',
   solo: '¿Un desafío solitario? Pretendes enfrentarte a la infinidad de mi mente sin ayuda... Interesante.',
   espejo: 'El Espejo aún se está puliendo, mortal. Vuelve cuando el cristal esté listo.',
   duelo: 'El duelo entre mortales necesita un puente que todavía no he tendido. Paciencia.',
@@ -204,7 +208,11 @@ async function openStage() {
   await openStageCurtain(2800);
   ui.stage.classList.add('spotlight-on');
   if(!stageFastForwardRequested) await sleep(1500);
-  if (await say(`<strong>CEREBRO:</strong> ${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`, 42, true, firstWelcomeForThisPage)) {
+  const menuWelcome = firstWelcomeForThisPage
+    ? `${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`
+    : `${ORACULO.menuReturn}<br><br>¿Qué modo elegís esta vez?`;
+  if (await say(`<strong>CEREBRO:</strong> ${menuWelcome}`, 42, true, firstWelcomeForThisPage)) {
+    // La bienvenida inicial y su frase especial solo pueden aparecer una vez por carga.
     stageWelcomeEggUsed = true;
     ui.stageMenu.classList.remove('hidden');
     ui.stage.classList.add('stage-ready');
@@ -241,6 +249,8 @@ async function startSelectedMachineMode(){
   if(state.pendingMode==='classic'){
     const form=el('classicSecretNameForm');
     if(form){form.classList.remove('hidden');el('classicSecretNameInput').value='';el('classicSecretNameInput').focus();}
+    ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${ORACULO.classicChooseCharacter}`;
+    ui.stage.classList.add('stage-ready');
     return;
   }
   await startGame();
@@ -908,8 +918,18 @@ ui.continueBtn.onclick = showMachineModeChoice;
 el('machineNewGameBtn').onclick = startSelectedMachineMode;
 el('machineContinueBtn').onclick = continueSelectedMachineMode;
 el('machineHistoryBtn').onclick = showSelectedMachineHistory;
-el('machineChoiceBackBtn').onclick = async () => { el('machineModeChoice').classList.add('hidden'); ui.stageActions.classList.remove('hidden'); };
-el('classicSecretNameBackBtn').onclick = () => { el('classicSecretNameForm').classList.add('hidden'); el('machineModeChoice').classList.remove('hidden'); };
+el('machineChoiceBackBtn').onclick = async () => {
+  el('machineModeChoice').classList.add('hidden');
+  ui.stageActions.classList.remove('hidden');
+  ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${ORACULO.classicSetupReturn}`;
+  ui.stage.classList.add('stage-ready');
+};
+el('classicSecretNameBackBtn').onclick = () => {
+  el('classicSecretNameForm').classList.add('hidden');
+  el('machineModeChoice').classList.remove('hidden');
+  ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${ORACULO.classicReturn}`;
+  ui.stage.classList.add('stage-ready');
+};
 el('classicSecretNameForm').onsubmit = async e => { e.preventDefault(); const name=el('classicSecretNameInput').value.trim(); if(!name)return; classicSecretName=name; try { if(!findKnownCharacter(name)){ const k='mind_personajes_nuevos'; const rows=JSON.parse(localStorage.getItem(k)||'[]'); const norm=MindLogic.normalizar(name); const existing=rows.find(x=>MindLogic.normalizar(x.nombre||'')===norm); if(!existing) rows.push({nombre:name,fecha:new Date().toISOString(),respuestas:[],origen:'clásico'}); localStorage.setItem(k,JSON.stringify(rows)); } } catch {} el('classicSecretNameForm').classList.add('hidden'); await startClassic(); };
 
 ui.backTitleBtn.onclick = cancelStageAndReturn;
@@ -1019,3 +1039,5 @@ el('restartBtn').onclick = () => location.reload();
 
 titleSequence();
 })();
+
+// 3.13.43: diálogos contextuales del menú y navegación de revancha clásica.
