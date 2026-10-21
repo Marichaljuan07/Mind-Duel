@@ -74,6 +74,7 @@ const suggestionPool = [
 let sayToken = 0;
 let messageQueue = Promise.resolve();
 let classicBusy = false;
+let machineStartedAt = 0;
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function show(screen) { sayToken++; [ui.title, ui.stage, ui.game, ui.result].forEach(s => s.classList.add('hidden')); screen.classList.remove('hidden'); }
 function flash() { ui.flash.classList.remove('fire'); void ui.flash.offsetWidth; ui.flash.classList.add('fire'); }
@@ -238,6 +239,7 @@ async function chooseClassic() {
 }
 
 async function startClassic() {
+  machineStartedAt = Date.now();
   window.MindDuelCleanupForMode?.();
   resetGame();
   classicSetMode(true);
@@ -378,11 +380,13 @@ async function classicEnd(result = {}) {
   ui.resultTitle.textContent = wonByBrain ? 'HAS PERDIDO' : '¡HAS GANADO!';
   ui.resultCharacter.textContent = result.nombre ? `Tu personaje era: ${result.nombre}` : 'Personaje no identificado';
   const characterDescription = getCharacterDescription(result.nombre, result.descripcion);
-  ui.resultDescription.textContent = [characterDescription, mindDuelTaunt(result.nombre, wonByBrain)].filter(Boolean).join(' ');
+  const classicTaunt = wonByBrain ? pickLine(CLASSIC_LOSE_LINES) : pickLine(CLASSIC_WIN_LINES);
+  ui.resultDescription.textContent = [characterDescription, 'En esta partida clásica, '+classicTaunt].filter(Boolean).join(' ');
+  el('playAgainBtn')?.classList.remove('hidden'); el('playAgainBtn').textContent='JUGAR DE NUEVO';
   const editBtn=el('editCharacterBtn'); if(editBtn) editBtn.classList.toggle('hidden', !result.nombre);
   show(ui.result);
   ui.input.placeholder = 'Pregunta de sí/no...';
-  classicBusy = false;
+  classicBusy = false; machineAutosave();
 }
 function escapeHtml(value) { return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
@@ -392,7 +396,7 @@ async function classicAnswer(ans) {
   classicBusy = true;
   if (c.tipo === 'q') await addMessage(CL_LABEL[ans], 'player');
   if (c.tipo === 'q') {
-    Clasico.responder(classic.s, MindLogic, c.q, ans);
+    Clasico.responder(classic.s, MindLogic, c.q, ans); machineAutosave();
     classicBusy = false;
     return nextClassic();
   }
@@ -409,6 +413,13 @@ async function classicAnswer(ans) {
   await nextClassic();
 }
 
+function machineSnapshot(){
+ const mode=state.mode==='classic'?'CLASSIC':'SOLO';
+ let classicData=null;
+ if(mode==='CLASSIC'&&classic.s){classicData={weights:classic.s.w.slice(),asked:[...classic.s.asked],log:classic.s.log.map(x=>({...x})),rejected:[...classic.s.rech],n:classic.s.n,phase:classic.phase,fails:classic.fails,cur:classic.cur?{tipo:classic.cur.tipo,q:classic.cur.q,i:classic.cur.i,p:classic.cur.p?classic.cur.p.nombre:undefined}:null};}
+ return {mode,startedAt:machineStartedAt||Date.now(),savedAt:Date.now(),status:state.active||classic.phase!=='end'?'in_progress':'completed',secretName:state.secret?.nombre||'',secret:state.secret?{nombre:state.secret.nombre,descripcion:state.secret.descripcion}:null,active:state.active,questionCount:state.questionCount,guessesLeft:state.guessesLeft,suggestionUses:state.suggestionUses,consecutiveNo:state.consecutiveNo,asked:[...state.asked],facts:state.facts.map(x=>({...x})),seconds:state.seconds,classic:classicData,transcript:[...ui.chat.querySelectorAll('.message')].map(row=>({kind:[...row.classList].find(c=>c.startsWith('message-'))?.replace('message-','')||'system',text:row.querySelector('.bubble')?.textContent||''}))};
+}
+function machineAutosave(){if(document.body.classList.contains('duel-online')||!['classic','solo'].includes(state.mode))return;window.SavedMatches?.saveMachineCurrent?.(state.mode,machineSnapshot(),true);}
 function resetGame() {
   clearInterval(state.timerId);
   state.secret = PERSONAJES[Math.floor(Math.random() * PERSONAJES.length)];
@@ -493,10 +504,12 @@ function addMessage(text, kind = 'system') {
   const task = messageQueue.then(() => renderMessage(text, kind));
   // Mantener la cola viva incluso si un navegador rechaza una operación de interfaz.
   messageQueue = task.catch(err => console.warn('[MIND] No se pudo mostrar un mensaje:', err));
+  task.then(()=>machineAutosave());
   return task;
 }
 
 async function startGame() {
+  machineStartedAt = Date.now();
   window.MindDuelCleanupForMode?.();
   ui.stage.classList.remove('stage-ready');
   ui.curtainLeft.classList.add('open'); ui.curtainRight.classList.add('open');
@@ -554,7 +567,7 @@ async function askQuestion(text) {
     return;
   }
 
-  state.facts.push({ texto: clean, concepto: conceptoUsado, answer: !!answer });
+  state.facts.push({ texto: clean, concepto: conceptoUsado, answer: !!answer }); machineAutosave();
   state.questionCount++;
   if (answer) state.consecutiveNo = 0;
   else state.consecutiveNo++;
@@ -745,7 +758,7 @@ function finish(win, reason) {
   const modeHud=el('modeHud'); if(modeHud) modeHud.textContent='SOLO';
   ui.resultTitle.textContent = win ? 'VICTORIA' : 'DERROTA';
   ui.resultCharacter.textContent = state.secret.nombre;
-  ui.resultDescription.textContent = [reason, getCharacterDescription(state.secret.nombre, state.secret.descripcion), mindDuelTaunt(state.secret.nombre, !win)].filter(Boolean).join(' ');
+  ui.resultDescription.textContent = [reason, getCharacterDescription(state.secret.nombre, state.secret.descripcion), mindDuelTaunt(state.secret.nombre, !win)].filter(Boolean).join(' '); machineAutosave();
 }
 
 async function shutdown() {
@@ -760,7 +773,7 @@ function closeModalFromTarget(target) {
   const id = target.dataset.close;
   if (id) el(id)?.classList.add('hidden');
 }
-function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; const online=document.body.classList.contains('duel-online'); ['menuSaveMatchBtn','menuExportMatchBtn'].forEach(id=>el(id)?.classList.toggle('hidden',!online)); const menu=el('gameMenuModal');const opening=menu.classList.contains('hidden');menu.classList.toggle('hidden',!opening);el('menuBtn').setAttribute('aria-expanded',String(opening));el('menuBtn').setAttribute('aria-label',opening?'Cerrar menú':'Abrir menú');el('menuSurrenderBtn').querySelector('span').textContent=online?'Rendirse':state.mode==='classic'?'Retirarse':'Rendirse'; }
+function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; const online=document.body.classList.contains('duel-online'); ['menuSaveMatchBtn'].forEach(id=>el(id)?.classList.toggle('hidden',!online&&!['classic','solo'].includes(state.mode))); el('menuExportMatchBtn')?.classList.toggle('hidden',!online); const menu=el('gameMenuModal');const opening=menu.classList.contains('hidden');menu.classList.toggle('hidden',!opening);el('menuBtn').setAttribute('aria-expanded',String(opening));el('menuBtn').setAttribute('aria-label',opening?'Cerrar menú':'Abrir menú');el('menuSurrenderBtn').querySelector('span').textContent=online?'Rendirse':state.mode==='classic'?'Retirarse':'Rendirse'; }
 function leaveGame(){ el('gameMenuModal').classList.add('hidden'); if(document.body.classList.contains('duel-online')) { if(confirm('¿Querés salir de esta partida?')) window.dispatchEvent(new CustomEvent('mindduel-leave')); return; } if(state.mode!=='classic' && state.active){ if(confirm('¿Querés salir de esta partida? El progreso actual se perderá.')) openStage(); } else openStage(); }
 
 
@@ -783,7 +796,7 @@ ui.dueloBtn.onclick = () => {};
 el('menuBtn').onclick = openGameMenu;
 el('menuResumeBtn').onclick = () => {el('gameMenuModal').classList.add('hidden');el('menuBtn').setAttribute('aria-expanded','false');};
 el('menuHistoryBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn').setAttribute('aria-expanded','false'); if(window.MatchHistory) window.MatchHistory.show(); else if(el('matchHistoryModal')) el('matchHistoryModal').classList.remove('hidden'); else addMessage('El historial todavía no está disponible.', 'system'); };
-el('menuSaveMatchBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn').setAttribute('aria-expanded','false'); if(!document.body.classList.contains('duel-online')){addMessage('Guardar partida está disponible en el modo Online.', 'system');return;} window.dispatchEvent(new CustomEvent('mindduel-save-current')); };
+el('menuSaveMatchBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn').setAttribute('aria-expanded','false'); if(document.body.classList.contains('duel-online')){window.dispatchEvent(new CustomEvent('mindduel-save-current'));return;} window.SavedMatches?.saveMachineCurrent?.(state.mode, machineSnapshot()); window.SavedMatches?.openMachine?.(state.mode); };
 el('menuExportMatchBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn').setAttribute('aria-expanded','false'); if(!document.body.classList.contains('duel-online')){addMessage('Exportar partida está disponible en el modo Online.', 'system');return;} window.SavedMatches?.exportCurrent?.(); };
 el('menuSurrenderBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); if(document.body.classList.contains('duel-online')) { window.dispatchEvent(new CustomEvent('mindduel-surrender')); return; } if(state.mode==='classic') classicEnd({wonBy:'brain',nombre:classic.cur?.p?.nombre || Clasico.mejor(classic.s)?.p?.nombre || 'personaje secreto',descripcion:'Te rendiste antes de descubrirlo.',frase:pickLine(CLASSIC_LOSE_LINES)}); else if(state.active) finish(false,'Te has rendido.'); };
 el('menuExitBtn').onclick = leaveGame;
@@ -814,6 +827,18 @@ el('continueThinkingBtn').onclick = async () => {
   ];
   await addMessage(pickLine(lines), 'player');
 };
+
+window.addEventListener('mind:restore-machine-match',async e=>{
+ const snap=e.detail?.snapshot;if(!snap||!['SOLO','CLASSIC'].includes(snap.mode))return;
+ window.MindDuelCleanupForMode?.(); machineStartedAt=Number(snap.startedAt)||Date.now(); resetGame(); classicSetMode(snap.mode==='CLASSIC');
+ state.mode=snap.mode==='CLASSIC'?'classic':'solo';state.questionCount=Number(snap.questionCount)||0;state.guessesLeft=Number(snap.guessesLeft)||MAX_GUESSES;state.suggestionUses=Number(snap.suggestionUses??SUGGESTION_LIMIT);state.consecutiveNo=Number(snap.consecutiveNo)||0;state.asked=new Set(snap.asked||[]);state.facts=Array.isArray(snap.facts)?snap.facts:[];state.seconds=Number(snap.seconds)||0;state.active=snap.status!=='completed';
+ if(snap.mode==='SOLO'){state.secret=(PERSONAJES||[]).find(p=>MindLogic.normalizar(p.nombre)===MindLogic.normalizar(snap.secretName))||snap.secret;}
+ if(snap.mode==='CLASSIC'&&snap.classic){const c=snap.classic;classic.s=Clasico.nuevo(PERSONAJES);classic.s.w=Array.isArray(c.weights)?c.weights:classic.s.w;classic.s.asked=new Set(c.asked||[]);classic.s.log=c.log||[];classic.s.rech=new Set(c.rejected||[]);classic.s.n=Number(c.n)||0;classic.fails=Number(c.fails)||0;classic.phase=c.phase||'ask';classic.cur=null;if(c.cur){const p=(PERSONAJES||[]).find(x=>MindLogic.normalizar(x.nombre)===MindLogic.normalizar(c.cur.p||''));classic.cur={...c.cur,...(p?{p}: {})};}}
+ ui.chat.textContent='';for(const ev of (snap.transcript||[])){const row=document.createElement('div');row.className='message message-'+(ev.kind||'system');const av=document.createElement('div');av.className='avatar';const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=ev.text||'';row.append(av,bubble);ui.chat.append(row);}
+ updateHud();ui.timer.textContent=String(Math.floor(state.seconds/60)).padStart(2,'0')+':'+String(state.seconds%60).padStart(2,'0');show(ui.game);startTimer();machineAutosave();
+ if(state.mode==='classic'){el('classicPanel').classList.remove('hidden');}else{el('classicPanel').classList.add('hidden');lockInput(false);}
+});
+
 el('playAgainBtn').onclick = () => { if(state.mode==='classic') startClassic(); else if(document.body.classList.contains('duel-online')) { window.MindDuelCleanupForMode?.(); openStage(); } else startGame(); };
 el('resultMenuBtn').onclick = openStage;
 el('resultExitBtn').onclick = shutdown;
