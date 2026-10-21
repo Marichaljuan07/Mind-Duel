@@ -449,3 +449,15 @@ body.duel-online .chat-unread.hidden{display:none!important}
 .saved-match-transcript{min-width:0;overflow-wrap:anywhere;word-break:break-word}
 .saved-match-actions-multi .btn-cyan{border:1px solid rgba(0,245,255,.65);background:rgba(0,245,255,.10);color:#bafaff}
 .saved-match-actions-multi .btn{font-family:'Share Tech Mono','Courier New',monospace!important;letter-spacing:0!important;font-size:12px!important;line-height:1.25!important;white-space:normal!important;overflow-wrap:anywhere!important}
+
+
+/* Biblioteca online: papelera y copias de seguridad */
+.saved-library-tools{display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:space-between;margin:12px 0 8px;min-width:0}
+.saved-library-tabs{display:flex;gap:7px;flex-wrap:wrap}
+.saved-library-tabs .btn{flex:1 1 auto;min-width:0}
+.saved-library-tabs .btn.active{border-color:#55e6ff;box-shadow:0 0 10px #29cfff55;color:#e8fbff}
+.saved-library-tools>#importSavedMatchBtn{flex:0 1 auto;max-width:100%;white-space:normal}
+.saved-match-actions-multi{display:flex;flex-wrap:wrap;gap:7px;min-width:0}
+.saved-match-actions-multi .btn{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.saved-match-transcript{max-height:260px;overflow:auto;overflow-wrap:anywhere}
+@media(max-width:480px){.saved-library-tools{align-items:stretch}.saved-library-tabs{width:100%}.saved-library-tools>#importSavedMatchBtn{width:100%}.saved-match-actions-multi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.saved-match-actions-multi .btn{min-width:0;font-size:.72rem;padding:9px 5px}}
