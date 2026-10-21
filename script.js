@@ -141,7 +141,9 @@ const ORACULO = {
 
 async function say(html, ms = 42, allowDoubleTapSkip = false, easterEggOnSkip = false) {
   const my = ++sayToken;
-  const speech = { token: my, skip: false, allowDoubleTapSkip, easterEggOnSkip, easterEggText: '' };
+  const speech = { token: my, skip: Boolean(stageFastForwardRequested && allowDoubleTapSkip), allowDoubleTapSkip, easterEggOnSkip, easterEggText: '' };
+  if(speech.skip && easterEggOnSkip) speech.easterEggText=stageQuips[Math.floor(Math.random()*stageQuips.length)];
+  if(allowDoubleTapSkip) stageFastForwardRequested=false;
   activeStageDialogue = speech;
   let out = '', i = 0;
   ui.stageDialog.innerHTML = '';
@@ -170,13 +172,18 @@ async function closeStageCurtain(wait = 2600) {
 }
 async function openStageCurtain(wait = 2600) {
   ui.stageDialog.innerHTML = '';
+  stageCurtainOpening=true;
+  ui.stage?.classList.remove('curtain-fast-open');
   ui.curtainLeft.classList.add('open');
   ui.curtainRight.classList.add('open');
-  await sleep(wait);
+  if(stageFastForwardRequested){ui.stage?.classList.add('curtain-fast-open');}
+  else await Promise.race([sleep(wait),new Promise(resolve=>{releaseCurtainWait=resolve;})]);
+  releaseCurtainWait=null; stageCurtainOpening=false;
   ui.stageDialog.innerHTML = '';
 }
 
 async function openStage() {
+  stageSequenceActive=true; stageFastForwardRequested=false;
   window.MindDuelCleanupForMode?.();
   classicSetMode(false);
   clearInterval(state.timerId);
@@ -195,11 +202,12 @@ async function openStage() {
   await sleep(900);
   await openStageCurtain(2800);
   ui.stage.classList.add('spotlight-on');
-  await sleep(1500);
+  if(!stageFastForwardRequested) await sleep(1500);
   if (await say(`<strong>CEREBRO:</strong> ${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`, 42, true, true)) {
     ui.stageMenu.classList.remove('hidden');
     ui.stage.classList.add('stage-ready');
   }
+  stageSequenceActive=false; ui.stage?.classList.remove('curtain-fast-open');
 }
 
 function showMachineModeChoice(){
@@ -236,12 +244,14 @@ async function startSelectedMachineMode(){
   await startGame();
 }
 async function chooseSolo() {
+  stageSequenceActive=true; stageFastForwardRequested=false;
   state.pendingMode = 'solo';
   ui.stageMenu.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
   const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.solo}<br><br>He elegido a una entidad secreta.<br><span style="color:#00ff67">Tienes 20 preguntas y 2 intentos para adivinar.</span><br>Respuestas estrictas de SÍ o NO.<br><br>¿Aceptas el duelo?`, 42, true, false);
   if (ok) { ui.stageActions.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); }
+  stageSequenceActive=false; ui.stage?.classList.remove('curtain-fast-open');
 }
 
 async function cancelStageAndReturn() {
@@ -278,12 +288,14 @@ function classicSetMode(on) {
 }
 
 async function chooseClassic() {
+  stageSequenceActive=true; stageFastForwardRequested=false;
   state.pendingMode = 'classic';
   ui.stageMenu.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
   const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.clasico}<br><br>Responderás con los botones: SÍ, NO, NO LO SÉ, PROBABLEMENTE SÍ o PROBABLEMENTE NO.<br><br>¿Aceptas el duelo?`, 42, true, false);
   if (ok) { ui.stageActions.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); }
+  stageSequenceActive=false; ui.stage?.classList.remove('curtain-fast-open');
 }
 
 async function startClassic() {
@@ -856,22 +868,32 @@ function leaveGame(){ el('gameMenuModal').classList.add('hidden'); if(document.b
 
 
 let lastStageDialogueTap = 0;
-document.addEventListener('pointerdown', e => {
-  // El doble toque completa cualquier diálogo del teatro; la frase dinámica solo se añade en la bienvenida principal.
-  const speaking = activeStageDialogue;
-  if (!speaking || !speaking.allowDoubleTapSkip || !ui.stage || ui.stage.classList.contains('hidden')) return;
-  if (e.target.closest('button, input, textarea, select, a')) return;
-  const now = Date.now();
-  if (now - lastStageDialogueTap <= 480) {
-    if (speaking.easterEggOnSkip) {
-      const quips = ['No me apures, mortal. La paciencia también es parte del duelo.', 'Vaya, vaya… alguien tiene prisa por desafiarme.', 'Está bien, mortal. No hace falta que el telón te cuente toda la historia.', '¿Dos toques? Veo que aprendiste a dar órdenes.', 'La impaciencia te sienta bien… por esta vez.', 'De acuerdo. Que empiece el desafío, mortal.'];
-      speaking.easterEggText = quips[Math.floor(Math.random() * quips.length)];
-    }
-    speaking.skip = true;
-    lastStageDialogueTap = 0;
-  } else {
-    lastStageDialogueTap = now;
+let stageCurtainOpening = false;
+let stageSequenceActive = false;
+let stageFastForwardRequested = false;
+let releaseCurtainWait = null;
+const stageQuips = ['No me apures, mortal. La paciencia también es parte del duelo.', 'Vaya, vaya… alguien tiene prisa por desafiarme.', 'Está bien, mortal. No hace falta que el telón te cuente toda la historia.', '¿Dos toques? Veo que aprendiste a dar órdenes.', 'La impaciencia te sienta bien… por esta vez.', 'De acuerdo. Que empiece el desafío, mortal.'];
+function requestStageFastForward(){
+  stageFastForwardRequested = true;
+  if(stageCurtainOpening){
+    ui.curtainLeft?.classList.add('open'); ui.curtainRight?.classList.add('open');
+    ui.stage?.classList.add('curtain-fast-open');
+    if(releaseCurtainWait){releaseCurtainWait();releaseCurtainWait=null;}
   }
+  if(activeStageDialogue?.allowDoubleTapSkip){
+    if(activeStageDialogue.easterEggOnSkip) activeStageDialogue.easterEggText=stageQuips[Math.floor(Math.random()*stageQuips.length)];
+    activeStageDialogue.skip=true;
+    stageFastForwardRequested=false;
+  }
+}
+document.addEventListener('pointerdown', e => {
+  if (!ui.stage || ui.stage.classList.contains('hidden') || e.target.closest('button, input, textarea, select, a')) return;
+  const speaking=activeStageDialogue;
+  // También se puede acelerar mientras el telón se está abriendo, antes de que empiece el texto.
+  if(!speaking?.allowDoubleTapSkip && !stageCurtainOpening && !stageSequenceActive) return;
+  const now=Date.now();
+  if(now-lastStageDialogueTap<=480){requestStageFastForward();lastStageDialogueTap=0;}
+  else lastStageDialogueTap=now;
 }, true);
 
 document.addEventListener('click', e => { closeModalFromTarget(e.target); const menu=el('gameMenuModal'); if(menu&&!menu.classList.contains('hidden')&&!e.target.closest('.header-menu-wrap')){menu.classList.add('hidden');el('menuBtn').setAttribute('aria-expanded','false');el('menuBtn').setAttribute('aria-label','Abrir menú');} });
