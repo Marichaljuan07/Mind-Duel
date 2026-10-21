@@ -211,36 +211,38 @@ function enterGame(startAt,restoring=false){
 }
 function onData(d){if(!d||typeof d!=='object')return;
  // La sala activa manda su rol y estado al jugador que vuelve. No se abre el selector de roles.
- if(d.type==='resume_state'&&!host){
+ if(d.type==='resume_state'){
   const remote=d.snapshot&&typeof d.snapshot==='object'?d.snapshot:{};
   const prior=readSavedSession();
-  const sameLocal=!!(prior&&prior.startedAt&&prior.myRole&&String(prior.roomId||'')===String(remotePeerId||''));
-  const hostRole=String(d.hostRole||remote.myRole||'');
-  if(hostRole!=='brain'&&hostRole!=='guess')return;
-  const assignedRole=hostRole==='brain'?'guess':'brain';
-  // El rol lo determina la partida existente, nunca una elección nueva.
-  myRole=assignedRole;theirRole=hostRole;host=false;connected=true;offlineRecovery=false;
-  const base=sameLocal?prior:remote;
+  const room=String(remotePeerId||'');
+  const sameLocal=!!(prior&&prior.startedAt&&prior.myRole&&((room&&String(prior.roomId||'')===room)||(Number(remote.startedAt)>0&&Number(prior.startedAt)===Number(remote.startedAt))));
+  const remoteRole=String(d.hostRole||remote.myRole||'');
+  if(remoteRole!=='brain'&&remoteRole!=='guess')return;
+  // Si este navegador ya tenía un rol para esta partida, se conserva. En un dispositivo
+  // sin guardado local, se asigna automáticamente el rol opuesto al del rival.
+  const localRole=sameLocal?String(prior.myRole):String(myRole||'');
+  const assignedRole=(localRole==='brain'||localRole==='guess')?localRole:(remoteRole==='brain'?'guess':'brain');
+  const base=sameLocal?prior:(restoreSnapshot&&restoreSnapshot.startedAt?restoreSnapshot:remote);
+  myRole=assignedRole;theirRole=remoteRole;connected=true;offlineRecovery=false;
   onlineStartedAt=Number(base.startedAt||remote.startedAt)||Date.now();
-  onlineQuestionCount=Math.max(0,Number(base.questionCount??(assignedRole==='guess'?remote.questionsSeen:remote.questionsSeen))||0);
-  onlineAnswerCount=Math.max(0,Number(base.answerCount??remote.answersSeen)||0);
+  onlineQuestionCount=Math.max(0,Number(base.questionCount??remote.questionCount??remote.questionsSeen)||0);
+  onlineAnswerCount=Math.max(0,Number(base.answerCount??remote.answerCount??remote.answersSeen)||0);
   onlineGuessesLeft=Math.max(0,Math.min(2,Number(base.guessesLeft??remote.guessesLeft??2)));
-  secret=assignedRole==='brain'?String(base.secret||''):'';
+  secret=assignedRole==='brain'?String(base.secret||remote.secret||''):'';
   pendingQuestion=assignedRole==='brain'?String(base.pendingQuestion||remote.pendingQuestion||((remote.waitingForAnswer&&remote.lastQuestion)?remote.lastQuestion:'')):'';
-  waitingForAnswer=assignedRole==='guess'?!!(base.waitingForAnswer||(hostRole==='brain'&&remote.pendingQuestion)||remote.waitingForAnswer):false;
-  waitingForGuess=!!base.waitingForGuess;
+  waitingForAnswer=assignedRole==='guess'?!!(base.waitingForAnswer||remote.waitingForAnswer||(remoteRole==='brain'&&remote.pendingQuestion)):false;
+  waitingForGuess=assignedRole==='guess'?!!(base.waitingForGuess||remote.waitingForGuess):false;
   pendingOnlineGuess=String(base.pendingOnlineGuess||remote.pendingOnlineGuess||'');
   lastGuessResolution=base.lastGuessResolution||remote.lastGuessResolution||null;
   lastOnlineQuestion=String(base.lastQuestion||remote.lastQuestion||'');lastOnlineAnswer=String(base.lastAnswer||remote.lastAnswer||'');
   localTranscript=mergeRows(Array.isArray(base.transcript)?base.transcript:[],remote.transcript,false);
   phoneTranscript=mergeRows(Array.isArray(base.phoneTranscript)?base.phoneTranscript:[],remote.phoneTranscript,true);
-  phoneUnreadCount=Math.max(0,Number(base.phoneUnreadCount)||0);
-  restoreSnapshot={...remote,...base,host:false,roomId:String(remotePeerId||base.roomId||''),myRole,theirRole,startedAt:onlineStartedAt,secret:myRole==='brain'?secret:'',transcript:localTranscript,phoneTranscript};
+  phoneUnreadCount=Math.max(0,Number(base.phoneUnreadCount??remote.phoneUnreadCount)||0);
+  restoreSnapshot={...remote,...base,host,roomId:String(room||base.roomId||''),myRole,theirRole,startedAt:onlineStartedAt,secret:myRole==='brain'?secret:'',transcript:localTranscript,phoneTranscript,phoneUnreadCount};
   try{localStorage.setItem(ONLINE_SESSION_KEY,JSON.stringify(restoreSnapshot));}catch{}
-  $('roleChooser')?.classList.add('hidden');$('brainRolePanel')?.classList.add('hidden');$('guessRolePanel')?.classList.add('hidden');
+  $('roleChooser')?.classList.add('hidden');$('brainRolePanel')?.classList.add('hidden');$('guessRolePanel')?.classList.add('hidden');$('duelConnected')?.classList.add('hidden');
   enterGame(onlineStartedAt,true);
-  if(assignedRole==='brain'&&!secret){status('Reconectado como Cerebro, pero este dispositivo no conserva el personaje de la partida. No elijas un rol ni inicies otra partida; recuperá el guardado original.');}
-  else status('Volviste a la partida existente como '+(myRole==='brain'?'Cerebro':'Descubridor')+'. Se conservó el rol; no se creó otra partida.');
+  status('Partida reanudada. Seguís como '+(myRole==='brain'?'Cerebro':'Descubridor')+', con el estado y el turno recuperados.');
   send({type:'resume_ack',role:myRole,startedAt:onlineStartedAt});persistSession();return;
  }
  if(d.type==='resume_ack'){if(d.role&&d.role!==myRole)theirRole=String(d.role);persistSession();return;}
@@ -332,8 +334,9 @@ function ready(c){conn=c;conn.on('open',()=>{status('Conexión establecida. Sinc
  if(restoring){restoreSnapshot=saved;clockElapsedBase=getSavedElapsedSeconds(saved);clockRunStartedAt=0;clockPaused=true;myRole=saved.myRole;theirRole=saved.theirRole||'';secret=myRole==='brain'?String(saved.secret||''):'';onlineStartedAt=Number(saved.startedAt)||Date.now();onlineQuestionCount=Number(saved.questionCount)||0;onlineAnswerCount=Number(saved.answerCount)||0;onlineGuessesLeft=Math.max(0,Math.min(2,Number(saved.guessesLeft??2)));pendingQuestion=String(saved.pendingQuestion||'');waitingForAnswer=!!saved.waitingForAnswer;waitingForGuess=!!saved.waitingForGuess;pendingOnlineGuess=String(saved.pendingOnlineGuess||'');lastGuessResolution=saved.lastGuessResolution||null;lastOnlineQuestion=String(saved.lastQuestion||'');lastOnlineAnswer=String(saved.lastAnswer||'');localTranscript=recoverGameTranscript(saved);phoneTranscript=recoverPhoneTranscript(saved);phoneUnreadCount=Math.max(0,Number(saved.phoneUnreadCount)||(phoneTranscript.length?phoneTranscript.length:0));enterGame(onlineStartedAt,true);}
  else{status('Conexión establecida. Elegí tu papel.');addMessage('SISTEMA','Conexión establecida.','system');if(myRole&&theirRole)updateRoles();}
  send({type:'hello',name:saveName()});send({type:'state_sync',version:2,startedAt:onlineStartedAt,role:myRole,questionsSeen:onlineQuestionCount,answersSeen:onlineAnswerCount,guessesLeft:onlineGuessesLeft,pendingQuestion:myRole==='brain'?pendingQuestion:'',lastQuestion:lastOnlineQuestion,lastAnswer:lastOnlineAnswer,waitingForAnswer,waitingForGuess,pendingOnlineGuess,lastGuessResolution,transcript:localTranscript.slice(-500),phoneTranscript:phoneTranscript.slice(-300),questionBox:$('onlineQuestionBox')?.textContent||'',readingStatus:$('onlineReadingStatus')?.textContent||'',elapsedSeconds:Math.floor(getOnlineElapsedSeconds())});
- // El anfitrión de una partida guardada entrega el estado autoritativo al rival que se reconecta.
- if(host&&myRole&&onlineStartedAt)send({type:'resume_state',hostRole:myRole,snapshot:{version:5,startedAt:onlineStartedAt,questionCount:onlineQuestionCount,answerCount:onlineAnswerCount,guessesLeft:onlineGuessesLeft,pendingQuestion,lastQuestion:lastOnlineQuestion,lastAnswer:lastOnlineAnswer,waitingForAnswer,waitingForGuess,pendingOnlineGuess,lastGuessResolution,transcript:localTranscript.slice(-500),phoneTranscript:phoneTranscript.slice(-300),phoneUnreadCount,questionBox:$('onlineQuestionBox')?.textContent||'',readingStatus:$('onlineReadingStatus')?.textContent||'',elapsedSeconds:Math.floor(getOnlineElapsedSeconds())}});
+ // Ambos extremos comparten su instantánea al reconectar. Así, aunque el anfitrión
+ // haya tenido que reabrir la conexión como cliente, el otro lado también vuelve al juego.
+ if(myRole&&onlineStartedAt)send({type:'resume_state',hostRole:myRole,snapshot:{version:6,host,roomId:host?String($('roomCode')?.textContent||'').trim():remotePeerId,myRole,theirRole,secret:myRole==='brain'?secret:'',startedAt:onlineStartedAt,questionCount:onlineQuestionCount,answerCount:onlineAnswerCount,guessesLeft:onlineGuessesLeft,pendingQuestion,lastQuestion:lastOnlineQuestion,lastAnswer:lastOnlineAnswer,waitingForAnswer,waitingForGuess,pendingOnlineGuess,lastGuessResolution,transcript:localTranscript.slice(-500),phoneTranscript:phoneTranscript.slice(-300),phoneUnreadCount,questionBox:$('onlineQuestionBox')?.textContent||'',readingStatus:$('onlineReadingStatus')?.textContent||'',elapsedSeconds:Math.floor(getOnlineElapsedSeconds())}});
  persistSession();status('Partida original conectada. Rol y turno conservados.');});conn.on('data',onData);conn.on('close',()=>{$('peerStatus').textContent='RIVAL DESCONECTADO';pauseOnlineClock();offlineRecovery=true;showOfflineRecoveryBar();showReconnectOption();persistSession();});conn.on('error',e=>{status('Falló la conexión ('+(e.type||'error')+'). Revisá internet y el código de sala; si persiste, que el anfitrión reabra la partida.');persistSession();});}
 $('dueloBtn').textContent='DUELO ONLINE';on('dueloBtn','click',async()=>{if(typeof closeStageCurtain==='function'&&typeof openStageCurtain==='function'){document.getElementById('stageMenu')?.classList.add('hidden');await closeStageCurtain(900);await openStageCurtain(900);}reset();showModal();});
 function createRoomCode(){
