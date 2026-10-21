@@ -760,7 +760,7 @@ function closeModalFromTarget(target) {
   const id = target.dataset.close;
   if (id) el(id)?.classList.add('hidden');
 }
-function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; const menu=el('gameMenuModal');const opening=menu.classList.contains('hidden');menu.classList.toggle('hidden',!opening);el('menuBtn').setAttribute('aria-expanded',String(opening));el('menuBtn').setAttribute('aria-label',opening?'Cerrar menú':'Abrir menú');el('menuSurrenderBtn').querySelector('span').textContent=document.body.classList.contains('duel-online')?'Rendirse':state.mode==='classic'?'Retirarse':'Rendirse'; }
+function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') return; const online=document.body.classList.contains('duel-online'); ['menuSaveMatchBtn','menuExportMatchBtn'].forEach(id=>el(id)?.classList.toggle('hidden',!online)); const menu=el('gameMenuModal');const opening=menu.classList.contains('hidden');menu.classList.toggle('hidden',!opening);el('menuBtn').setAttribute('aria-expanded',String(opening));el('menuBtn').setAttribute('aria-label',opening?'Cerrar menú':'Abrir menú');el('menuSurrenderBtn').querySelector('span').textContent=online?'Rendirse':state.mode==='classic'?'Retirarse':'Rendirse'; }
 function leaveGame(){ el('gameMenuModal').classList.add('hidden'); if(document.body.classList.contains('duel-online')) { if(confirm('¿Querés salir de esta partida?')) window.dispatchEvent(new CustomEvent('mindduel-leave')); return; } if(state.mode!=='classic' && state.active){ if(confirm('¿Querés salir de esta partida? El progreso actual se perderá.')) openStage(); } else openStage(); }
 
 
