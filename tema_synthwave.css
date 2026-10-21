@@ -382,9 +382,9 @@ body.duel-online .online-secret-label{display:block;margin:0 0 9px;padding:8px 1
 body.duel-online.duel-guess .online-secret-label,body.duel-online.duel-guess #onlineSecretLabel{display:none!important}
 
 /* Biblioteca de partidas guardadas: separada del historial. */
-.saved-library-card{width:min(94vw,760px);max-height:88vh;display:flex;flex-direction:column;gap:12px}
+.saved-library-card{box-sizing:border-box;width:min(94vw,760px);height:min(88dvh,760px);max-height:calc(100dvh - 24px);min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:12px}.saved-library-card>.modal-actions{flex:0 0 auto;margin-top:auto}.saved-library-card>.modal-actions .btn{width:100%}
 .saved-library-intro{margin:0;color:#c6c8e8;font-size:13px;line-height:1.5}
-.saved-matches-list{display:flex;flex-direction:column;gap:10px;overflow-y:auto;min-height:80px;padding:2px}
+.saved-matches-list{display:flex;flex:1 1 auto;flex-direction:column;gap:10px;overflow-y:auto;min-height:0;max-height:none;padding:2px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .saved-match-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;border:1px solid rgba(0,245,255,.3);border-radius:12px;background:rgba(8,13,37,.9)}
 .saved-match-info{display:flex;flex-direction:column;gap:5px;min-width:0}.saved-match-info strong{color:#6ffff0;font-size:12px;letter-spacing:.05em}.saved-match-info span{color:#fff;font-size:12px}.saved-match-info small{color:#a9afd4;font-size:10px}.saved-match-actions{flex-shrink:0}.saved-match-actions .btn{font-size:10px;padding:10px}.saved-library-empty{padding:20px 12px;color:#c6c8e8;text-align:center;font-size:13px;line-height:1.6;border:1px dashed rgba(0,245,255,.25);border-radius:12px}
 @media(max-width:520px){.saved-match-card{align-items:stretch;flex-direction:column}.saved-match-actions .btn{width:100%}}

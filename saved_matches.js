@@ -7,11 +7,11 @@ function read(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return A
 function write(rows){try{localStorage.setItem(KEY,JSON.stringify(rows.slice(-100)))}catch(e){console.warn('[MIND] No se pudo guardar la biblioteca:',e)}}
 function save(snapshot,matchId=''){
  if(!snapshot||!snapshot.startedAt||!snapshot.myRole)return;
- const id=String(snapshot.libraryId||('online-'+String(snapshot.startedAt)+'-'+String(snapshot.myRole)));
- const rows=read();const old=rows.find(x=>x.id===id);
+ const stableRoom=String(snapshot.roomId||snapshot.matchId||matchId||'');const id=String(stableRoom?'online-'+stableRoom+'-'+String(snapshot.startedAt):(snapshot.libraryId||('online-'+String(snapshot.startedAt)+'-'+String(snapshot.myRole))));
+ const rows=read();const duplicates=stableRoom?rows.filter(x=>x.id!==id&&String(x.snapshot?.roomId||'')===stableRoom&&Number(x.startedAt)===Number(snapshot.startedAt)):[];const old=rows.find(x=>x.id===id)||duplicates[0];
  const matchStatus=(old?.status==='completed'||snapshot.status==='completed')?'completed':'in_progress';
  const item={...(old||{}),id,matchId:String(matchId||snapshot.matchId||old?.matchId||''),mode:'ONLINE',status:matchStatus,savedAt:Number(snapshot.savedAt)||Date.now(),startedAt:Number(snapshot.startedAt)||Date.now(),name:old?.name||snapshot.matchName||'',snapshot:{...(old?.snapshot||{}),...snapshot,libraryId:id,matchId:String(matchId||snapshot.matchId||old?.matchId||''),...(matchStatus==='completed'?{status:'completed',completedAt:old?.completedAt||snapshot.completedAt,finalResult:old?.snapshot?.finalResult||snapshot.finalResult||'',finalTitle:old?.snapshot?.finalTitle||snapshot.finalTitle||'',finalCharacter:old?.snapshot?.finalCharacter||snapshot.finalCharacter||''}: {})}};
- const i=rows.findIndex(x=>x.id===id);if(i>=0)rows[i]=item;else rows.push(item);write(rows);return item;
+ const i=rows.findIndex(x=>x.id===id);if(i>=0)rows[i]=item;else rows.push(item);if(duplicates.length){const duplicateIds=new Set(duplicates.map(x=>x.id));for(let j=rows.length-1;j>=0;j--)if(duplicateIds.has(rows[j].id))rows.splice(j,1);}write(rows);return item;
 }
 function collect(){
  const rows=read();let session=null;try{session=JSON.parse(localStorage.getItem(SESSION)||'null')}catch{}
@@ -26,10 +26,10 @@ function markCompleted(result={}){
  const matchId=String(snapshot.matchId||'');
  let index=libraryId?rows.findIndex(x=>x.id===libraryId):-1;
  if(index<0&&matchId)index=rows.findIndex(x=>String(x.matchId||x.snapshot?.matchId||'')===matchId&&Number(x.startedAt)===Number(snapshot.startedAt)&&String(x.snapshot?.myRole||'')===String(snapshot.myRole));
- if(index<0){const fallback='online-'+String(snapshot.startedAt)+'-'+String(snapshot.myRole);index=rows.findIndex(x=>x.id===fallback);}
+ if(index<0){const stableRoom=String(snapshot.roomId||snapshot.matchId||matchId||'');const fallback=stableRoom?'online-'+stableRoom+'-'+String(snapshot.startedAt):'online-'+String(snapshot.startedAt)+'-'+String(snapshot.myRole);index=rows.findIndex(x=>x.id===fallback);}
  const completedAt=Date.now();
  if(index<0){
-  const id=libraryId||('online-'+String(snapshot.startedAt)+'-'+String(snapshot.myRole));
+  const stableRoom=String(snapshot.roomId||snapshot.matchId||matchId||'');const id=libraryId||(stableRoom?'online-'+stableRoom+'-'+String(snapshot.startedAt):'online-'+String(snapshot.startedAt)+'-'+String(snapshot.myRole));
   rows.push({id,matchId,mode:'ONLINE',status:'completed',savedAt:completedAt,completedAt,startedAt:Number(snapshot.startedAt),name:snapshot.matchName||'',snapshot:{...snapshot,libraryId:id,matchId,status:'completed',completedAt,finalResult:String(result.result||''),finalTitle:String(result.title||''),finalCharacter:String(result.character||snapshot.secret||'')}});
  }else{
   const item=rows[index];item.status='completed';item.completedAt=completedAt;item.savedAt=completedAt;
