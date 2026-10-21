@@ -395,12 +395,12 @@ body.duel-online.duel-guess .online-secret-label,body.duel-online.duel-guess #on
 @media(max-width:520px){.saved-match-actions{min-width:0}.saved-match-recovery-note{max-width:none}}
 
 /* Recuperación discreta: controles compactos inmediatamente encima del chat. */
-.offline-recovery-strip{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;padding:6px 8px;border:1px solid rgba(0,245,255,.24);border-radius:8px;background:rgba(4,15,38,.72);color:#b8c8ee;font-size:10px;line-height:1.35}
-.offline-recovery-strip>span{min-width:0;overflow-wrap:anywhere}
-.offline-recovery-actions{display:flex;align-items:center;gap:5px;flex-shrink:0}
-.offline-recovery-actions button{border:1px solid rgba(0,245,255,.38);border-radius:6px;background:rgba(15,35,73,.9);color:#d9ffff;padding:5px 7px;font:inherit;font-size:10px;white-space:nowrap;cursor:pointer}
+.offline-recovery-strip{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;padding:8px;min-width:0;max-width:100%;box-sizing:border-box;border:1px solid rgba(0,245,255,.24);border-radius:8px;background:rgba(4,15,38,.72);color:#b8c8ee;font-size:10px;line-height:1.4}
+.offline-recovery-strip>span{flex:1 1 180px;min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word}
+.offline-recovery-actions{display:flex;flex:0 1 auto;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:5px;min-width:0;max-width:100%}
+.offline-recovery-actions button{border:1px solid rgba(0,245,255,.38);border-radius:6px;background:rgba(15,35,73,.9);color:#d9ffff;padding:6px 8px;font:inherit;font-size:10px;white-space:normal;overflow-wrap:anywhere;max-width:100%;min-width:0;box-sizing:border-box;cursor:pointer}
 .offline-recovery-actions button:first-child{border-color:rgba(74,255,197,.55);color:#8effd8}
-@media(max-width:420px){.offline-recovery-strip{align-items:flex-start;flex-direction:column}.offline-recovery-actions{width:100%;justify-content:flex-end}.offline-recovery-actions button{padding:6px 8px}}
+@media(max-width:520px){.offline-recovery-strip{align-items:stretch;flex-direction:column}.offline-recovery-strip>span{flex-basis:auto;width:100%}.offline-recovery-actions{width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);justify-content:stretch}.offline-recovery-actions button{width:100%;white-space:normal;line-height:1.25;padding:7px 5px}}
 /* Biblioteca ampliada: importación y acciones por partida */
 .saved-library-tools{display:flex;gap:8px;flex-wrap:wrap}
 .saved-library-tools .btn{font-size:11px;padding:10px 12px}
