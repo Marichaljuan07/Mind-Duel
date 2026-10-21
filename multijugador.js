@@ -128,7 +128,8 @@ function clearOnlineTransientUi(){
  hideOnlineNotice();
  $('chatBubbleBtn')?.classList.add('hidden');$('floatingChat')?.classList.add('hidden');$('offlineRecoveryBar')?.classList.add('hidden');$('reconnectDuelBtn')?.remove();
  $('onlineGuessConfirmModal')?.classList.add('hidden');$('guessModal')?.classList.add('hidden');$('gameMenuModal')?.classList.add('hidden');
- modal?.classList.add('hidden');
+ // No ocultar duelModal desde la limpieza genérica: reset() también se usa al crear sala.
+ // Las salidas de modo y los botones de cerrar ocultan el modal explícitamente.
 }
 function showOnlineNotice(message,kind='warning',duration=5000){
  let node=$('onlineTransientNotice');if(!node){node=document.createElement('div');node.id='onlineTransientNotice';node.className='online-transient-notice';node.setAttribute('role','status');node.setAttribute('aria-live','polite');document.body.append(node);}
