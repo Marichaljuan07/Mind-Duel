@@ -667,3 +667,13 @@ button, input {
 
 .classic-guess-description{margin:0 auto 16px;max-width:42ch;color:var(--text-main,#e8e2ff);font:clamp(17px,3.7vw,21px)/1.35 'VT323',monospace;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;opacity:.94}
 .classic-guess-description.hidden{display:none!important}
+
+
+/* 3.13.21 — estados de reconexión claros y adaptados a móvil */
+.offline-recovery-strip{box-sizing:border-box;width:min(94%,760px);margin:12px auto;padding:14px 16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(255,95,120,.75);border-radius:14px;background:linear-gradient(135deg,rgba(60,12,35,.96),rgba(12,13,35,.98));color:#fff;box-shadow:0 0 22px rgba(255,55,105,.12)}
+.offline-recovery-strip #offlineRecoveryText{flex:1 1 220px;font:16px/1.4 'VT323',monospace;letter-spacing:.3px}
+.offline-recovery-actions{display:flex;flex:1 1 210px;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.offline-recovery-actions button,.offline-recovery-strip #reconnectDuelBtn{box-sizing:border-box;min-height:40px;max-width:100%;padding:9px 12px;border:1px solid rgba(0,216,255,.7);border-radius:9px;background:rgba(0,216,255,.1);color:#fff;font:14px/1.2 'VT323',monospace;white-space:normal;overflow-wrap:anywhere}
+#reconnectDuelBtn{display:block;margin:10px auto!important;max-width:min(94%,420px);white-space:normal;overflow-wrap:anywhere}
+#guessModal #confirmGuessBtn{touch-action:manipulation;cursor:pointer}
+@media(max-width:480px){.offline-recovery-strip{width:94%;padding:12px}.offline-recovery-actions{flex-basis:100%;justify-content:stretch}.offline-recovery-actions button{flex:1 1 130px}.offline-recovery-strip #offlineRecoveryText{flex-basis:100%}}
