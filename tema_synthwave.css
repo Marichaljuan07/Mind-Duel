@@ -539,3 +539,23 @@ body.duel-online .chat-unread.hidden{display:none!important}
  .stage-screen #machineModeChoice,.stage-screen #classicSecretNameForm {top:56vh!important;max-height:calc(100% - 57vh - 64px)!important}
  .stage-screen #stageActions {top:57vh!important;max-height:calc(100% - 58vh - 64px)!important}
 }
+
+
+/* 3.13.34 — Clásico: personaje arriba, restauración legible y sugerencias disponibles desde el inicio */
+body.classic #onlineSecretLabel {
+  display:block!important;
+  margin:0 0 9px!important;
+  padding:8px 11px!important;
+  border:1px solid rgba(25,255,168,.62)!important;
+  border-radius:8px!important;
+  background:linear-gradient(90deg,rgba(25,255,168,.12),rgba(0,245,255,.08))!important;
+  color:var(--gr,#19ffa8)!important;
+  font-family:'VT323',monospace!important;
+  font-size:clamp(17px,4vw,22px)!important;
+  line-height:1.15!important;
+  letter-spacing:.04em!important;
+  text-shadow:0 0 7px rgba(25,255,168,.25)!important;
+  overflow-wrap:anywhere!important;
+}
+body.classic #classicChosenCharacter {display:none!important}
+body.classic #suggestBtn:disabled {opacity:.55;filter:grayscale(.45)}
