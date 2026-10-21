@@ -139,21 +139,21 @@ const ORACULO = {
   bloqueada: 'Aún no puedo guiarte. Averigua lo básico: ¿real o ficticio? ¿hombre o mujer? ¿humano?'
 };
 
-async function say(html, ms = 42, allowDoubleTapSkip = false) {
+async function say(html, ms = 42, allowDoubleTapSkip = false, easterEggOnSkip = false) {
   const my = ++sayToken;
-  const speech = { token: my, skip: false, allowDoubleTapSkip };
+  const speech = { token: my, skip: false, allowDoubleTapSkip, easterEggOnSkip, easterEggText: '' };
   activeStageDialogue = speech;
   let out = '', i = 0;
   ui.stageDialog.innerHTML = '';
   while (i < html.length) {
     if (my !== sayToken) { if (activeStageDialogue === speech) activeStageDialogue = null; return false; }
-    if (speech.skip) { ui.stageDialog.innerHTML = html; break; }
+    if (speech.skip) { ui.stageDialog.innerHTML = html + (speech.easterEggText ? '<br><br><em>' + speech.easterEggText + '</em>' : ''); break; }
     if (html[i] === '<') { const j = html.indexOf('>', i); out += html.slice(i, j + 1); i = j + 1; }
     else {
       const ch = html[i++]; out += ch;
       await sleep(/[.!?…]/.test(ch) ? ms * 5 : /[,;:]/.test(ch) ? ms * 2.2 : ms);
     }
-    if (speech.skip) { ui.stageDialog.innerHTML = html; break; }
+    if (speech.skip) { ui.stageDialog.innerHTML = html + (speech.easterEggText ? '<br><br><em>' + speech.easterEggText + '</em>' : ''); break; }
     ui.stageDialog.innerHTML = out;
   }
   if (activeStageDialogue === speech) activeStageDialogue = null;
@@ -196,7 +196,7 @@ async function openStage() {
   await openStageCurtain(2800);
   ui.stage.classList.add('spotlight-on');
   await sleep(1500);
-  if (await say(`<strong>CEREBRO:</strong> ${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`, 42, true)) {
+  if (await say(`<strong>CEREBRO:</strong> ${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`, 42, true, true)) {
     ui.stageMenu.classList.remove('hidden');
     ui.stage.classList.add('stage-ready');
   }
@@ -240,7 +240,7 @@ async function chooseSolo() {
   ui.stageMenu.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
-  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.solo}<br><br>He elegido a una entidad secreta.<br><span style="color:#00ff67">Tienes 20 preguntas y 2 intentos para adivinar.</span><br>Respuestas estrictas de SÍ o NO.<br><br>¿Aceptas el duelo?`, 42, true);
+  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.solo}<br><br>He elegido a una entidad secreta.<br><span style="color:#00ff67">Tienes 20 preguntas y 2 intentos para adivinar.</span><br>Respuestas estrictas de SÍ o NO.<br><br>¿Aceptas el duelo?`, 42);
   if (ok) { ui.stageActions.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); }
 }
 
@@ -282,7 +282,7 @@ async function chooseClassic() {
   ui.stageMenu.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
-  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.clasico}<br><br>Responderás con los botones: SÍ, NO, NO LO SÉ, PROBABLEMENTE SÍ o PROBABLEMENTE NO.<br><br>¿Aceptas el duelo?`, 42, true);
+  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.clasico}<br><br>Responderás con los botones: SÍ, NO, NO LO SÉ, PROBABLEMENTE SÍ o PROBABLEMENTE NO.<br><br>¿Aceptas el duelo?`, 42);
   if (ok) { ui.stageActions.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); }
 }
 
@@ -863,6 +863,10 @@ document.addEventListener('pointerdown', e => {
   if (e.target.closest('button, input, textarea, select, a')) return;
   const now = Date.now();
   if (now - lastStageDialogueTap <= 480) {
+    if (speaking.easterEggOnSkip) {
+      const quips = ['No me apures, mortal. La paciencia también es parte del duelo.', 'Vaya, vaya… alguien tiene prisa por desafiarme.', 'Está bien, mortal. No hace falta que el telón te cuente toda la historia.', '¿Dos toques? Veo que aprendiste a dar órdenes.', 'La impaciencia te sienta bien… por esta vez.', 'De acuerdo. Que empiece el desafío, mortal.'];
+      speaking.easterEggText = quips[Math.floor(Math.random() * quips.length)];
+    }
     speaking.skip = true;
     lastStageDialogueTap = 0;
   } else {

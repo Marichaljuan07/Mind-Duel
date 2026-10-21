@@ -57,8 +57,8 @@ function notice(msg){const el=$('savedMatchesNotice');if(el)el.textContent=msg||
 function sPlayerName(snapshot){return String(snapshot?.playerName||'').trim()}
 function render(){
  if(currentView==='machine'){renderMachine();return;} $('importSavedMatchBtn')?.classList.remove('hidden');$('savedMatchesTrashTab')?.classList.remove('hidden');
- purgeExpiredTrash();const list=$('savedMatchesList');if(!list)return;list.textContent='';const trashView=currentView==='trash';const savedRows=collect();const rows=(trashView?readTrash():savedRows).sort((a,b)=>(Number(trashView?b.deletedAt:b.savedAt)||0)-(Number(trashView?a.deletedAt:a.savedAt)||0));
- const title=$('savedMatchesTitle');if(title)title.textContent=trashView?'PAPELERA':'TUS PARTIDAS';const count=$('savedMatchesCount');if(count)count.textContent=String(savedRows.length);
+ purgeExpiredTrash();const list=$('savedMatchesList');if(!list)return;list.textContent='';const trashView=currentView==='trash';const savedRows=collect();const trashRows=trashView?readTrash():[];const rows=(trashView?trashRows:savedRows).sort((a,b)=>(Number(trashView?b.deletedAt:b.savedAt)||0)-(Number(trashView?a.deletedAt:a.savedAt)||0));
+ const title=$('savedMatchesTitle');if(title)title.textContent=trashView?'PAPELERA':'TUS PARTIDAS';const count=$('savedMatchesCount');if(count)count.textContent=String(trashView?trashRows.length:savedRows.length);
  const intro=document.querySelector('#savedMatchesModal .saved-library-intro');if(intro)intro.textContent=trashView?'Papelera activa: acá están las partidas eliminadas. Podés recuperarlas o borrarlas definitivamente; se conservan hasta 30 días.':'Tus partidas quedan reunidas en un solo lugar. Restaurá una partida en curso, revisá una terminada o usá Importar y Exportar para mover copias entre dispositivos.';
  $('savedMatchesTrashTab')?.classList.toggle('active',trashView);
  const emptyText=trashView?'La papelera está vacía. Las partidas eliminadas se conservan durante 30 días.':'Todavía no hay partidas guardadas. Las partidas en curso y las finalizadas que no hayas eliminado aparecerán aquí.';
