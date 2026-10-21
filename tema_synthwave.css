@@ -744,3 +744,10 @@ body.duel-online .offline-recovery-strip.hidden,
 /* Los párrafos de estado tienen min-height; al quedar vacíos/ocultos no deben reservar espacio ni dibujar una franja. */
 body.duel-online.duel-brain .online-brain-panel .duel-status.hidden,
 body.duel-online.duel-brain .online-brain-panel .duel-status:empty{display:none!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important}
+
+
+/* 3.13.46 — integrar el panel de secuencia con los botones: eliminar el borde cian inferior. */
+body.duel-online.duel-brain #brainInlinePanel{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;border-radius:0!important;padding-bottom:0!important;margin-bottom:0!important}
+body.duel-online.duel-brain #brainSuggestionStatus{display:block;min-height:0!important;margin-bottom:0!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;padding-bottom:0!important}
+body.duel-online.duel-brain #brainSuggestionStatus.hidden,
+body.duel-online.duel-brain #brainSuggestionStatus:empty{display:none!important;min-height:0!important;margin:0!important;padding:0!important}
