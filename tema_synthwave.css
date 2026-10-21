@@ -452,6 +452,11 @@ body.duel-online .chat-unread.hidden{display:none!important}
 
 
 /* Biblioteca online: papelera y copias de seguridad */
+/* FIX móvil: mantener el modal dentro del alto visible y permitir deslizar la lista. */
+#savedMatchesModal{align-items:center;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px!important}
+#savedMatchesModal .saved-library-card{height:calc(100dvh - 24px)!important;max-height:calc(100dvh - 24px)!important;min-height:0!important;flex:0 1 auto;overflow:hidden!important}
+#savedMatchesModal .saved-matches-list{flex:1 1 0!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-y:contain}
+#savedMatchesModal .saved-library-tools,#savedMatchesModal .saved-library-intro,#savedMatchesModal .saved-library-notice,#savedMatchesModal>.saved-library-card>.modal-actions{flex-shrink:0}
 .saved-library-tools{display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:space-between;margin:12px 0 8px;min-width:0}
 .saved-library-tabs{display:flex;gap:7px;flex-wrap:wrap}
 .saved-library-tabs .btn{flex:1 1 auto;min-width:0}
