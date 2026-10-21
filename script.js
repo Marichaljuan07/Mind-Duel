@@ -183,6 +183,7 @@ async function openStageCurtain(wait = 2600) {
 }
 
 async function openStage() {
+  const firstWelcomeForThisPage = !stageWelcomeEggUsed;
   stageSequenceActive=true; stageFastForwardRequested=false;
   window.MindDuelCleanupForMode?.();
   classicSetMode(false);
@@ -203,7 +204,8 @@ async function openStage() {
   await openStageCurtain(2800);
   ui.stage.classList.add('spotlight-on');
   if(!stageFastForwardRequested) await sleep(1500);
-  if (await say(`<strong>CEREBRO:</strong> ${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`, 42, true, true)) {
+  if (await say(`<strong>CEREBRO:</strong> ${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`, 42, true, firstWelcomeForThisPage)) {
+    stageWelcomeEggUsed = true;
     ui.stageMenu.classList.remove('hidden');
     ui.stage.classList.add('stage-ready');
   }
@@ -871,6 +873,7 @@ let lastStageDialogueTap = 0;
 let stageCurtainOpening = false;
 let stageSequenceActive = false;
 let stageFastForwardRequested = false;
+let stageWelcomeEggUsed = false;
 let releaseCurtainWait = null;
 const stageQuips = ['No me apures, mortal. La paciencia también es parte del duelo.', 'Vaya, vaya… alguien tiene prisa por desafiarme.', 'Está bien, mortal. No hace falta que el telón te cuente toda la historia.', '¿Dos toques? Veo que aprendiste a dar órdenes.', 'La impaciencia te sienta bien… por esta vez.', 'De acuerdo. Que empiece el desafío, mortal.'];
 function requestStageFastForward(){
