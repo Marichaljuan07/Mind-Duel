@@ -569,3 +569,32 @@ body.classic #onlineSecretLabel {
   text-shadow:0 0 8px rgba(0,245,255,.35)!important;
 }
 .oracle-skip-taunt { color:var(--cy,#00f5ff); font-style:normal; text-shadow:0 0 6px rgba(0,245,255,.28); }
+
+
+/* 3.13.36 — teatro: doble toque solo en la bienvenida; biblioteca más compacta y explicativa. */
+.oracle-skip-taunt{display:none!important}
+.saved-library-heading{min-width:0;flex:1 1 auto}
+.saved-library-counter{display:inline-flex;align-items:center;gap:5px;margin:1px 0 5px;padding:4px 8px;border:1px solid rgba(25,240,255,.42);border-radius:7px;background:rgba(0,216,255,.08);color:#a8f8ff;font:11px 'Share Tech Mono','Courier New',monospace;white-space:nowrap}
+.saved-library-counter>span{font-size:15px;color:#19f0ff;text-shadow:0 0 7px rgba(25,240,255,.5)}
+.saved-library-counter b{font-weight:700;color:#fff}
+#savedMatchesModal .saved-library-intro{max-width:58ch;font-size:10px!important;line-height:1.35!important;color:#c6c8e8;margin-top:3px}
+#savedMatchesModal .saved-match-card{gap:8px!important;padding:9px 10px!important;border-radius:9px!important}
+#savedMatchesModal .saved-match-info{gap:3px!important;flex:1 1 220px!important}
+#savedMatchesModal .saved-match-info strong{font-size:11px!important;line-height:1.25!important}
+#savedMatchesModal .saved-match-info span{font-size:10px!important;line-height:1.25!important}
+#savedMatchesModal .saved-match-info small{font-size:9px!important;line-height:1.35!important}
+#savedMatchesModal .saved-match-actions-multi{flex:0 1 170px!important;gap:5px!important}
+#savedMatchesModal .saved-match-actions-multi .btn{font-size:9px!important;padding:7px 6px!important;line-height:1.2!important;border-radius:7px!important}
+#savedMatchesModal .saved-match-review{padding:8px!important;font-size:11px!important}
+#savedMatchesModal .saved-match-transcript p{margin:5px 0!important}
+@media(max-width:520px){
+ #savedMatchesModal .saved-library-header{gap:7px!important}
+ #savedMatchesModal .saved-library-header-actions{flex-wrap:wrap;max-width:44%}
+ #savedMatchesModal .saved-library-header-actions .btn{white-space:normal!important;text-align:center;font-size:8px!important;line-height:1.2;padding:6px 5px!important}
+ #savedMatchesModal .saved-library-intro{font-size:9px!important;line-height:1.3!important}
+ #savedMatchesModal .saved-match-card{padding:8px!important;gap:7px!important}
+ #savedMatchesModal .saved-match-info strong{font-size:10px!important}
+ #savedMatchesModal .saved-match-info span{font-size:9px!important}
+ #savedMatchesModal .saved-match-info small{font-size:8px!important;line-height:1.3!important}
+ #savedMatchesModal .saved-match-actions-multi .btn{font-size:8px!important;padding:7px 4px!important}
+}

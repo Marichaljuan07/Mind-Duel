@@ -139,21 +139,21 @@ const ORACULO = {
   bloqueada: 'Aún no puedo guiarte. Averigua lo básico: ¿real o ficticio? ¿hombre o mujer? ¿humano?'
 };
 
-async function say(html, ms = 42) {
+async function say(html, ms = 42, allowDoubleTapSkip = false) {
   const my = ++sayToken;
-  const speech = { token: my, skip: false };
+  const speech = { token: my, skip: false, allowDoubleTapSkip };
   activeStageDialogue = speech;
   let out = '', i = 0;
   ui.stageDialog.innerHTML = '';
   while (i < html.length) {
     if (my !== sayToken) { if (activeStageDialogue === speech) activeStageDialogue = null; return false; }
-    if (speech.skip) { ui.stageDialog.innerHTML = html + '<br><br><em class="oracle-skip-taunt">¡No me apures, mortal! Ahí tienes las opciones para jugar.</em>'; break; }
+    if (speech.skip) { ui.stageDialog.innerHTML = html; break; }
     if (html[i] === '<') { const j = html.indexOf('>', i); out += html.slice(i, j + 1); i = j + 1; }
     else {
       const ch = html[i++]; out += ch;
       await sleep(/[.!?…]/.test(ch) ? ms * 5 : /[,;:]/.test(ch) ? ms * 2.2 : ms);
     }
-    if (speech.skip) { ui.stageDialog.innerHTML = html + '<br><br><em class="oracle-skip-taunt">¡No me apures, mortal! Ahí tienes las opciones para jugar.</em>'; break; }
+    if (speech.skip) { ui.stageDialog.innerHTML = html; break; }
     ui.stageDialog.innerHTML = out;
   }
   if (activeStageDialogue === speech) activeStageDialogue = null;
@@ -196,7 +196,7 @@ async function openStage() {
   await openStageCurtain(2800);
   ui.stage.classList.add('spotlight-on');
   await sleep(1500);
-  if (await say(`<strong>CEREBRO:</strong> ${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`)) {
+  if (await say(`<strong>CEREBRO:</strong> ${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`, 42, true)) {
     ui.stageMenu.classList.remove('hidden');
     ui.stage.classList.add('stage-ready');
   }
@@ -240,7 +240,7 @@ async function chooseSolo() {
   ui.stageMenu.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
-  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.solo}<br><br>He elegido a una entidad secreta.<br><span style="color:#00ff67">Tienes 20 preguntas y 2 intentos para adivinar.</span><br>Respuestas estrictas de SÍ o NO.<br><br>¿Aceptas el duelo?`);
+  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.solo}<br><br>He elegido a una entidad secreta.<br><span style="color:#00ff67">Tienes 20 preguntas y 2 intentos para adivinar.</span><br>Respuestas estrictas de SÍ o NO.<br><br>¿Aceptas el duelo?`, 42, true);
   if (ok) { ui.stageActions.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); }
 }
 
@@ -282,7 +282,7 @@ async function chooseClassic() {
   ui.stageMenu.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
-  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.clasico}<br><br>Responderás con los botones: SÍ, NO, NO LO SÉ, PROBABLEMENTE SÍ o PROBABLEMENTE NO.<br><br>¿Aceptas el duelo?`);
+  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.clasico}<br><br>Responderás con los botones: SÍ, NO, NO LO SÉ, PROBABLEMENTE SÍ o PROBABLEMENTE NO.<br><br>¿Aceptas el duelo?`, 42, true);
   if (ok) { ui.stageActions.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); }
 }
 
@@ -855,14 +855,19 @@ function openGameMenu(){ if(state.mode==='classic' && classic.phase==='end') ret
 function leaveGame(){ el('gameMenuModal').classList.add('hidden'); if(document.body.classList.contains('duel-online')) { if(confirm('¿Querés salir de esta partida?')) window.dispatchEvent(new CustomEvent('mindduel-leave')); return; } if(state.mode!=='classic' && state.active){ if(confirm('¿Querés salir de esta partida? El progreso quedó guardado automáticamente y podrás retomarlo con CONTINUAR PARTIDA.')) openStage(); } else openStage(); }
 
 
+let lastStageDialogueTap = 0;
 document.addEventListener('pointerdown', e => {
-  const speaking = activeStageDialogue || activeTypingMessage;
-  if (!speaking) return;
-  const inStage = ui.stage && !ui.stage.classList.contains('hidden');
-  const inGame = ui.game && !ui.game.classList.contains('hidden');
-  if (!inStage && !inGame) return;
-  if (e.target.closest('input, textarea, select')) return;
-  speaking.skip = true;
+  // Saltar solo la presentación inicial del menú principal, nunca las normas ni los diálogos de partida.
+  const speaking = activeStageDialogue;
+  if (!speaking || !speaking.allowDoubleTapSkip || !ui.stage || ui.stage.classList.contains('hidden')) return;
+  if (e.target.closest('button, input, textarea, select, a')) return;
+  const now = Date.now();
+  if (now - lastStageDialogueTap <= 480) {
+    speaking.skip = true;
+    lastStageDialogueTap = 0;
+  } else {
+    lastStageDialogueTap = now;
+  }
 }, true);
 
 document.addEventListener('click', e => { closeModalFromTarget(e.target); const menu=el('gameMenuModal'); if(menu&&!menu.classList.contains('hidden')&&!e.target.closest('.header-menu-wrap')){menu.classList.add('hidden');el('menuBtn').setAttribute('aria-expanded','false');el('menuBtn').setAttribute('aria-label','Abrir menú');} });
