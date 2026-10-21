@@ -77,6 +77,7 @@ function persistSession(){
  try{window.MatchHistory?.setOnlineSession(snapshot);if(restoreMatchId)window.MatchHistory?.attachSnapshot?.(restoreMatchId,snapshot);const savedItem=window.SavedMatches?.save(snapshot,restoreMatchId||window.MatchHistory?.getCurrent?.()?.id||'');if(savedItem&&savedItem.id!==snapshot.libraryId){snapshot.libraryId=savedItem.id;restoreSnapshot={...(restoreSnapshot||{}),libraryId:savedItem.id};try{localStorage.setItem(ONLINE_SESSION_KEY,JSON.stringify(snapshot));}catch{}}}catch{}
  refreshRestoreButton();
 }
+window.addEventListener('mindduel-save-current',()=>{if(!document.body.classList.contains('duel-online'))return;persistSession();status('Partida guardada en este dispositivo. El guardado automático sigue activo.');});
 function getSavedElapsedSeconds(saved){if(Number.isFinite(Number(saved?.elapsedSeconds))&&Number(saved?.elapsedSeconds)>0)return Math.max(0,Number(saved.elapsedSeconds));if(!saved?.reconstructedFromHistory&&Number(saved?.savedAt)>0&&Number(saved?.startedAt)>0)return Math.max(0,(Number(saved.savedAt)-Number(saved.startedAt))/1000);return 0;}
 function getOnlineElapsedSeconds(){return Math.max(0,clockElapsedBase+(clockPaused?0:(Date.now()-clockRunStartedAt)/1000));}
 function pauseOnlineClock(){if(!clockPaused){clockElapsedBase=getOnlineElapsedSeconds();clockPaused=true;clockRunStartedAt=0;}if(onlineTimerId){clearInterval(onlineTimerId);onlineTimerId=null;}updateOnlineClockDisplay();}
