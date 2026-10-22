@@ -19,7 +19,12 @@ console.log(fail?fail+' FALLOS':'Todo OK');process.exitCode=fail?1:0;
 (()=>{const R=(a,b,c)=>({texto:a,concepto:null,answer:b});let f=0;const t=(n,o)=>{if(!o)f++;console.log(o?'OK  ':'FAIL',n)};
  t('sin preguntas: bloqueada',!S.desbloqueada(L,P,[]));
  t('solo "real": sigue bloqueada',!S.desbloqueada(L,P,[R('¿Es una persona real?',true)]));
- t('real + género: se habilita',S.desbloqueada(L,P,[R('¿Es una persona real?',true),R('¿Es un hombre?',true)]));
+ t('cuatro respuestas: sigue bloqueada',!S.desbloqueada(L,P,[R('a',true),R('b',true),R('c',true),R('d',true)]));
+ t('cinco respuestas válidas: se habilita',S.desbloqueada(L,P,[R('a',true),R('b',true),R('c',true),R('d',true),R('e',true)]));
  t('ficticio + género: falta humano',!S.desbloqueada(L,P,[R('¿Es ficticio?',true),R('¿Es un hombre?',true)]));
- t('ficticio + género + humano: se habilita',S.desbloqueada(L,P,[R('¿Es ficticio?',true),R('¿Es un hombre?',true),R('¿Es humano?',true)]));
+ t('tres datos básicos no adelantan el desbloqueo',!S.desbloqueada(L,P,[R('¿Es ficticio?',true),R('¿Es un hombre?',true),R('¿Es humano?',true)]));
  if(f)process.exitCode=1;console.log(f?f+' FALLOS (desbloqueo)':'Desbloqueo OK')})();
+
+// El banco inicial debe ser amplio y no revelar categorías específicas.
+const early=S.sugerir(L,P,[],new Set(),30,5);
+t('etapa inicial: evita categorías reveladoras',early.every(q=>['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es una mujer?','¿Es un hombre?','¿Sigue con vida?','¿Es de Europa?','¿Es de América?'].includes(q)));

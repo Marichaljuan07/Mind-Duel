@@ -55,6 +55,7 @@ const state = {
   suggestionUses: SUGGESTION_LIMIT,
   suggestionSession: { options: [], rerolls: 0, initialized: false },
   consecutiveNo: 0,
+  hintsGiven: 0,
   asked: new Set(),
   facts: [],
   timerId: null,
@@ -352,7 +353,7 @@ async function nextClassic() {
   // El banco puede no dividir al conjunto inicial; no dejar nunca al Cerebro sin preguntar.
   if (!q) {
     const fallback = ['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es conocido principalmente por la ciencia?','¿Es conocido por el entretenimiento?'];
-    q = fallback.find(x => !s.asked.has(x));
+    q = fallback.find(x => !s.asked.has(MindLogic.normalizar(x))); 
   }
   if (!q) return classicGuess(true);
   classic.cur = { tipo: 'q', q };
@@ -516,7 +517,7 @@ function machineSnapshot(){
  let classicData=null;
  if(mode==='CLASSIC'&&classic.s){classicData={weights:classic.s.w.slice(),asked:[...classic.s.asked],log:classic.s.log.map(x=>({...x})),rejected:[...classic.s.rech],n:classic.s.n,phase:classic.phase,fails:classic.fails,cur:classic.cur?{tipo:classic.cur.tipo,q:classic.cur.q,i:classic.cur.i,p:classic.cur.p?classic.cur.p.nombre:undefined}:null};}
  const completed=state.mode==='classic'?classic.phase==='end':!state.active;
- return {mode,startedAt:machineStartedAt||Date.now(),savedAt:Date.now(),classicCharacterName:mode==='CLASSIC'?classicSecretName:'',status:completed?'completed':'in_progress',secretName:mode==='SOLO'?(state.secret?.nombre||''):'',secret:mode==='SOLO'&&state.secret?{nombre:state.secret.nombre,descripcion:state.secret.descripcion}:null,active:state.active,questionCount:state.questionCount,guessesLeft:state.guessesLeft,suggestionUses:state.suggestionUses,consecutiveNo:state.consecutiveNo,asked:[...state.asked],facts:state.facts.map(x=>({...x})),seconds:state.seconds,patience:state.patience,suggestionSession:state.suggestionSession?JSON.parse(JSON.stringify(state.suggestionSession)):null,classic:classicData,historyId:window.MatchHistory?.getCurrent?.()?.id||'',transcript:[...ui.chat.querySelectorAll('.message')].map(row=>({kind:[...row.classList].find(c=>c.startsWith('message-'))?.replace('message-','')||'system',text:row.querySelector('.bubble')?.textContent||''}))};
+ return {mode,startedAt:machineStartedAt||Date.now(),savedAt:Date.now(),classicCharacterName:mode==='CLASSIC'?classicSecretName:'',status:completed?'completed':'in_progress',secretName:mode==='SOLO'?(state.secret?.nombre||''):'',secret:mode==='SOLO'&&state.secret?{nombre:state.secret.nombre,descripcion:state.secret.descripcion}:null,active:state.active,questionCount:state.questionCount,guessesLeft:state.guessesLeft,suggestionUses:state.suggestionUses,consecutiveNo:state.consecutiveNo,hintsGiven:state.hintsGiven,asked:[...state.asked],facts:state.facts.map(x=>({...x})),seconds:state.seconds,patience:state.patience,suggestionSession:state.suggestionSession?JSON.parse(JSON.stringify(state.suggestionSession)):null,classic:classicData,historyId:window.MatchHistory?.getCurrent?.()?.id||'',transcript:[...ui.chat.querySelectorAll('.message')].map(row=>({kind:[...row.classList].find(c=>c.startsWith('message-'))?.replace('message-','')||'system',text:row.querySelector('.bubble')?.textContent||''}))};
 }
 function machineAutosave(){if(document.body.classList.contains('duel-online')||!['classic','solo'].includes(state.mode))return;window.SavedMatches?.saveMachineCurrent?.(state.mode,machineSnapshot(),true);}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')machineAutosave();});
@@ -531,13 +532,13 @@ function resetGame() {
   state.suggestionUses = SUGGESTION_LIMIT;
   state.suggestionSession = { options: [], rerolls: 0, initialized: false };
   state.consecutiveNo = 0;
+  state.hintsGiven = 0;
   state.asked.clear();
   state.facts = [];
   state.patience = 0;
   state.seconds = 0;
   ui.chat.textContent = '';
   updateHud();
-  ui.suggest.disabled = false;
   ui.guess.disabled = false;
   ui.input.disabled = false;
   ui.send.disabled = false;
@@ -546,10 +547,11 @@ function resetGame() {
 function updateHud() {
   ui.questions.textContent = `${state.questionCount}/${MAX_QUESTIONS}`;
   ui.guesses.textContent = String(state.guessesLeft);
-  ui.suggest.textContent = `SUGERENCIAS (${state.suggestionUses})`;
-  ui.suggest.classList.remove('locked');
-  ui.suggest.disabled = state.suggestionUses <= 0;
-  ui.suggest.title = state.suggestionUses <= 0 ? 'Agotaste las sugerencias de esta partida' : 'Sugerencias del Cerebro';
+  const unlocked = window.Sugeridor ? Sugeridor.desbloqueada(MindLogic, PERSONAJES, state.facts) : state.questionCount >= 5;
+  ui.suggest.textContent = unlocked ? `SUGERENCIAS (${state.suggestionUses})` : `SUGERENCIAS · ${Math.max(0,5-state.questionCount)} PREGUNTAS`;
+  ui.suggest.classList.toggle('locked', !unlocked);
+  ui.suggest.disabled = state.suggestionUses <= 0 || !state.active || state.mode === 'classic';
+  ui.suggest.title = state.suggestionUses <= 0 ? 'Agotaste las sugerencias de esta partida' : !unlocked ? 'Se habilitan después de cinco preguntas válidas' : 'Sugerencias del Cerebro';
 }
 
 function startTimer() {
@@ -676,10 +678,10 @@ async function askQuestion(text) {
   else state.consecutiveNo++;
   updateHud();
   await addMessage(answer ? 'SÍ.' : 'NO.', 'mind');
-  // En el modo normal, cinco respuestas negativas seguidas activan una pista sin revelar el personaje.
-  if (state.mode !== 'classic' && state.consecutiveNo >= 5) {
-    state.consecutiveNo = 0;
-    await addMessage(buildBrainHint(state.secret), 'mind');
+  // Pista por progreso real, no por una racha de respuestas NO. Máximo tres pistas.
+  if (state.mode !== 'classic' && state.questionCount % 5 === 0 && state.hintsGiven < 3) {
+    state.hintsGiven++;
+    await addMessage(buildBrainHint(state.secret, state.facts, state.hintsGiven), 'mind');
   }
 
   if (state.questionCount >= MAX_QUESTIONS) {
@@ -775,18 +777,23 @@ function confirmGuess() {
 
 function buildSuggestionPool(excluded = []) {
   // Solo preguntas no respondidas y que dividan de verdad a los personajes compatibles.
-  const pool = window.Sugeridor ? Sugeridor.sugerir(MindLogic, PERSONAJES, state.facts, state.asked, 30) : [];
+  const pool = window.Sugeridor ? Sugeridor.sugerir(MindLogic, PERSONAJES, state.facts, state.asked, 30, state.questionCount) : [];
   const blocked = new Set([...excluded, ...state.asked].map(x => MindLogic.normalizar(typeof x === 'string' ? x : '')));
   const filtered = pool.filter(q => !blocked.has(MindLogic.normalizar(q)));
-  if (filtered.length) return filtered.slice(0, 5);
-  // Respaldo: nunca mostrar una caja vacía. Evita preguntas ya respondidas y prioriza las generales restantes.
-  const safe = ['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es conocido principalmente por la ciencia?','¿Es conocido por el entretenimiento?','¿Es de Europa?','¿Es de América?','¿Es conocido por aparecer en películas?'];
-  return safe.filter(q => !blocked.has(MindLogic.normalizar(q))).slice(0, 5);
+  // No inventar un respaldo potencialmente contradictorio si el conjunto de
+  // candidatos quedó vacío o no hay preguntas fiables que ayuden a discriminar.
+  return filtered.slice(0, 5);
 }
 
 function renderSuggestions() {
   const session = state.suggestionSession;
   ui.suggestions.textContent = '';
+  if (!session.options.length) {
+    const empty = document.createElement('p');
+    empty.className = 'suggestion-empty';
+    empty.textContent = 'No encuentro una pregunta útil y fiable con los datos actuales. Seguí investigando por tu cuenta y probá de nuevo después de otra respuesta.';
+    ui.suggestions.append(empty);
+  }
   session.options.forEach(q => {
     const b = document.createElement('button');
     b.className = 'btn btn-green suggestion';
@@ -821,7 +828,11 @@ function rerollSuggestions() {
 }
 
 function openSuggestions() {
-  if (!state.active || state.busy || state.suggestionUses <= 0) return;
+  if (!state.active || state.busy || state.suggestionUses <= 0 || state.mode === 'classic') return;
+  if (!(window.Sugeridor ? Sugeridor.desbloqueada(MindLogic, PERSONAJES, state.facts) : state.questionCount >= 5)) {
+    addMessage('Primero investigá por tu cuenta, mortal. Las sugerencias se desbloquean después de cinco preguntas válidas. Intentá deducirlo con tu propio razonamiento.', 'mind');
+    return;
+  }
   const session = state.suggestionSession;
   // Cerrar y reabrir conserva exactamente las preguntas y los cambios restantes.
   if (!session.initialized) {
@@ -833,19 +844,25 @@ function openSuggestions() {
   ui.suggestModal.classList.remove('hidden');
 }
 
-function buildBrainHint(character) {
-  const real = character?.tipo === 'real' || character?.universo === 'real';
+function buildBrainHint(character, facts = [], level = 1) {
+  // Las primeras pistas refuerzan el razonamiento sin revelar de golpe una categoría.
+  const known = new Set((facts || []).map(f => MindLogic.normalizar(f.texto || '')));
+  if (level <= 1) {
+    return 'Pista del Cerebro: no te quedes con una sola respuesta. Combiná dos datos que ya descubriste y pensá qué clase de personaje podría encajar con ambos. Todavía no voy a revelar una categoría concreta.';
+  }
   const tags = Array.isArray(character?.etiquetas) ? character.etiquetas : [];
   const media = Array.isArray(character?.medios) ? character.medios : [];
-  const useful = tags.find(t => /cient|artist|escritor|deport|pol[ií]tic|m[uú]sic|h[eé]roe|villano|detective|magia|superh[eé]roe|f[ií]sico|actor/i.test(t));
-  if (real) {
-    if (useful) return `🧠 Cerebro: Vas bien. Mi personaje está relacionado con ${useful.replace(/_/g, ' ')}. Pensá qué tipo de figura podría ser…`;
-    if (character?.region) return `🧠 Cerebro: Te doy una pista más: mi personaje tiene una conexión con ${String(character.region).replace(/_/g, ' ')}. Usá esa información para afinar tus preguntas.`;
-    return '🧠 Cerebro: Te puedo confirmar algo: estoy pensando en alguien que existió en el mundo real. Afiná tus preguntas.';
+  const real = character?.tipo === 'real' || character?.universo === 'real';
+  const broad = tags.find(t => /cient|artist|escritor|deport|pol[ií]tic|m[uú]sic|h[eé]roe|villano|detective|magia|superh[eé]roe|f[ií]sico|actor/i.test(String(t)));
+  if (level === 2) {
+    if (real && !known.has(MindLogic.normalizar('¿Es una persona real?'))) return 'Pista del Cerebro: el personaje pertenece al mundo real. Ahora pensá qué tipo de actividad o trayectoria podría distinguirlo, sin saltar directamente a un nombre.';
+    if (!real && !known.has(MindLogic.normalizar('¿Es ficticio?'))) return 'Pista del Cerebro: estás buscando un personaje de ficción. Tratá de reconstruir qué lugar ocupa en su mundo antes de intentar adivinar.';
+    return 'Pista del Cerebro: revisá qué respuestas ya confirmaste y cuáles todavía son incógnitas. Tu próxima pregunta debería comprobar una idea, no adivinar al azar.';
   }
-  if (useful) return `🧠 Cerebro: Una pista para vos: mi personaje ficticio está relacionado con ${useful.replace(/_/g, ' ')}. Todavía no voy a revelar más.`;
-  if (media.length) return `🧠 Cerebro: Prestá atención a esto: mi personaje aparece en un universo de ${String(media[0]).replace(/_/g, ' ')}. Seguimos.`;
-  return '🧠 Cerebro: Te doy una pequeña ayuda: mi personaje pertenece a la ficción. Pensá en sus habilidades y en el mundo del que viene.';
+  // La tercera pista puede orientar un poco más, pero nunca nombra al personaje.
+  if (broad) return `Pista del Cerebro: hay una relación con ${String(broad).replace(/_/g, ' ')}. Usá ese dato junto con tus respuestas anteriores; no alcanza por sí solo para identificarme.`;
+  if (media.length) return 'Pista del Cerebro: prestá atención al contexto o al mundo en el que aparece este personaje. Cruzá esa idea con las respuestas que ya obtuviste.';
+  return 'Pista del Cerebro: buscá una característica que conecte varias de tus respuestas. Una buena deducción necesita más de un dato.';
 }
 
 function finish(win, reason) {
@@ -991,9 +1008,9 @@ el('continueThinkingBtn').onclick = async () => {
 window.addEventListener('mind:restore-machine-match',async e=>{
  const snap=e.detail?.snapshot;if(!snap||!['SOLO','CLASSIC'].includes(snap.mode))return;
  window.MindDuelCleanupForMode?.(); machineStartedAt=Number(snap.startedAt)||Date.now(); classicSecretName=String(snap.classicCharacterName||''); resetGame(); classicSetMode(snap.mode==='CLASSIC');
- state.mode=snap.mode==='CLASSIC'?'classic':'solo';state.questionCount=Number(snap.questionCount)||0;state.guessesLeft=Number(snap.guessesLeft)||MAX_GUESSES;state.suggestionUses=Number(snap.suggestionUses??SUGGESTION_LIMIT);state.consecutiveNo=Number(snap.consecutiveNo)||0;state.asked=new Set(snap.asked||[]);state.facts=Array.isArray(snap.facts)?snap.facts:[];state.seconds=Number(snap.seconds)||0;state.patience=Number(snap.patience)||0;state.suggestionSession=snap.suggestionSession||{options:[],rerolls:0,initialized:false};state.active=snap.status!=='completed';
+ state.mode=snap.mode==='CLASSIC'?'classic':'solo';state.questionCount=Number(snap.questionCount)||0;state.guessesLeft=Number(snap.guessesLeft)||MAX_GUESSES;state.suggestionUses=Number(snap.suggestionUses??SUGGESTION_LIMIT);state.consecutiveNo=Number(snap.consecutiveNo)||0;state.hintsGiven=Number(snap.hintsGiven)||0;state.asked=new Set(snap.asked||[]);state.facts=Array.isArray(snap.facts)?snap.facts:[];state.seconds=Number(snap.seconds)||0;state.patience=Number(snap.patience)||0;state.suggestionSession=snap.suggestionSession||{options:[],rerolls:0,initialized:false};state.active=snap.status!=='completed';
  if(snap.mode==='SOLO'){state.secret=(PERSONAJES||[]).find(p=>MindLogic.normalizar(p.nombre)===MindLogic.normalizar(snap.secretName))||snap.secret;}
- if(snap.mode==='CLASSIC'&&snap.classic){const c=snap.classic;classic.s=Clasico.nuevo(PERSONAJES);classic.s.w=Array.isArray(c.weights)?c.weights:classic.s.w;classic.s.asked=new Set(c.asked||[]);classic.s.log=c.log||[];classic.s.rech=new Set(c.rejected||[]);classic.s.n=Number(c.n)||0;classic.fails=Number(c.fails)||0;classic.phase=c.phase||'ask';classic.cur=null;if(c.cur){const p=(PERSONAJES||[]).find(x=>MindLogic.normalizar(x.nombre)===MindLogic.normalizar(c.cur.p||''));classic.cur={...c.cur,...(p?{p}: {})};}}
+ if(snap.mode==='CLASSIC'&&snap.classic){const c=snap.classic;classic.s=Clasico.nuevo(PERSONAJES);classic.s.w=Array.isArray(c.weights)?c.weights:classic.s.w;classic.s.asked=new Set((c.asked||[]).map(q=>MindLogic.normalizar(q))); classic.s.log=c.log||[];classic.s.rech=new Set(c.rejected||[]);classic.s.n=Number(c.n)||0;classic.fails=Number(c.fails)||0;classic.phase=c.phase||'ask';classic.cur=null;if(c.cur){const p=(PERSONAJES||[]).find(x=>MindLogic.normalizar(x.nombre)===MindLogic.normalizar(c.cur.p||''));classic.cur={...c.cur,...(p?{p}: {})};}}
  window.MatchHistory?.resume?.(snap.historyId, snap.mode==='CLASSIC'?'clásico':'solo');
  ui.chat.textContent='';for(const ev of (snap.transcript||[])){const kind=ev.kind||'system';const row=document.createElement('div');row.className='message message-'+kind;const av=document.createElement('div');av.className='avatar';const a=avatarFor(kind);av.textContent=a.txt;av.classList.add(a.cls);const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=ev.text||'';row.append(av,bubble);ui.chat.append(row);}
  classicBusy=false;

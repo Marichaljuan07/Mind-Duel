@@ -1,0 +1,18 @@
+const assert = require('assert');
+const S = require('./sugeridor.js');
+global.Sugeridor = S;
+const C = require('./clasico.js');
+const L = { normalizar: x => String(x).toLowerCase().replace(/[¿?]/g,''), evaluarPregunta: () => null, resolverConcepto: () => null };
+const personaje = { nombre: 'Caso de prueba' };
+const s = C.nuevo([personaje]);
+s.w[0] = 0.73;
+C.responder(s, L, '¿Dato desconocido?', 'no');
+assert.strictEqual(s.w[0], 0.73, 'una respuesta desconocida no debe cambiar el peso');
+assert(s.asked.has(L.normalizar('¿Dato desconocido?')), 'la pregunta debe guardarse normalizada');
+const f4 = Array.from({length:4}, (_,i)=>({texto:`pregunta ${i}`,answer:true}));
+const f5 = [...f4,{texto:'pregunta 5',answer:false}];
+assert.strictEqual(S.desbloqueada(L, [], f4), false, '4 respuestas no desbloquean');
+assert.strictEqual(S.desbloqueada(L, [], f5), true, '5 respuestas desbloquean');
+const early = S.sugerir({normalizar:x=>String(x).toLowerCase(), evaluarPregunta:()=>null, resolverConcepto:()=>null}, [], [], new Set(), 30, 5);
+assert.deepStrictEqual(early, [], 'sin candidatos no deben inventarse preguntas');
+console.log('3.13.51: incertidumbre, normalización y desbloqueo OK');

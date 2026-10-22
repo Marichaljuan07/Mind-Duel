@@ -6,12 +6,17 @@ const POOL=['¿Es una persona real?','¿Es ficticio?','¿Es una mujer?','¿Es un
 const VAL_CACHE=new WeakMap();
 const val=(L,q,p)=>{if(!p||typeof p!=='object'){const c=SUG_CONCEPTO[q];return c?L.resolverConcepto(c,p):L.evaluarPregunta(q,p)}let m=VAL_CACHE.get(p);if(!m){m=new Map();VAL_CACHE.set(p,m)}if(m.has(q))return m.get(q);const c=SUG_CONCEPTO[q],v=c?L.resolverConcepto(c,p):L.evaluarPregunta(q,p);m.set(q,v);return v};
 function consistentes(L,ps,facts){return ps.filter(p=>facts.every(f=>{const v=f.concepto?L.resolverConcepto(f.concepto,p):L.evaluarPregunta(f.texto,p);return v===null||v===f.answer}))}
-function sugerir(L,ps,facts,asked,n){
+function sugerir(L,ps,facts,asked,n,turno){
   n=Math.max(1,Number(n)||5);
+  turno=Math.max(0,Number(turno)||facts.length);
   const rest=consistentes(L,ps,facts),base=rest.length?rest:(facts.length?[]:ps),cand=[];
+  // En la primera etapa disponible, mantener las preguntas amplias: no orientar
+  // prematuramente hacia una categoría llamativa o una identidad probable.
+  const amplias=new Set(['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es una mujer?','¿Es un hombre?','¿Sigue con vida?','¿Es de Europa?','¿Es de América?']);
+  const preguntas=turno<8?POOL.filter(q=>amplias.has(q)):POOL;
   if(!base.length)return [];
   const yaPreguntadas=asked instanceof Set?asked:new Set(asked||[]);
-  for(let indice=0;indice<POOL.length;indice++){const q=POOL[indice];if(yaPreguntadas.has(L.normalizar(q)))continue;let si=0,no=0,desconocidos=0;
+  for(let indice=0;indice<preguntas.length;indice++){const q=preguntas[indice];if(yaPreguntadas.has(L.normalizar(q)))continue;let si=0,no=0,desconocidos=0;
     for(const p of base){const v=val(L,q,p);if(v===null){desconocidos++;continue}if(v)si++;else no++}
     const tot=si+no;
     // Una pregunta solo sirve si separa candidatos conocidos en ambos grupos.
@@ -24,7 +29,7 @@ function sugerir(L,ps,facts,asked,n){
 function resueltos(L,ps,facts){const rest=consistentes(L,ps,facts);if(!rest.length)return 0;
   return['tipo_real','genero_hombre','humano'].filter(c=>{const v=L.resolverConcepto(c,rest[0]);return rest.every(p=>L.resolverConcepto(c,p)===v)}).length}
 // Se habilita al conocer lo básico (real/ficticio, género, humano) o, si no, tras 5 preguntas.
-function desbloqueada(L,ps,facts){return facts.length>=2&&(resueltos(L,ps,facts)>=3||facts.length>=5)}
+function desbloqueada(L,ps,facts){return Array.isArray(facts)&&facts.length>=5}
 const S={sugerir,consistentes,POOL,resueltos,desbloqueada,val};
 if(typeof module!=='undefined'&&module.exports)module.exports=S;else window.Sugeridor=S;
 })();

@@ -677,3 +677,8 @@ button, input {
 #reconnectDuelBtn{display:block;margin:10px auto!important;max-width:min(94%,420px);white-space:normal;overflow-wrap:anywhere}
 #guessModal #confirmGuessBtn{touch-action:manipulation;cursor:pointer}
 @media(max-width:480px){.offline-recovery-strip{width:94%;padding:12px}.offline-recovery-actions{flex-basis:100%;justify-content:stretch}.offline-recovery-actions button{flex:1 1 130px}.offline-recovery-strip #offlineRecoveryText{flex-basis:100%}}
+
+/* 3.13.51 — sugerencias bloqueadas hasta reunir cinco respuestas válidas */
+#suggestBtn.locked{filter:saturate(.55);opacity:.82;border-style:dashed}#suggestBtn.locked:not(:disabled){cursor:pointer}#suggestBtn:disabled{opacity:.55}
+
+.suggestion-empty{margin:8px 0;padding:12px;border:1px dashed rgba(0,216,255,.45);border-radius:8px;color:var(--text-main,#e8e2ff);font:16px/1.35 'VT323',monospace}
