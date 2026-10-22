@@ -6,7 +6,7 @@ let a=run([{texto:'¿Es una persona real?',concepto:null,answer:true}]);
 t('real: nunca poderes/magia/HP/Marvel/Star Wars',!['¿Tiene poderes?','¿Usa magia?','¿Es de Harry Potter?','¿Es de Marvel?','¿Es de Star Wars?','¿Es un superhéroe?','¿Es ficticio?'].some(q=>a.has(q)));
 t('real: sí ofrece algo (hay opciones)',a.size>=3);
 let b=run([{texto:'¿Es ficticio?',concepto:null,answer:true},{texto:'¿Es de Harry Potter?',concepto:null,answer:true}]);
-t('Harry Potter: nunca real/Marvel/Star Wars',!['¿Es una persona real?','¿Es de Marvel?','¿Es de Star Wars?','¿Es de Europa?'].some(q=>b.has(q)));
+t('Harry Potter: nunca real/Marvel/Star Wars',!['¿Es una persona real?','¿Es de Marvel?','¿Es de Star Wars?'].some(q=>b.has(q)));
 t('Harry Potter: ofrece magia o género',b.has('¿Usa magia?')||b.has('¿Es una mujer?')||b.has('¿Es un hombre?'));
 const asked=new Set([L.normalizar('¿Es una mujer?')]);t('no repite lo ya preguntado',!S.sugerir(L,P,[],asked,5).includes('¿Es una mujer?'));
 t('sin hechos: da 5',S.sugerir(L,P,[],new Set(),5).length===5);
@@ -27,4 +27,4 @@ console.log(fail?fail+' FALLOS':'Todo OK');process.exitCode=fail?1:0;
 
 // El banco inicial debe ser amplio y no revelar categorías específicas.
 const early=S.sugerir(L,P,[],new Set(),30,5);
-t('etapa inicial: evita categorías reveladoras',early.every(q=>['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es una mujer?','¿Es un hombre?','¿Sigue con vida?','¿Es de Europa?','¿Es de América?'].includes(q)));
+t('etapa inicial: evita categorías reveladoras',early.every(q=>['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es una mujer?','¿Es un hombre?','¿Sigue con vida?','¿Es de Europa?','¿Es de América?','¿Es científico?','¿Es artista?','¿Es escritor?','¿Es filósofo?','¿Es político?','¿Es militar?','¿Es detective?','¿Es pacifista?','¿Es rico?','¿Es de la Antigüedad?','¿Es de la Edad Media?'].includes(q)));

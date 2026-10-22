@@ -1554,7 +1554,8 @@ const PERSONAJES = [
   "etiquetas": [
    "filosofo",
    "politico",
-   "renacimiento"
+   "renacimiento",
+   "escritor"
   ],
   "medios": [
    "historia"
