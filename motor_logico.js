@@ -349,6 +349,29 @@ function evaluarPregunta(pregunta, personaje) {
     }
 
     // ==================================================
+    // CONCEPTOS AMPLIADOS: ANIME, COMBATE, PODER Y ORIGEN TERRESTRE
+    // ==================================================
+    if (contiene(texto, ["anime", "manga japones", "animacion japonesa"])) {
+        return Array.isArray(personaje.etiquetas) ? personaje.etiquetas.includes("anime") : null;
+    }
+    if (contiene(texto, ["poderoso", "poderosa", "es muy fuerte", "fuerza extraordinaria"])) {
+        if (typeof personaje.poderoso === "boolean") return personaje.poderoso;
+        if (typeof personaje.poderes === "boolean") return personaje.poderes;
+        return null;
+    }
+    if (contiene(texto, ["combate", "combates", "pelea", "pelear", "lucha", "luchar", "participa en batallas"])) {
+        if (typeof personaje.combate === "boolean") return personaje.combate;
+        if (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes("combate")) return true;
+        return null;
+    }
+    if (contiene(texto, ["tiene hijos", "tuvo hijos", "hija", "hijo", "descendencia"])) {
+        return typeof personaje.hijos === "boolean" ? personaje.hijos : null;
+    }
+    if (contiene(texto, ["terrestre", "nacio en la tierra", "es de la tierra", "proviene de la tierra"])) {
+        return typeof personaje.origen_terrestre === "boolean" ? personaje.origen_terrestre : null;
+    }
+
+    // ==================================================
     // MEDIO DE ORIGEN / APARICIÓN
     // ==================================================
 
@@ -525,6 +548,10 @@ const CONCEPTOS_PERMITIDOS = [
     "millonario",
     "jedi",
     "poderes",
+    "anime",
+    "combate",
+    "hijos",
+    "terrestre",
     "magia",
     "mascara",
     "capa",
@@ -591,6 +618,10 @@ function resolverConcepto(concepto, personaje) {
         humano: () => personaje.humano === true,
         famoso: () => personaje.famoso === true,
         poderes: () => personaje.poderes === true,
+        anime: () => Array.isArray(personaje.etiquetas) ? personaje.etiquetas.includes('anime') : null,
+        combate: () => typeof personaje.combate === 'boolean' ? personaje.combate : (Array.isArray(personaje.etiquetas) ? personaje.etiquetas.includes('combate') : null),
+        hijos: () => typeof personaje.hijos === 'boolean' ? personaje.hijos : null,
+        terrestre: () => typeof personaje.origen_terrestre === 'boolean' ? personaje.origen_terrestre : null,
         magia: () => personaje.magia === true,
         mascara: () => personaje.mascara === true,
         capa: () => personaje.capa === true,

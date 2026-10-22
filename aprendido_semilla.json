@@ -278,5 +278,29 @@
  "es un super heroe": {
   "c": "superheroe",
   "auto": true
+ },
+ "tu personaje es de un anime": {
+  "c": "anime",
+  "auto": false
+ },
+ "es de un anime": {
+  "c": "anime",
+  "auto": false
+ },
+ "participa en combates": {
+  "c": "combate",
+  "auto": false
+ },
+ "es poderoso": {
+  "c": "poderes",
+  "auto": false
+ },
+ "es alguien terrestre": {
+  "c": "terrestre",
+  "auto": false
+ },
+ "tiene hijos": {
+  "c": "hijos",
+  "auto": false
  }
 }

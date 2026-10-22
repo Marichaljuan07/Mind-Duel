@@ -420,29 +420,8 @@ function pickLine(lines) { return lines[Math.floor(Math.random() * lines.length)
 // Burlas claras y fáciles de entender. Las referencias al personaje son un extra, no un requisito.
 function mindDuelTaunt(name, brainWon) {
   const n = String(name || '').trim() || 'este personaje';
-  const norm = (typeof MindLogic !== 'undefined' ? MindLogic.normalizar(n) : n.toLowerCase());
-  const specific = norm.includes('julio cesar') ? {
-    win: ['¡JAJAJA! ¡Yo conquisté territorios y vos no pudiste conquistar una respuesta! ¡Qué papelón!', '¡Te di oportunidades de sobra y aun así no me descubriste! ¡Hasta Roma habría tenido más suerte que vos!'],
-    lose: ['¡¿Me ganaste vos?! ¡Yo conquisté Roma y terminé perdiendo contra alguien que juega desde el celular! ¡Qué vergüenza!', '¡Esto es una humillación! ¡Disfrutá tu victoria, emperador de sillón, que no te va a durar para siempre!']
-  } : norm.includes('albert einstein') || norm === 'einstein' ? {
-    win: ['¡JAJAJA! ¡Tanta inteligencia en el mundo y no alcanzó para que me descubrieras! ¡Qué cerebro el tuyo!', '¡No pudiste adivinar quién soy! Tranquilo, no todo el mundo puede tener dos dedos de frente… aunque vos hoy te esforzaste poco.'],
-    lose: ['¡¿Vos me ganaste?! Bueno, parece que hoy la inteligencia no estuvo de mi lado. ¡Pero no te agrandes, que ganar una partida no te convierte en Einstein!', '¡Esto no tiene sentido! Bueno, sí lo tiene… ¡pero igual me niego a aceptar que me hayas ganado tan fácilmente!']
-  } : norm.includes('napoleon') ? {
-    win: ['¡JAJAJA! ¡Yo gané batallas históricas y vos no pudiste ganar ni esta partida! ¡Retirada, soldado!', '¡Qué desastre! Te di todas las oportunidades del mundo y aun así fracasaste. ¡No te acerques más al campo de batalla!'],
-    lose: ['¡¿Me derrotaste?! ¡Esto es una humillación! ¡Ganaste una partida y ya te creés dueño del mundo! ¡Bajá un poquito, campeón!', '¡Exijo la revancha! ¡No pienso dejar que presumas toda la semana por haberme ganado una sola vez!']
-  } : null;
-  const genericWin = [
-    `¡JAJAJA! ¡Tantas preguntas y ni así descubriste quién soy: ${n}! ¡No te preocupes, la próxima capaz que tenés más suerte!`,
-    `¡No puede ser! Te di un montón de oportunidades y no pudiste descubrirme. ¡${n} te ganó y ni siquiera tuvo que moverse!`,
-    `¡Victoria para mí! ¡Después de tantas pistas, seguís sin saber quién soy! ¡Qué talento para perderte lo evidente!`
-  ];
-  const genericLose = [
-    `¡¿Qué?! ¡¿Me ganaste?! ¡Esto es una vergüenza! ¡Disfrutá tu momento de gloria, detective, que no siempre vas a tener tanta suerte!`,
-    `¡No me lo puedo creer! ¡Me descubriste! Bueno, no te agrandes… ¡que ganar una partida no te convierte en un genio!`,
-    `¡Protesto! ¡Esto no cuenta! ¡Yo estaba pensando en ${n} y vos tuviste la suerte de acertar! ¡Quiero la revancha!`
-  ];
-  const pool = specific ? (brainWon ? specific.win : specific.lose) : (brainWon ? genericWin : genericLose);
-  return pool[Math.floor(Math.random() * pool.length)];
+  if (brainWon) return `El personaje era ${n}. Revisá las respuestas que obtuviste y fijate qué dato te habría permitido distinguirlo de otras opciones.`;
+  return `¡Acertaste! El personaje era ${n}. Las respuestas que fuiste reuniendo te llevaron a resolver el misterio.`;
 }
 window.MindDuelTaunt = mindDuelTaunt;
 const CLASSIC_BRAIN_WIN_LINES = [
@@ -666,7 +645,7 @@ async function askQuestion(text) {
   }
 
   if (answer === null) {
-    addMessage('Todavía no entiendo esa pregunta. La guardo para aprenderla. Probá decirlo de otra forma.', 'mind');
+    addMessage('Todavía no tengo un concepto fiable para responder eso. Guardé la pregunta para poder enseñársela al Cerebro; por ahora no voy a inventar un SÍ o un NO. Probá otra pregunta.', 'mind');
     lockInput(false);
     ui.input.focus();
     return;
@@ -678,10 +657,18 @@ async function askQuestion(text) {
   else state.consecutiveNo++;
   updateHud();
   await addMessage(answer ? 'SÍ.' : 'NO.', 'mind');
-  // Pista por progreso real, no por una racha de respuestas NO. Máximo tres pistas.
-  if (state.mode !== 'classic' && state.questionCount % 5 === 0 && state.hintsGiven < 3) {
-    state.hintsGiven++;
-    await addMessage(buildBrainHint(state.secret, state.facts, state.hintsGiven), 'mind');
+  // Pistas adaptativas: no dependen de los turnos 5/10/15. Se activan
+  // por negativas distintas acumuladas, no por repetir la misma pregunta.
+  if (state.mode !== 'classic') {
+    const negativos = new Set(state.facts.filter(f => f.answer === false).map(f => pistaClave(f.texto, f.concepto)));
+    const totalNegativos = negativos.size;
+    let nivel = 0;
+    if (state.hintsGiven === 0 && totalNegativos >= 5) nivel = 1;
+    else if (state.hintsGiven === 1 && totalNegativos >= 8) nivel = 2;
+    if (nivel) {
+      state.hintsGiven = nivel;
+      await addMessage(buildBrainHint(state.secret, state.facts, nivel), 'mind');
+    }
   }
 
   if (state.questionCount >= MAX_QUESTIONS) {
@@ -780,9 +767,14 @@ function buildSuggestionPool(excluded = []) {
   const pool = window.Sugeridor ? Sugeridor.sugerir(MindLogic, PERSONAJES, state.facts, state.asked, 30, state.questionCount) : [];
   const blocked = new Set([...excluded, ...state.asked].map(x => MindLogic.normalizar(typeof x === 'string' ? x : '')));
   const filtered = pool.filter(q => !blocked.has(MindLogic.normalizar(q)));
-  // No inventar un respaldo potencialmente contradictorio si el conjunto de
-  // candidatos quedó vacío o no hay preguntas fiables que ayuden a discriminar.
-  return filtered.slice(0, 5);
+  // La ayuda no debe quedar vacía por datos incompletos/inconsistentes del banco.
+  // Sugeridor aplica un respaldo general y este segundo nivel protege las renovaciones.
+  if (filtered.length) return filtered.slice(0, 5);
+  const fallback = (window.Sugeridor?.POOL || []).filter(q => {
+    const key = MindLogic.normalizar(q);
+    return !blocked.has(key) && ![...state.asked].some(a => MindLogic.normalizar(a) === key);
+  });
+  return fallback.slice(0, 5);
 }
 
 function renderSuggestions() {
@@ -821,8 +813,9 @@ function rerollSuggestions() {
   const session = state.suggestionSession;
   if (!state.active || state.busy || !session.initialized || session.rerolls >= 2) return;
   const next = buildSuggestionPool(session.options);
-  if (!next.length) return;
-  session.options = next;
+  // Una renovación siempre consume el uso y cambia las opciones si hay preguntas
+  // disponibles; nunca deja el botón aparentemente activo sin hacer nada.
+  if (next.length) session.options = next;
   session.rerolls++;
   renderSuggestions();
 }
@@ -844,25 +837,69 @@ function openSuggestions() {
   ui.suggestModal.classList.remove('hidden');
 }
 
+function pistaClave(texto, concepto) {
+  if (concepto) return String(concepto);
+  const t = MindLogic.normalizar(texto || '');
+  const reglas = [
+    [/real|existio|de verdad/, 'real'], [/ficticio|ficcion|imaginario/, 'ficcion'],
+    [/humano|persona/, 'humano'], [/hombre|varon|masculino/, 'hombre'], [/mujer|femenin/, 'mujer'],
+    [/vivo|vida|muerto|murio|fallecio/, 'vida'], [/europa|europeo/, 'europa'], [/america|americano/, 'america'],
+    [/anime|manga/, 'anime'], [/marvel/, 'marvel'], [/star wars|jedi/, 'starwars'], [/comic|historieta/, 'comic'],
+    [/poder|fuerte/, 'poderes'], [/magia|magico/, 'magia'], [/escritor|escribir|autor/, 'escritor'],
+    [/cientific|ciencia/, 'cientifico'], [/artista|arte|pintor/, 'artista'], [/hijo|hija|descendencia/, 'hijos'],
+    [/pelicula|cine|film/, 'peliculas'], [/combate|pelea|lucha|batalla/, 'combate'], [/rico|dinero|millonario/, 'riqueza']
+  ];
+  const r = reglas.find(([re]) => re.test(t));
+  return r ? r[1] : t;
+}
+
 function buildBrainHint(character, facts = [], level = 1) {
-  // Las primeras pistas refuerzan el razonamiento sin revelar de golpe una categoría.
-  const known = new Set((facts || []).map(f => MindLogic.normalizar(f.texto || '')));
-  if (level <= 1) {
-    return 'Pista del Cerebro: no te quedes con una sola respuesta. Combiná dos datos que ya descubriste y pensá qué clase de personaje podría encajar con ambos. Todavía no voy a revelar una categoría concreta.';
-  }
+  const positivos = facts.filter(f => f.answer === true);
+  const negativos = facts.filter(f => f.answer === false);
+  const knownText = facts.map(f => MindLogic.normalizar(f.texto || '')).join(' | ');
+  const fictional = facts.some(f => { const q = MindLogic.normalizar(f.texto || ''); return (/(persona )?real|existio|de verdad/.test(q) && f.answer === false) || (/(ficticio|ficcion|imaginario)/.test(q) && f.answer === true); });
+  const nonHuman = facts.some(f => /humano/.test(pistaClave(f.texto, f.concepto)) && f.answer === false);
+  const powers = facts.some(f => /poder/.test(pistaClave(f.texto, f.concepto)) && f.answer === true);
+  const film = facts.some(f => /pelicula|cine|film/.test(pistaClave(f.texto, f.concepto)) && f.answer === true);
   const tags = Array.isArray(character?.etiquetas) ? character.etiquetas : [];
-  const media = Array.isArray(character?.medios) ? character.medios : [];
+  const universe = String(character?.universo || '').toLowerCase();
   const real = character?.tipo === 'real' || character?.universo === 'real';
-  const broad = tags.find(t => /cient|artist|escritor|deport|pol[ií]tic|m[uú]sic|h[eé]roe|villano|detective|magia|superh[eé]roe|f[ií]sico|actor/i.test(String(t)));
-  if (level === 2) {
-    if (real && !known.has(MindLogic.normalizar('¿Es una persona real?'))) return 'Pista del Cerebro: el personaje pertenece al mundo real. Ahora pensá qué tipo de actividad o trayectoria podría distinguirlo, sin saltar directamente a un nombre.';
-    if (!real && !known.has(MindLogic.normalizar('¿Es ficticio?'))) return 'Pista del Cerebro: estás buscando un personaje de ficción. Tratá de reconstruir qué lugar ocupa en su mundo antes de intentar adivinar.';
-    return 'Pista del Cerebro: revisá qué respuestas ya confirmaste y cuáles todavía son incógnitas. Tu próxima pregunta debería comprobar una idea, no adivinar al azar.';
+
+  if (level === 1) {
+    if (fictional && nonHuman && powers) {
+      return 'Pista del Cerebro: ya descartaste el mundo real y a los humanos, y confirmaste que tiene poderes. No te quedes solo con “héroe” o “villano”: la próxima distinción útil es qué clase de mundo habita y de dónde vienen sus capacidades.';
+    }
+    if (fictional && film) {
+      return 'Pista del Cerebro: ya sabés que pertenece a la ficción y aparece en películas. Intentá distinguir el tipo de historia en la que aparece —por ejemplo, ciencia ficción, fantasía o aventuras— antes de probar nombres.';
+    }
+    if (real) {
+      const rol = tags.find(t => /cientifico|artista|escritor|politico|militar|deportista|musico|filosofo|inventor/.test(t));
+      if (rol) return `Pista del Cerebro: las respuestas apuntan al mundo real. Una línea útil es investigar su trayectoria o actividad principal; preguntate qué ámbito podría distinguirlo de otras figuras de su época.`;
+      return 'Pista del Cerebro: parece más útil investigar qué hizo esta persona y en qué época se destacó que seguir probando rasgos generales. Buscá una pregunta que separe su trayectoria de otras posibles.';
+    }
+    if (negativos.length >= 5 && positivos.length >= 2) {
+      return 'Pista del Cerebro: ya descartaste varias posibilidades, pero todavía tenés algunos rasgos confirmados. Cruzá uno de esos rasgos positivos con dos descartes y elegí una pregunta que separe dos tipos de personaje, no una que repita lo que ya sabés.';
+    }
+    return 'Pista del Cerebro: acumulaste varios descartes. Cambiá de eje: en vez de preguntar otra característica parecida, investigá el origen, el mundo donde aparece o el papel que cumple en su historia.';
   }
-  // La tercera pista puede orientar un poco más, pero nunca nombra al personaje.
-  if (broad) return `Pista del Cerebro: hay una relación con ${String(broad).replace(/_/g, ' ')}. Usá ese dato junto con tus respuestas anteriores; no alcanza por sí solo para identificarme.`;
-  if (media.length) return 'Pista del Cerebro: prestá atención al contexto o al mundo en el que aparece este personaje. Cruzá esa idea con las respuestas que ya obtuviste.';
-  return 'Pista del Cerebro: buscá una característica que conecte varias de tus respuestas. Una buena deducción necesita más de un dato.';
+
+  // Nivel 2: más concreto, pero nunca da el nombre ni la franquicia literal.
+  if (!real && (universe === 'star wars' || tags.includes('jedi'))) {
+    return 'Pista del Cerebro: una pista más concreta: este personaje pertenece a una historia de ciencia ficción espacial. Pensá en figuras cuyo conocimiento y entrenamiento son tan importantes como su capacidad de luchar.';
+  }
+  if (!real && (universe === 'harry potter' || tags.includes('mago') || tags.includes('bruja'))) {
+    return 'Pista del Cerebro: orientá la investigación hacia un mundo de fantasía donde lo sobrenatural forma parte de la vida cotidiana. La pregunta útil ahora es qué función cumple el personaje dentro de ese mundo.';
+  }
+  if (!real && tags.includes('anime')) {
+    return 'Pista del Cerebro: el personaje pertenece a una obra de animación japonesa. Ahora distinguí qué tipo de historia es y qué papel cumple el personaje, sin saltar directamente al protagonista más famoso.';
+  }
+  if (real) {
+    const rol = tags.find(t => /cientifico|artista|escritor|politico|militar|deportista|musico|filosofo|inventor/.test(t));
+    if (rol) return `Pista del Cerebro: la actividad que mejor orienta la búsqueda está relacionada con ${rol.replace(/_/g, ' ')}. Usá esa dirección junto con la época y el origen que ya descubriste; todavía no alcanza para identificar el nombre.`;
+    return 'Pista del Cerebro: concentrá la búsqueda en el hecho por el que esta persona se hizo conocida. La época y su actividad pueden distinguirla mejor que sus rasgos físicos.';
+  }
+  if (film && powers) return 'Pista del Cerebro: combiná la presencia en películas con los poderes que confirmaste. Separá ciencia ficción de fantasía y preguntá por el tipo de mundo antes de adivinar.';
+  return 'Pista del Cerebro: todavía quedan varias posibilidades. Usá una pista confirmada para elegir una categoría más concreta y evitá gastar el último intento hasta que tengas al menos dos datos que encajen entre sí.';
 }
 
 function finish(win, reason) {
@@ -885,9 +922,9 @@ function finish(win, reason) {
   const transcript = [...ui.chat.querySelectorAll('.message')].map(row => row.querySelector('.bubble')?.textContent || '').join(' ');
   const wrongGuess = (transcript.match(/Adivino:\s*([^.!?]+)/gi) || []).slice(-1)[0]?.replace(/^Adivino:\s*/i, '').trim();
   let contextualTaunt = mindDuelTaunt(state.secret.nombre, !win);
-  if (/rendid|retirad/i.test(why)) contextualTaunt = `¡JAJAJA! ¡Te rendiste antes de descubrirme! ${lastQuestion ? `Después de preguntarme «${lastQuestion}», todavía no tenías claro quién era yo.` : 'Ni siquiera llegaste a resolver el misterio.'} ¡Soy ${state.secret.nombre} y te bajaste del desafío!`;
-  else if (!win && wrongGuess) contextualTaunt = `¡JAJAJA! ¡Te la jugaste por ${wrongGuess} y fallaste! ${lastQuestion ? `Y eso después de preguntarme «${lastQuestion}».` : ''} ¡Al final era ${state.secret.nombre}! La próxima pensá mejor tu último intento.`;
-  else if (!win && lastQuestion) contextualTaunt = `¡JAJAJA! ¡Me preguntaste «${lastQuestion}» y aun así no lograste descubrirme! ¡Era ${state.secret.nombre}! ¡La próxima prestá más atención a las pistas!`;
+  if (/rendid|retirad/i.test(why)) contextualTaunt = `La partida quedó sin resolver. El personaje era ${state.secret.nombre}. Podés revisar las respuestas y continuar la investigación en una nueva ronda.`;
+  else if (!win && wrongGuess) contextualTaunt = `Tu último intento fue ${wrongGuess}, pero el personaje era ${state.secret.nombre}. Para mejorar la próxima deducción, revisá especialmente las respuestas que lo diferenciaban de tu hipótesis.`;
+  else if (!win && lastQuestion) contextualTaunt = `El personaje era ${state.secret.nombre}. Revisá las respuestas que obtuviste y buscá cuál habría sido la mejor pregunta para descartar otras posibilidades.`;
   ui.resultDescription.textContent = [reason, getCharacterDescription(state.secret.nombre, state.secret.descripcion), contextualTaunt].filter(Boolean).join(' '); machineAutosave();
 }
 
@@ -972,6 +1009,7 @@ ui.dueloBtn.onclick = () => {};
 
 el('menuBtn').onclick = openGameMenu;
 el('menuResumeBtn').onclick = () => {el('gameMenuModal').classList.add('hidden');el('menuBtn').setAttribute('aria-expanded','false');};
+el('menuKnowledgeBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn').setAttribute('aria-expanded','false'); window.open('curador.html','_blank'); };
 el('menuHistoryBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn').setAttribute('aria-expanded','false'); if(window.MatchHistory) window.MatchHistory.show(null,document.body.classList.contains('duel-online')?'online':state.mode==='classic'?'clásico':'solo'); else if(el('matchHistoryModal')) el('matchHistoryModal').classList.remove('hidden'); else addMessage('El historial todavía no está disponible.', 'system'); };
 el('menuSaveMatchBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn').setAttribute('aria-expanded','false'); if(document.body.classList.contains('duel-online'))window.dispatchEvent(new CustomEvent('mindduel-save-current')); };
 el('menuExportMatchBtn').onclick = () => { el('gameMenuModal').classList.add('hidden'); el('menuBtn').setAttribute('aria-expanded','false'); if(!document.body.classList.contains('duel-online')){addMessage('Exportar partida está disponible en el modo Online.', 'system');return;} window.SavedMatches?.exportCurrent?.(); };
