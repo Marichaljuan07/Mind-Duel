@@ -143,6 +143,15 @@ const ORACULO = {
   bloqueada: 'Aún no puedo guiarte. Averigua lo básico: ¿real o ficticio? ¿hombre o mujer? ¿humano?'
 };
 
+// Diálogos contextuales: cada pantalla alterna sus propias variantes, sin alterar la lógica del juego.
+const stageDialogueTurns = Object.create(null);
+function nextStageDialogue(key, variants) {
+  const list = Array.isArray(variants) ? variants : [variants];
+  const turn = stageDialogueTurns[key] || 0;
+  stageDialogueTurns[key] = turn + 1;
+  return list[turn % list.length];
+}
+
 async function say(html, ms = 42, allowDoubleTapSkip = false, easterEggOnSkip = false) {
   const my = ++sayToken;
   const speech = { token: my, skip: Boolean(stageFastForwardRequested && allowDoubleTapSkip), allowDoubleTapSkip, easterEggOnSkip, easterEggText: '' };
@@ -210,7 +219,7 @@ async function openStage() {
   if(!stageFastForwardRequested) await sleep(1500);
   const menuWelcome = firstWelcomeForThisPage
     ? `${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`
-    : `${ORACULO.menuReturn}<br><br>¿Qué modo elegís esta vez?`;
+    : `${nextStageDialogue('menuReturn', [ORACULO.menuReturn, 'Otra vez por aquí, mortal. El telón ya te conoce. ¿Qué desafío querés abrir ahora?'])}<br><br>¿Qué modo elegís esta vez?`;
   if (await say(`<strong>CEREBRO:</strong> ${menuWelcome}`, 42, true, firstWelcomeForThisPage)) {
     // La bienvenida inicial y su frase especial solo pueden aparecer una vez por carga.
     stageWelcomeEggUsed = true;
@@ -249,7 +258,7 @@ async function startSelectedMachineMode(){
   if(state.pendingMode==='classic'){
     const form=el('classicSecretNameForm');
     if(form){form.classList.remove('hidden');el('classicSecretNameInput').value='';el('classicSecretNameInput').focus();}
-    ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${ORACULO.classicChooseCharacter}`;
+    ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${nextStageDialogue('classicChooseCharacter', [ORACULO.classicChooseCharacter, 'Bien, mortal: pensá en alguien real o ficticio y escribí su nombre. Cuando lo tengas, pondremos a prueba mis deducciones.', 'Elegí un personaje y escribí su nombre. No me lo cuentes en el chat: voy a intentar descubrirlo con tus respuestas.'])}`;
     ui.stage.classList.add('stage-ready');
     return;
   }
@@ -261,7 +270,8 @@ async function chooseSolo() {
   ui.stageMenu.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
-  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.solo}<br><br>He elegido a una entidad secreta.<br><span style="color:#00ff67">Tienes 20 preguntas y 2 intentos para adivinar.</span><br>Respuestas estrictas de SÍ o NO.<br><br>¿Aceptas el duelo?`, 42, true, false);
+  const soloIntro = nextStageDialogue('soloIntro', [ORACULO.solo, '¿Volvés a desafiarme a solas, mortal? Veamos si esta vez lográs seguir mis deducciones.', 'Sin compañía otra vez. Perfecto: una mente contra otra. ¿Aceptás el desafío?']);
+  const ok = await say(`<strong>CEREBRO:</strong> ${soloIntro}<br><br>He elegido a una entidad secreta.<br><span style="color:#00ff67">Tienes 20 preguntas y 2 intentos para adivinar.</span><br>Respuestas estrictas de SÍ o NO.<br><br>¿Aceptas el duelo?`, 42, true, false);
   if (ok) { ui.stageActions.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); }
   stageSequenceActive=false; ui.stage?.classList.remove('curtain-fast-open');
 }
@@ -305,7 +315,8 @@ async function chooseClassic() {
   ui.stageMenu.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
-  const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.clasico}<br><br>Responderás con los botones: SÍ, NO, NO LO SÉ, PROBABLEMENTE SÍ o PROBABLEMENTE NO.<br><br>¿Aceptas el duelo?`, 42, true, false);
+  const classicIntro = nextStageDialogue('classicIntro', [ORACULO.clasico, 'Ahora me toca descubrir a tu personaje, mortal. Pensá en alguien real o ficticio y responderás mis preguntas.', 'Cambiamos los papeles: vos elegís a alguien y yo trataré de descubrirlo paso a paso.']);
+  const ok = await say(`<strong>CEREBRO:</strong> ${classicIntro}<br><br>Responderás con los botones: SÍ, NO, NO LO SÉ, PROBABLEMENTE SÍ o PROBABLEMENTE NO.<br><br>¿Aceptas el duelo?`, 42, true, false);
   if (ok) { ui.stageActions.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); }
   stageSequenceActive=false; ui.stage?.classList.remove('curtain-fast-open');
 }
@@ -921,13 +932,13 @@ el('machineHistoryBtn').onclick = showSelectedMachineHistory;
 el('machineChoiceBackBtn').onclick = async () => {
   el('machineModeChoice').classList.add('hidden');
   ui.stageActions.classList.remove('hidden');
-  ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${ORACULO.classicSetupReturn}`;
+  ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${nextStageDialogue('classicSetupReturn', [ORACULO.classicSetupReturn, 'Seguimos en el umbral del modo clásico, mortal. Podés volver a intentarlo o regresar al menú.', 'Todavía no elegiste cómo continuar. El modo clásico te espera cuando quieras.'])}`;
   ui.stage.classList.add('stage-ready');
 };
 el('classicSecretNameBackBtn').onclick = () => {
   el('classicSecretNameForm').classList.add('hidden');
   el('machineModeChoice').classList.remove('hidden');
-  ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${ORACULO.classicReturn}`;
+  ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${nextStageDialogue('classicReturn', [ORACULO.classicReturn, '¿Todavía no vas a elegir personaje? No hay apuro, mortal. Podés volver a intentarlo o elegir otro camino.', 'Volviste antes de empezar. El duelo clásico queda esperando tu decisión.'])}`;
   ui.stage.classList.add('stage-ready');
 };
 el('classicSecretNameForm').onsubmit = async e => { e.preventDefault(); const name=el('classicSecretNameInput').value.trim(); if(!name)return; classicSecretName=name; try { if(!findKnownCharacter(name)){ const k='mind_personajes_nuevos'; const rows=JSON.parse(localStorage.getItem(k)||'[]'); const norm=MindLogic.normalizar(name); const existing=rows.find(x=>MindLogic.normalizar(x.nombre||'')===norm); if(!existing) rows.push({nombre:name,fecha:new Date().toISOString(),respuestas:[],origen:'clásico'}); localStorage.setItem(k,JSON.stringify(rows)); } } catch {} el('classicSecretNameForm').classList.add('hidden'); await startClassic(); };
@@ -1006,7 +1017,7 @@ el('playAgainBtn').onclick = async () => {
   const oldLabel=el('onlineSecretLabel'); if(oldLabel){oldLabel.classList.add('hidden');oldLabel.textContent='';}
   show(ui.stage); ui.stageMenu.classList.add('hidden'); ui.stageActions.classList.add('hidden'); el('machineModeChoice')?.classList.add('hidden');
   const form=el('classicSecretNameForm'); if(form){form.classList.remove('hidden');el('classicSecretNameInput').value='';}
-  ui.stageDialog.innerHTML='<strong>CEREBRO:</strong> La revancha empieza con un nuevo personaje. Elegí a quién debo descubrir esta vez.';
+  ui.stageDialog.innerHTML='<strong>CEREBRO:</strong> '+nextStageDialogue('classicRevenge', ['La revancha empieza con un nuevo personaje. Elegí a quién debo descubrir esta vez.', '¿Una nueva ronda? Muy bien, mortal. Pensá en otro personaje y veamos si puedo descubrirlo.', 'Volvemos a empezar: elegí un personaje distinto y preparate para mis preguntas.']);
   ui.stage.classList.add('stage-ready');
   setTimeout(()=>el('classicSecretNameInput')?.focus(),80);
  } else if(document.body.classList.contains('duel-online')) { window.MindDuelCleanupForMode?.(); openStage(); } else startGame();
