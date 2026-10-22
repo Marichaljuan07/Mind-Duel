@@ -498,6 +498,7 @@ const CONCEPTOS_PERMITIDOS = [
     "ingeniero",
     "artista",
     "pintor",
+    "artista_pintor",
     "escritor",
     "autor",
     "poeta",
@@ -576,7 +577,9 @@ const CONCEPTOS_PERMITIDOS = [
 ];
 
 function resolverConcepto(concepto, personaje) {
-    if (!CONCEPTOS_PERMITIDOS.includes(concepto)) return null;
+    if (!CONCEPTOS_PERMITIDOS.includes(concepto) || !personaje || typeof personaje !== 'object') return null;
+    // El oráculo histórico usa artista_pintor; el banco de personajes guarda la etiqueta pintor.
+    if (concepto === 'artista_pintor') concepto = 'pintor';
 
     const directos = {
         tipo_real: () => personaje.tipo === 'real',
