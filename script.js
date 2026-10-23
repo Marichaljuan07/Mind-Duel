@@ -353,9 +353,12 @@ async function nextClassic() {
   let q = Clasico.pregunta(s, MindLogic);
   // El banco puede no dividir al conjunto inicial; no dejar nunca al Cerebro sin preguntar.
   if (!q) {
-    const fallback = ['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es conocido principalmente por la ciencia?','¿Es conocido por el entretenimiento?'];
-    q = fallback.find(x => !s.asked.has(MindLogic.normalizar(x))); 
+    const fallback = ['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es un animal?','¿Es conocido principalmente por la ciencia?','¿Es conocido por el entretenimiento?', ...(Sugeridor.POOL || [])];
+    q = fallback.find(x => !s.asked.has(MindLogic.normalizar(x)));
   }
+  // Si todavía no llegamos al límite, no convertir la falta de una pregunta
+  // puntuable en una adivinanza prematura: usar una pregunta pendiente del banco.
+  if (!q && s.n < MAX_QUESTIONS) q = (Sugeridor.POOL || []).find(x => !s.asked.has(MindLogic.normalizar(x)));
   if (!q) return classicGuess(true);
   classic.cur = { tipo: 'q', q };
   await addMessage(Clasico.frase(q), 'mind');
@@ -548,23 +551,8 @@ async function classicAnswer(ans) {
   if (c.tipo === 'q') await addMessage(CL_LABEL[ans], 'player');
   if (c.tipo === 'q') {
     Clasico.responder(classic.s, MindLogic, c.q, ans); machineAutosave();
-    const log = classic.s?.log || [];
-    if (log.length >= 4 && log.length % 4 === 0) {
-      const recent = log.slice(-4);
-      const yes = recent.filter(x => x.a === 'si' || x.a === 'psi').length;
-      const no = recent.filter(x => x.a === 'no' || x.a === 'pno').length;
-      const eras = recent.filter(x => /antiguedad|edad media|medieval|renacimiento/i.test(MindLogic.normalizar(x.q || '')));
-      const allLog = log.map(x => ({...x, nq: MindLogic.normalizar(x.q || '')}));
-      const descartoEuropa = allLog.some(x => /europa|europeo|europea/.test(x.nq) && ['no','pno'].includes(x.a));
-      const preguntoEpoca = allLog.some(x => /antiguedad|edad media|medieval|renacimiento/.test(x.nq));
-      let observation = '';
-      if (descartoEuropa && preguntoEpoca) observation = 'Ya descartaste Europa y ahora estás tanteando las épocas históricas… Bien, detective: voy a cruzar esas pistas antes de arriesgar un nombre.';
-      else if (eras.length >= 2) observation = 'Veo que estás acotando por épocas. Interesante… voy a cruzar esas pistas antes de arriesgar un nombre.';
-      else if (yes >= 3) observation = 'Cuatro respuestas y casi todas afirmativas. Ya empiezo a ver un patrón, aunque todavía no voy a cantar victoria.';
-      else if (no >= 3) observation = 'Vaya racha de negativas. Estás descartando terreno; ahora me toca encontrar qué comparten los sospechosos restantes.';
-      else observation = 'Tus respuestas no dibujan un patrón sencillo. Mejor cruzo las pistas antes de sacar conclusiones precipitadas.';
-      await addMessage(observation, 'mind');
-    }
+    // El Cerebro no narra obviedades después de cada cuatro respuestas.
+    // Su razonamiento debe notarse en la calidad y progresión de las preguntas.
     classicBusy = false;
     return nextClassic();
   }

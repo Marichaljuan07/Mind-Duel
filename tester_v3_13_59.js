@@ -19,5 +19,6 @@ ok(K.conceptoDePregunta('¿Es antigüo?')==='antiguedad','normalización de acen
 const oldRandom=Math.random;Math.random=()=>0;const acceptance=['William Shakespeare','Goku','Lionel Messi','Pikachu','Yoda'].map(name=>{const target=P.find(p=>p.nombre===name),st=C.nuevo(P);let unknown=0;for(let i=0;i<15;i++){if(C.debeAdivinar(st))break;const q=C.pregunta(st,L);if(!q)break;const v=S.val(L,q,K.enriquecer(target));if(v===null)unknown++;C.responder(st,L,q,v===null?'nose':v?'si':'no')}return{name,unknown,guess:C.mejor(st)?.p?.nombre,questions:st.n}});Math.random=oldRandom;ok(acceptance.every(x=>x.unknown<=2&&x.guess===x.name),'casos de aceptación deterministas: Shakespeare, Goku, Messi, Pikachu y Yoda');console.log('CASOS DE ACEPTACIÓN:',JSON.stringify(acceptance));
 const report=A.auditar(P,L,K,S);ok(report.fichas===98&&report.cobertura&&report.cobertura.hijos.desconocidos>0,'auditor muestra cobertura real y lagunas pendientes');
 const source=fs.readFileSync('./script.js','utf8');ok(source.includes('Anotá en este chat quién era tu personaje')&&!source.includes('no hace falta que me lo reveles en el chat'),'Clásico solicita el nombre en el chat antes de cerrar');
-ok(source.includes('const recent = log.slice(-4)'),'Clásico añade observaciones basadas en respuestas registradas');
+ok(!source.includes('Vaya racha de negativas')&&!source.includes('const recent = log.slice(-4)'),'Clásico evita comentarios genéricos repetidos');
+ok(!C.debeAdivinar(C.nuevo(P)),'Clásico no adivina antes de tener respuestas');
 console.log(`RESULTADO: ${pass}/15 pruebas correctas.`);

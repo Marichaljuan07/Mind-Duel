@@ -1,4 +1,4 @@
-# Auditoría de fichas — Mind Duel Fusion 3.13.59 PREVIA
+# Auditoría de fichas — Mind Duel Fusion 3.13.60 PREVIA
 
 ## Resultado estructural
 - Fichas canónicas: 98

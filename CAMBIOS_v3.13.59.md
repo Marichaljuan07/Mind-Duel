@@ -1,4 +1,4 @@
-# Mind Duel Fusion 3.13.59 PREVIA — Razonamiento y Clásico
+# Mind Duel Fusion 3.13.60 PREVIA — Razonamiento y Clásico
 
 Rama derivada de `3.13.58 PREVIA`. La versión estable `3.13.49` no se modificó.
 
@@ -58,3 +58,12 @@ La cobertura de atributos de las 98 fichas **todavía no está completa**. La au
 | Combate | 5 | 14 | 79 |
 
 Estos conteos reflejan el catálogo y las reglas implementadas, no la totalidad de hechos que el Cerebro puede inferir en tiempo de ejecución. No se rellenaron los vacíos restantes con suposiciones: requieren curación factual y/o reglas más específicas. Internet y aprendizaje compartido entre dispositivos siguen fuera de alcance.
+
+
+## Ajustes de ritmo y personalidad en v3.13.60
+- Clásico no intenta adivinar antes de la pregunta 12.
+- La adivinanza temprana exige confianza y ventaja claras; entre las preguntas 16 y 19 solo se arriesga con evidencia suficiente. El límite absoluto sigue siendo 20 preguntas.
+- Clásico elige la pregunta mejor puntuada de forma determinista, en lugar de sortear entre las tres primeras.
+- Se quitó el comentario genérico repetitivo sobre las respuestas negativas: el razonamiento debe mostrarse en la selección de preguntas.
+- Se estabilizan los pesos de candidatos después de cada respuesta.
+- La prueba sintética de las 98 fichas sigue mostrando límites de cobertura: 62/96 casos verificables (65%) en esta corrida; no se presenta como una mejora factual total del catálogo.
