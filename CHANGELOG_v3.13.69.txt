@@ -1,0 +1,19 @@
+MIND DUEL FUSION v3.13.69 PREVIA — CUENTA REGRESIVA Y ESTADO DE RECONEXIÓN
+
+Base: v3.13.68 PREVIA PRIVACIDAD Y DESCONEXIÓN.
+
+Cambios:
+- Al detectar una desconexión durante una partida activa, la partida permanece pausada y el progreso guardado.
+- El aviso único muestra una cuenta regresiva de 60 segundos para reconectar.
+- Al vencer el plazo, el aviso ofrece la acción adecuada: copiar el código de la sala original para el anfitrión o reintentar la reconexión para el otro jugador.
+- La cuenta regresiva se cancela cuando se recibe un estado de reanudación válido, y también al limpiar/salir del modo online.
+- Durante una reconexión en una partida en curso, la interfaz muestra “CONEXIÓN DETECTADA · SINCRONIZANDO” en lugar de declarar que ambos están conectados antes de confirmar el estado de la partida.
+- No se crea automáticamente una partida nueva al vencer el plazo.
+- Se conserva la protección de privacidad de la versión 3.13.68.
+
+Validación realizada:
+- Sintaxis JavaScript con node --check para todos los archivos .js.
+- Integridad del ZIP; index.html está en la raíz del archivo.
+
+Limitación conocida:
+- No se realizó una prueba real entre dos navegadores/dispositivos; la sincronización y reconexión completa todavía deben validarse en una partida real.
