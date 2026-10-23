@@ -763,3 +763,7 @@ body.duel-online.duel-brain #brainSuggestionStatus:empty,
 body.duel-online.duel-brain #brainSuggestionStatus.hidden{display:none!important;min-height:0!important;height:0!important;margin:0!important;padding:0!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important}
 body.duel-online.duel-brain #brainInlinePanel{gap:0!important}
 body.duel-online.duel-brain #brainInlinePanel .sequence-heading{margin-bottom:2px!important}
+
+/* v3.13.63: el mismo cartel superior sirve para desconexión, reconexión y confirmación. */
+.online-transient-notice.has-action{pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:9px}
+.online-transient-notice .reconnect-room-action{pointer-events:auto;min-height:36px;padding:7px 14px;border-radius:8px;font:inherit;font-weight:bold;cursor:pointer}

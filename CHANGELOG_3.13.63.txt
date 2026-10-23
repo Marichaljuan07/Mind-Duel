@@ -1,0 +1,8 @@
+Mind Duel Fusion v3.13.63 PREVIA — CARTEL ÚNICO DE RECONEXIÓN
+
+- Parte de la v3.13.62 PREVIA; no modifica la estable 3.13.49.
+- El cartel superior original se reutiliza para informar desconexión y ofrecer reconexión.
+- Al abrir la conexión, el mismo cartel informa que se está verificando/sincronizando la partida.
+- Solo tras recibir y procesar el estado de reanudación se muestra “✓ PARTIDA RECONECTADA”.
+- La confirmación permanece 8 segundos y desaparece automáticamente.
+- Se evita mostrar simultáneamente el cartel inferior de recuperación durante este flujo.
