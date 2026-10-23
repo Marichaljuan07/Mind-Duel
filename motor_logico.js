@@ -25,11 +25,13 @@ function evaluarPregunta(pregunta, personaje) {
     // ==================================================
 
     if (contiene(texto, ["ficticio", "ficcion", "inventado", "imaginario"])) {
-        return personaje.tipo === "ficticio";
+        if (typeof personaje.ficticio === "boolean") return personaje.ficticio;
+        return personaje.tipo === "ficticio" ? true : (personaje.tipo === "real" ? false : null);
     }
 
     if (contiene(texto, ["es real", "persona real", "existio de verdad", "existio realmente", "existio"])) {
-        return personaje.tipo === "real";
+        if (typeof personaje.real === "boolean") return personaje.real;
+        return personaje.tipo === "real" ? true : (personaje.tipo === "ficticio" ? false : null);
     }
 
     // ==================================================
@@ -38,11 +40,13 @@ function evaluarPregunta(pregunta, personaje) {
     // ==================================================
 
     if (contiene(texto, ["mujer", "femenin", "chica", "dama"])) {
-        return personaje.genero === "mujer";
+        if (typeof personaje.mujer === "boolean") return personaje.mujer;
+        return personaje.genero === "mujer" ? true : (personaje.genero === "hombre" ? false : null);
     }
 
     if (contiene(texto, ["hombre", "masculin", "varon", "chico"])) {
-        return personaje.genero === "hombre";
+        if (typeof personaje.hombre === "boolean") return personaje.hombre;
+        return personaje.genero === "hombre" ? true : (personaje.genero === "mujer" ? false : null);
     }
 
     // ==================================================
@@ -54,11 +58,11 @@ function evaluarPregunta(pregunta, personaje) {
         "vive actualmente", "aun vive", "todavia vive",
         "con vida", "sigue con vida"
     ])) {
-        return personaje.vivo;
+        return typeof personaje.vivo === "boolean" ? personaje.vivo : null;
     }
 
     if (contiene(texto, ["esta muerta", "esta muerto", "murio", "fallecio", "fallecido", "fallecida"])) {
-        return !personaje.vivo;
+        return typeof personaje.vivo === "boolean" ? !personaje.vivo : null;
     }
 
     // ==================================================
@@ -69,7 +73,7 @@ function evaluarPregunta(pregunta, personaje) {
         "es humano", "es humana", "es una persona", "es persona",
         "ser humano", "persona humana", "alguien humano", "alguien humana"
     ])) {
-        return personaje.humano;
+        return typeof personaje.humano === "boolean" ? personaje.humano : null;
     }
 
     // ==================================================
@@ -118,11 +122,13 @@ function evaluarPregunta(pregunta, personaje) {
     ];
 
     for (const [palabra, region] of regiones) {
+        if (contiene(texto, [palabra]) && region === 'europa' && typeof personaje.region_europa === 'boolean') return personaje.region_europa;
+        if (contiene(texto, [palabra]) && region === 'america' && typeof personaje.region_america === 'boolean') return personaje.region_america;
         if (
             contiene(texto, [palabra]) &&
             !contiene(texto, ["estadounid", "norteamerican"])
         ) {
-            return personaje.region === region;
+            return typeof personaje.region === "string" && personaje.region ? personaje.region === region : null;
         }
     }
 
@@ -250,7 +256,9 @@ function evaluarPregunta(pregunta, personaje) {
 
     for (const [palabra, etiqueta] of etiquetas) {
         if (contiene(texto, [palabra])) {
-            return personaje.etiquetas.includes(etiqueta);
+            if (typeof personaje[etiqueta] === 'boolean') return personaje[etiqueta];
+            if (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes(etiqueta)) return true;
+            return null;
         }
     }
 
@@ -352,11 +360,11 @@ function evaluarPregunta(pregunta, personaje) {
     // CONCEPTOS AMPLIADOS: ANIME, COMBATE, PODER Y ORIGEN TERRESTRE
     // ==================================================
     if (contiene(texto, ["anime", "manga japones", "animacion japonesa"])) {
-        return Array.isArray(personaje.etiquetas) ? personaje.etiquetas.includes("anime") : null;
+        if (typeof personaje.anime === "boolean") return personaje.anime;
+        return Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes("anime") ? true : null;
     }
     if (contiene(texto, ["poderoso", "poderosa", "es muy fuerte", "fuerza extraordinaria"])) {
         if (typeof personaje.poderoso === "boolean") return personaje.poderoso;
-        if (typeof personaje.poderes === "boolean") return personaje.poderes;
         return null;
     }
     if (contiene(texto, ["combate", "combates", "pelea", "pelear", "lucha", "luchar", "participa en batallas"])) {
@@ -390,7 +398,9 @@ function evaluarPregunta(pregunta, personaje) {
             if (medio === "comic" && contiene(texto, ["dc comics"])) {
                 continue;
             }
-            return Array.isArray(personaje.medios) && personaje.medios.includes(medio);
+            const learnedField = ({pelicula:'peliculas', libro:'libros', comic:'comics', serie:'television', animacion:'animacion'})[medio];
+            if (learnedField && typeof personaje[learnedField] === 'boolean') return personaje[learnedField];
+            return Array.isArray(personaje.medios) && personaje.medios.length ? personaje.medios.includes(medio) : null;
         }
     }
 
@@ -410,7 +420,14 @@ function evaluarPregunta(pregunta, personaje) {
 
     for (const [palabras, universo] of universos) {
         if (contiene(texto, palabras)) {
-            return personaje.universo === universo;
+            if (universo === 'marvel' && typeof personaje.marvel === 'boolean') return personaje.marvel;
+            if (universo === 'dc' && typeof personaje.dc === 'boolean') return personaje.dc;
+            if (universo === 'star wars' && typeof personaje.star_wars === 'boolean') return personaje.star_wars;
+            const etiquetas = Array.isArray(personaje.etiquetas) ? personaje.etiquetas.map(normalizar) : [];
+            const alias = { marvel:['marvel'], dc:['dc','dc comics','dc_comics'], 'star wars':['jedi','sith'], 'harry potter':['harry potter'], tolkien:['tolkien'], disney:['disney'], 'sherlock holmes':['sherlock holmes'] }[universo] || [];
+            if (personaje.universo === universo || alias.some(t => etiquetas.includes(normalizar(t)))) return true;
+            if (!personaje.universo || ['ficcion','ficticio','fiction'].includes(normalizar(personaje.universo))) return null;
+            return false;
         }
     }
 
@@ -609,28 +626,36 @@ function resolverConcepto(concepto, personaje) {
     if (concepto === 'artista_pintor') concepto = 'pintor';
 
     const directos = {
-        tipo_real: () => personaje.tipo === 'real',
-        tipo_ficticio: () => personaje.tipo === 'ficticio',
-        genero_mujer: () => personaje.genero === 'mujer',
-        genero_hombre: () => personaje.genero === 'hombre',
-        vivo: () => personaje.vivo === true,
-        muerto: () => personaje.vivo === false,
-        humano: () => personaje.humano === true,
-        famoso: () => personaje.famoso === true,
-        poderes: () => personaje.poderes === true,
-        anime: () => Array.isArray(personaje.etiquetas) ? personaje.etiquetas.includes('anime') : null,
-        combate: () => typeof personaje.combate === 'boolean' ? personaje.combate : (Array.isArray(personaje.etiquetas) ? personaje.etiquetas.includes('combate') : null),
+        tipo_real: () => personaje.tipo === 'real' ? true : (personaje.tipo === 'ficticio' ? false : null),
+        tipo_ficticio: () => personaje.tipo === 'ficticio' ? true : (personaje.tipo === 'real' ? false : null),
+        genero_mujer: () => typeof personaje.mujer === 'boolean' ? personaje.mujer : (personaje.genero === 'mujer' ? true : (personaje.genero === 'hombre' ? false : null)),
+        genero_hombre: () => typeof personaje.hombre === 'boolean' ? personaje.hombre : (personaje.genero === 'hombre' ? true : (personaje.genero === 'mujer' ? false : null)),
+        vivo: () => typeof personaje.vivo === 'boolean' ? personaje.vivo : null,
+        muerto: () => typeof personaje.vivo === 'boolean' ? !personaje.vivo : null,
+        humano: () => typeof personaje.humano === 'boolean' ? personaje.humano : null,
+        famoso: () => typeof personaje.famoso === 'boolean' ? personaje.famoso : null,
+        poderes: () => typeof personaje.poderes === 'boolean' ? personaje.poderes : null,
+        poderoso: () => typeof personaje.poderoso === 'boolean' ? personaje.poderoso : null,
+        anime: () => typeof personaje.anime === 'boolean' ? personaje.anime : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('anime') ? true : (['dragon ball','naruto','one piece'].includes(normalizar(personaje.universo||'')) ? true : null)),
+        marvel: () => typeof personaje.marvel === 'boolean' ? personaje.marvel : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('marvel') ? true : null),
+        dc: () => typeof personaje.dc === 'boolean' ? personaje.dc : (Array.isArray(personaje.etiquetas) && (personaje.etiquetas.includes('dc') || personaje.etiquetas.includes('dc_comics')) ? true : null),
+        star_wars: () => typeof personaje.star_wars === 'boolean' ? personaje.star_wars : (personaje.universo === 'star wars' || (Array.isArray(personaje.etiquetas) && (personaje.etiquetas.includes('jedi') || personaje.etiquetas.includes('sith'))) ? true : null),
+        combate: () => typeof personaje.combate === 'boolean' ? personaje.combate : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('combate') ? true : null),
         hijos: () => typeof personaje.hijos === 'boolean' ? personaje.hijos : null,
         terrestre: () => typeof personaje.origen_terrestre === 'boolean' ? personaje.origen_terrestre : null,
-        magia: () => personaje.magia === true,
-        mascara: () => personaje.mascara === true,
-        capa: () => personaje.capa === true,
+        magia: () => typeof personaje.magia === 'boolean' ? personaje.magia : null,
+        mascara: () => typeof personaje.mascara === 'boolean' ? personaje.mascara : null,
+        capa: () => typeof personaje.capa === 'boolean' ? personaje.capa : null,
     };
     if (directos[concepto]) return directos[concepto]();
 
+    if (concepto === 'deportista' || concepto === 'futbolista' || concepto === 'cientifico' || concepto === 'escritor' || concepto === 'musico') { if (typeof personaje[concepto] === 'boolean') return personaje[concepto]; return Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes(concepto) ? true : null; }
+
     if (concepto.startsWith('region_')) {
+        if (concepto === 'region_europa' && typeof personaje.region_europa === 'boolean') return personaje.region_europa;
+        if (concepto === 'region_america' && typeof personaje.region_america === 'boolean') return personaje.region_america;
         const mapa = { region_europa:'europa', region_africa:'africa', region_america:'america', region_espacio:'espacio', region_tierra_media:'tierra media', region_asia:'asia' };
-        return personaje.region === mapa[concepto];
+        return typeof personaje.region === 'string' && personaje.region ? personaje.region === mapa[concepto] : null;
     }
     if (concepto.startsWith('nac_')) {
         const mapa = {
@@ -645,17 +670,22 @@ function resolverConcepto(concepto, personaje) {
     }
     if (concepto.startsWith('medio_')) {
         const medio = concepto.replace('medio_', '');
-        return Array.isArray(personaje.medios) && personaje.medios.includes(medio);
+        const learnedField = ({pelicula:'peliculas',libro:'libros',comic:'comics',serie:'television'})[medio];
+        if (learnedField && typeof personaje[learnedField] === 'boolean') return personaje[learnedField];
+        return Array.isArray(personaje.medios) && personaje.medios.length ? personaje.medios.includes(medio) : null;
     }
     if (concepto.startsWith('universo_')) {
+        if (concepto === 'universo_marvel' && typeof personaje.marvel === 'boolean') return personaje.marvel;
+        if (concepto === 'universo_dc' && typeof personaje.dc === 'boolean') return personaje.dc;
+        if (concepto === 'universo_star_wars' && typeof personaje.star_wars === 'boolean') return personaje.star_wars;
         const mapa = {
             universo_marvel:'marvel', universo_dc:'dc', universo_star_wars:'star wars', universo_harry_potter:'harry potter',
             universo_tolkien:'tolkien', universo_disney:'disney', universo_sherlock_holmes:'sherlock holmes'
         };
-        return personaje.universo === mapa[concepto];
+        const u=mapa[concepto], tags=Array.isArray(personaje.etiquetas)?personaje.etiquetas.map(normalizar):[]; const tagsU={universo_marvel:['marvel'],universo_dc:['dc','dc_comics'],universo_star_wars:['jedi','sith'],universo_harry_potter:['harry potter'],universo_tolkien:['tolkien'],universo_disney:['disney'],universo_sherlock_holmes:['sherlock holmes']}[concepto]||[]; if(personaje.universo===u||tagsU.some(t=>tags.includes(normalizar(t))))return true; return !personaje.universo||['ficcion','ficticio','fiction'].includes(normalizar(personaje.universo))?null:false;
     }
 
-    return Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes(concepto);
+    return Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes(concepto) ? true : null;
 }
 
 const MindLogic = { evaluarPregunta, resolverConcepto, normalizar, contiene, CONCEPTOS_PERMITIDOS };

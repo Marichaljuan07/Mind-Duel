@@ -1299,6 +1299,9 @@ const PERSONAJES = [
   ],
   "descripcion": "900 años de sabiduría en un cuerpo diminuto. La Fuerza fluye a través de él.",
   "tipo": "ficticio",
+  "anime": false,
+  "escritor": false,
+  "poderoso": true,
   "origen_terrestre": false,
   "combate": true,
   "genero": "hombre",
@@ -3332,6 +3335,7 @@ const PERSONAJES = [
   ],
   "descripcion": "Guerrero de Dragon Ball que protege la Tierra.",
   "tipo": "ficticio",
+  "universo": "dragon ball",
   "origen_terrestre": false,
   "combate": true,
   "poderoso": true,
@@ -3355,9 +3359,8 @@ const PERSONAJES = [
    "television",
    "pelicula"
   ],
-  "poderes": false,
+  "poderes": true,
   "magia": false,
-  "universo": "ficcion",
   "mascara": false,
   "capa": false
  },

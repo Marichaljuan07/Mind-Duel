@@ -682,3 +682,12 @@ button, input {
 #suggestBtn.locked{filter:saturate(.55);opacity:.82;border-style:dashed}#suggestBtn.locked:not(:disabled){cursor:pointer}#suggestBtn:disabled{opacity:.55}
 
 .suggestion-empty{margin:8px 0;padding:12px;border:1px dashed rgba(0,216,255,.45);border-radius:8px;color:var(--text-main,#e8e2ff);font:16px/1.35 'VT323',monospace}
+
+
+/* Aprendizaje verificable del Cerebro */
+.result-learning{margin:16px 0;padding:14px;border:1px solid rgba(0,255,103,.38);border-radius:10px;background:rgba(0,20,16,.7);text-align:left}
+.result-learning h3{margin:0 0 8px;color:#00ff67;font-size:1rem;letter-spacing:.06em}
+.result-learning p{margin:8px 0}
+.result-learning small{display:block;color:#aeb9c5;line-height:1.45;margin:8px 0 12px}
+.learning-actions{display:flex;gap:8px;flex-wrap:wrap}
+.learning-actions .btn{flex:1;min-width:90px}

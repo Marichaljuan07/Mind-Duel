@@ -1,6 +1,7 @@
 (() => {
 'use strict';
 const MAX_QUESTIONS = 20;
+try { if (window.MindKnowledge && Array.isArray(PERSONAJES)) { window.MindKnowledge.listarJugables().forEach(p=>{const k=MindLogic.normalizar(p.nombre),existing=PERSONAJES.find(x=>MindLogic.normalizar(x.nombre)===k);if(existing)Object.assign(existing,p);else PERSONAJES.push(p)}); PERSONAJES.forEach(p => Object.assign(p, window.MindKnowledge.enriquecer(p))); } } catch {}
 const MAX_GUESSES = 2;
 const SUGGESTION_LIMIT = 5;
 
@@ -413,15 +414,36 @@ async function classicSaveName(text) {
     localStorage.setItem(k, JSON.stringify(l));
   } catch (e) {}
   await addMessage(`Anotado: ${nombre}. Me has superado esta vez. Disfruta tu victoria; volveré mejor preparado.`, 'mind');
-  const known=findKnownCharacter(nombre); const saved=localStorage.getItem('mind_character_description_'+nombre)||''; classicEnd({wonBy:'player', nombre, descripcion:(known&&known.descripcion)||saved||'El Cerebro no logró identificar tu personaje.'});
+  const known=findKnownCharacter(nombre); const saved=localStorage.getItem('mind_character_description_'+nombre)||''; if(window.MindKnowledge){window.MindKnowledge.plantilla(nombre,{descripcion:saved||'',origen:'clasico'});window.MindKnowledge.registrarRespuestasPartida(nombre,classic.s?.log||[],known||null);} classicEnd({wonBy:'player', nombre, descripcion:(known&&known.descripcion)||saved||'El Cerebro no logró identificar tu personaje.'});
 }
 
 function pickLine(lines) { return lines[Math.floor(Math.random() * lines.length)]; }
 // Burlas claras y fáciles de entender. Las referencias al personaje son un extra, no un requisito.
 function mindDuelTaunt(name, brainWon) {
   const n = String(name || '').trim() || 'este personaje';
-  if (brainWon) return `El personaje era ${n}. Revisá las respuestas que obtuviste y fijate qué dato te habría permitido distinguirlo de otras opciones.`;
-  return `¡Acertaste! El personaje era ${n}. Las respuestas que fuiste reuniendo te llevaron a resolver el misterio.`;
+  const norm = (typeof MindLogic !== 'undefined' ? MindLogic.normalizar(n) : n.toLowerCase());
+  const specific = norm.includes('julio cesar') ? {
+    win: ['¡JAJAJA! ¡Yo conquisté territorios y vos no pudiste conquistar una respuesta! ¡Qué papelón!', '¡Te di oportunidades de sobra y aun así no me descubriste! ¡Hasta Roma habría tenido más suerte que vos!'],
+    lose: ['¡¿Me ganaste vos?! ¡Yo conquisté Roma y terminé perdiendo contra alguien que juega desde el celular! ¡Qué vergüenza!', '¡Esto es una humillación! ¡Disfrutá tu victoria, emperador de sillón, que no te va a durar para siempre!']
+  } : norm.includes('albert einstein') || norm === 'einstein' ? {
+    win: ['¡JAJAJA! ¡Tanta inteligencia en el mundo y no alcanzó para que me descubrieras! ¡Qué cerebro el tuyo!', '¡No pudiste adivinar quién soy! Tranquilo, no todo el mundo puede tener dos dedos de frente… aunque vos hoy te esforzaste poco.'],
+    lose: ['¡¿Vos me ganaste?! Bueno, parece que hoy la inteligencia no estuvo de mi lado. ¡Pero no te agrandes, que ganar una partida no te convierte en Einstein!', '¡Esto no tiene sentido! Bueno, sí lo tiene… ¡pero igual me niego a aceptar que me hayas ganado tan fácilmente!']
+  } : norm.includes('napoleon') ? {
+    win: ['¡JAJAJA! ¡Yo gané batallas históricas y vos no pudiste ganar ni esta partida! ¡Retirada, soldado!', '¡Qué desastre! Te di todas las oportunidades del mundo y aun así fracasaste. ¡No te acerques más al campo de batalla!'],
+    lose: ['¡¿Me derrotaste?! ¡Esto es una humillación! ¡Ganaste una partida y ya te creés dueño del mundo! ¡Bajá un poquito, campeón!', '¡Exijo la revancha! ¡No pienso dejar que presumas toda la semana por haberme ganado una sola vez!']
+  } : null;
+  const genericWin = [
+    `¡JAJAJA! ¡Tantas preguntas y ni así descubriste quién soy: ${n}! ¡No te preocupes, la próxima capaz que tenés más suerte!`,
+    `¡No puede ser! Te di un montón de oportunidades y no pudiste descubrirme. ¡${n} te ganó y ni siquiera tuvo que moverse!`,
+    `¡Victoria para mí! ¡Después de tantas pistas, seguís sin saber quién soy! ¡Qué talento para perderte lo evidente!`
+  ];
+  const genericLose = [
+    `¡¿Qué?! ¡¿Me ganaste?! ¡Esto es una vergüenza! ¡Disfrutá tu momento de gloria, detective, que no siempre vas a tener tanta suerte!`,
+    `¡No me lo puedo creer! ¡Me descubriste! Bueno, no te agrandes… ¡que ganar una partida no te convierte en un genio!`,
+    `¡Protesto! ¡Esto no cuenta! ¡Yo estaba pensando en ${n} y vos tuviste la suerte de acertar! ¡Quiero la revancha!`
+  ];
+  const pool = specific ? (brainWon ? specific.win : specific.lose) : (brainWon ? genericWin : genericLose);
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 window.MindDuelTaunt = mindDuelTaunt;
 const CLASSIC_BRAIN_WIN_LINES = [
@@ -441,6 +463,30 @@ function getCharacterDescription(name, fallback=''){
   const known=findKnownCharacter(name);
   return String((known && known.descripcion) || fallback || '').trim();
 }
+
+function mostrarPreguntaAprendizaje(nombre) {
+  const box = el('resultLearning');
+  if (!box || !window.MindKnowledge || !nombre) return;
+  const personaje = findKnownCharacter(nombre) || window.MindKnowledge.crearPlantilla(nombre);
+  const item = window.MindKnowledge.preguntaSiguiente(personaje);
+  box.replaceChildren();
+  if (!item) { box.classList.add('hidden'); return; }
+  const title = document.createElement('h3'); title.textContent = 'EL CEREBRO QUIERE APRENDER';
+  const prompt = document.createElement('p'); prompt.textContent = `Una pregunta sobre ${nombre}: ${item.pregunta}`;
+  const note = document.createElement('small'); note.textContent = 'Tu respuesta queda como dato tentativo. No se usará como verdad hasta que haya coincidencia de varias partidas/dispositivos.';
+  const actions = document.createElement('div'); actions.className = 'learning-actions';
+  [['si','SÍ'],['no','NO'],['ns','NO LO SÉ']].forEach(([answer,label])=>{
+    const btn=document.createElement('button'); btn.type='button'; btn.className='btn '+(answer==='si'?'btn-green':answer==='no'?'btn-red':'btn-purple'); btn.textContent=label;
+    btn.addEventListener('click',()=>{
+      if(answer!=='ns') window.MindKnowledge.registrarVoto(nombre,item.concepto,answer==='si',personaje);
+      box.replaceChildren();
+      const done=document.createElement('p'); done.textContent=answer==='ns'?'No se agregó ningún dato. El Cerebro no va a inventar la respuesta.':'Respuesta registrada como tentativa. Podrá ganar confianza cuando coincida con otras aportaciones.';
+      box.append(done);
+    },{once:true}); actions.append(btn);
+  });
+  box.append(title,prompt,note,actions); box.classList.remove('hidden');
+}
+window.MindDuelLearningPrompt = mostrarPreguntaAprendizaje;
 async function classicEnd(result = {}) {
   el('playAgainBtn')?.classList.add('hidden');
   el('playAgainSwapRolesBtn')?.classList.add('hidden');
@@ -455,12 +501,14 @@ async function classicEnd(result = {}) {
   ui.resultTitle.textContent = wonByBrain ? 'HAS PERDIDO' : '¡HAS GANADO!';
   ui.resultCharacter.textContent = result.nombre ? `Tu personaje era: ${result.nombre}` : 'Personaje no identificado';
   const characterDescription = getCharacterDescription(result.nombre, result.descripcion);
+  if (window.MindKnowledge && result.nombre) { const knownForLearning=findKnownCharacter(result.nombre); if(!knownForLearning) window.MindKnowledge.plantilla(result.nombre,{descripcion:result.descripcion||'',origen:'clasico'}); window.MindKnowledge.registrarRespuestasPartida(result.nombre,classic.s?.log||[],knownForLearning||null); }
   const tauntPool = wonByBrain ? CLASSIC_BRAIN_WIN_LINES : CLASSIC_PLAYER_WIN_LINES;
   const classicTaunt = pickLine(tauntPool)(result.nombre || classicSecretName || 'tu personaje');
   ui.resultDescription.textContent = [characterDescription, classicTaunt].filter(Boolean).join(' ');
   el('playAgainBtn')?.classList.remove('hidden'); el('playAgainBtn').textContent='JUGAR DE NUEVO';
   const editBtn=el('editCharacterBtn'); if(editBtn) editBtn.classList.toggle('hidden', !result.nombre);
   show(ui.result);
+  mostrarPreguntaAprendizaje(result.nombre || classicSecretName);
   ui.input.placeholder = 'Pregunta de sí/no...';
   classicBusy = false;
   try { if(classicSecretName && !findKnownCharacter(classicSecretName)){ const k='mind_personajes_nuevos'; const rows=JSON.parse(localStorage.getItem(k)||'[]'); const norm=MindLogic.normalizar(classicSecretName); const ix=rows.findIndex(x=>MindLogic.normalizar(x.nombre||'')===norm); const entry={nombre:classicSecretName,fecha:new Date(machineStartedAt||Date.now()).toISOString(),respuestas:classic.s?.log||[],origen:'clásico',resultado:wonByBrain?'cerebro':'jugador'}; if(ix>=0) rows[ix]={...rows[ix],...entry}; else rows.push(entry); localStorage.setItem(k,JSON.stringify(rows)); } } catch {}
@@ -630,14 +678,14 @@ async function askQuestion(text) {
   state.asked.add(MindLogic.normalizar(clean));
   lockInput(true);
 
-  let answer = MindLogic.evaluarPregunta(clean, state.secret);
+  let answer = MindLogic.evaluarPregunta(clean, window.MindKnowledge ? window.MindKnowledge.enriquecer(state.secret) : state.secret);
   let source = 'logic';
   let conceptoUsado = null;
 
   if (answer === null) {
     const interpreted = await interpretWithOraculo(clean);
     if (interpreted?.concepto) {
-      answer = MindLogic.resolverConcepto(interpreted.concepto, state.secret);
+      answer = MindLogic.resolverConcepto(interpreted.concepto, window.MindKnowledge ? window.MindKnowledge.enriquecer(state.secret) : state.secret);
       source = 'aria→logic';
       conceptoUsado = interpreted.concepto;
       if (interpreted.aprendio) addMessage('Aprendí una forma nueva de preguntar eso.', 'system');
@@ -921,11 +969,10 @@ function finish(win, reason) {
   const lastQuestion = asked.length ? asked[asked.length - 1] : '';
   const transcript = [...ui.chat.querySelectorAll('.message')].map(row => row.querySelector('.bubble')?.textContent || '').join(' ');
   const wrongGuess = (transcript.match(/Adivino:\s*([^.!?]+)/gi) || []).slice(-1)[0]?.replace(/^Adivino:\s*/i, '').trim();
-  let contextualTaunt = mindDuelTaunt(state.secret.nombre, !win);
-  if (/rendid|retirad/i.test(why)) contextualTaunt = `La partida quedó sin resolver. El personaje era ${state.secret.nombre}. Podés revisar las respuestas y continuar la investigación en una nueva ronda.`;
-  else if (!win && wrongGuess) contextualTaunt = `Tu último intento fue ${wrongGuess}, pero el personaje era ${state.secret.nombre}. Para mejorar la próxima deducción, revisá especialmente las respuestas que lo diferenciaban de tu hipótesis.`;
-  else if (!win && lastQuestion) contextualTaunt = `El personaje era ${state.secret.nombre}. Revisá las respuestas que obtuviste y buscá cuál habría sido la mejor pregunta para descartar otras posibilidades.`;
-  ui.resultDescription.textContent = [reason, getCharacterDescription(state.secret.nombre, state.secret.descripcion), contextualTaunt].filter(Boolean).join(' '); machineAutosave();
+  const contextualTaunt = mindDuelTaunt(state.secret.nombre, !win);
+  const deductionNote = !win && wrongGuess ? `Tu último intento fue ${wrongGuess}. Revisá qué respuesta lo diferenciaba del personaje verdadero.` : (!win && lastQuestion ? `La última pregunta fue «${lastQuestion}». Pensá si otra pregunta habría separado mejor las posibilidades.` : '');
+  ui.resultDescription.textContent = [reason, getCharacterDescription(state.secret.nombre, state.secret.descripcion), contextualTaunt, deductionNote].filter(Boolean).join(' ');
+  mostrarPreguntaAprendizaje(state.secret.nombre); machineAutosave();
 }
 
 async function shutdown() {

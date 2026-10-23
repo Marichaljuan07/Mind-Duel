@@ -147,6 +147,7 @@
         <h2 id="resultTitle">VICTORIA</h2>
         <h3 id="resultCharacter"></h3>
         <p id="resultDescription"></p>
+        <section id="resultLearning" class="result-learning hidden" aria-live="polite"></section>
         <form id="classicCharacterNameForm" class="classic-name-form hidden"><label for="classicCharacterNameInput">¿EN QUÉ PERSONAJE ESTABAS PENSANDO?</label><input id="classicCharacterNameInput" maxlength="80" autocomplete="off" placeholder="Nombre del personaje"><button class="btn btn-green" type="submit">CONFIRMAR PERSONAJE</button></form>
         <div id="resultActions" class="stack compact">
           <button id="viewMatchHistoryBtn" class="btn btn-green">VER PARTIDA</button>
@@ -248,6 +249,7 @@
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script src="personajes.js"></script>
   <script src="motor_logico.js"></script>
+  <script src="conocimiento.js"></script>
   <script src="oraculo_local.js"></script>
   <script src="cerebro.js"></script>
   <script src="sugeridor.js"></script>
