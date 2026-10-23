@@ -218,6 +218,32 @@ function renderOnlineSequence(question){
   if(hint)hint.classList.add('hidden');
  }
 }
+// Privacidad manual del personaje secreto para capturas completas y compartir pantalla.
+// El navegador no ofrece una API fiable para detectar capturas de pantalla.
+let secretPrivacyEnabled=false;
+function renderSecretPrivacy(){
+ const label=$('onlineSecretLabel'); if(!label)return;
+ const value=String(secret||'').trim();
+ const visible=myRole==='brain'&&!!value;
+ label.classList.toggle('hidden',!visible);
+ if(!visible){label.textContent='';return;}
+ label.classList.remove('secret-privacy-active');
+ label.replaceChildren();
+ const prefix=document.createElement('span');
+ prefix.className='online-secret-prefix';
+ prefix.textContent='PERSONAJE ELEGIDO: ';
+ const name=document.createElement('span');
+ name.className='online-secret-value';
+ name.textContent=secretPrivacyEnabled?'••••••':value;
+ name.setAttribute('aria-label',secretPrivacyEnabled?'Nombre del personaje oculto':'Nombre del personaje');
+ const btn=document.createElement('button');
+ btn.type='button';btn.className='secret-privacy-toggle';
+ btn.textContent=secretPrivacyEnabled?'MOSTRAR':'OCULTAR';
+ btn.setAttribute('aria-pressed',String(secretPrivacyEnabled));
+ btn.setAttribute('aria-label',secretPrivacyEnabled?'Mostrar nombre del personaje':'Ocultar solamente el nombre del personaje');
+ btn.addEventListener('click',()=>{secretPrivacyEnabled=!secretPrivacyEnabled;renderSecretPrivacy();});
+ label.append(prefix,name,btn);
+}
 function enterGame(startAt,restoring=false){
  onlineMatchFinished=false;onlineCleanupInProgress=false;
  clearInterval(onlineTimerId);onlineTimerId=null;onlineStartedAt=Number(startAt)||Date.now();if(!restoring){onlineQuestionCount=0;onlineAnswerCount=0;onlineGuessesLeft=2;}
@@ -225,6 +251,7 @@ function enterGame(startAt,restoring=false){
  modal.classList.add('hidden');
  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
  $('gameScreen').classList.remove('hidden');$('chatBubbleBtn').classList.remove('hidden');$('floatingChat')?.classList.add('hidden');hideOnlineNotice();
+  renderSecretPrivacy();
  const secretLabel=$('onlineSecretLabel');if(secretLabel){const showSecret=myRole==='brain'&&!!String(secret||'').trim();secretLabel.textContent=showSecret?'PERSONAJE ELEGIDO: '+String(secret).trim():'';secretLabel.classList.toggle('hidden',!showSecret);}
  document.body.classList.add('duel-online');document.body.classList.toggle('duel-brain',myRole==='brain');document.body.classList.toggle('duel-guess',myRole==='guess');document.body.classList.remove('classic','name-phase');
  $('classicEnd').classList.add('hidden');$('brainInlinePanel').classList.remove('hidden');$('classicPanel').classList.toggle('hidden',myRole!=='brain');

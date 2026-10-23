@@ -1,0 +1,9 @@
+Mind Duel Fusion v3.13.70 PREVIA
+Cambios:
+- Se conserva el archivo multijugador restaurado desde v3.13.54 para mantener el comportamiento anterior de inicio de partida.
+- Se recupera el botón MOSTRAR/OCULTAR del nombre del personaje secreto para el rol Cerebro, usando la implementación de privacidad manual que funcionaba en v3.13.68.
+- El botón enmascara solo el nombre; conserva el prefijo y el diseño de la etiqueta.
+- Limpieza del paquete: se eliminaron changelogs, auditorías y testers específicos de versiones anteriores. Se mantienen los archivos de ejecución y testers genéricos necesarios.
+Verificación:
+- Se validará integridad del ZIP y sintaxis JavaScript.
+- No se declara prueba multijugador real entre dos dispositivos.
