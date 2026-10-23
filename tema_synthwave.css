@@ -750,3 +750,16 @@ body.duel-online.duel-brain .online-brain-panel .duel-status:empty{display:none!
 /* 3.13.48 — restaurar únicamente la interfaz de Sugerencia del Cerebro de la 3.13.42. */
 body.duel-online.duel-brain #brainInlinePanel{border:1px solid var(--cy)!important;border-radius:8px!important;background:rgba(5,3,22,.82)!important;box-shadow:none!important;outline:0!important;padding:5px 7px!important;padding-bottom:5px!important;margin:0 auto 2px!important}
 body.duel-online.duel-brain #brainSuggestionStatus{padding:0!important;margin:2px 0 0!important;border:0!important;box-shadow:none!important;outline:0!important;background:transparent!important;min-height:0!important}
+
+
+/* 3.13.56 — ajuste quirúrgico de la consola del Cerebro online. */
+@media(max-width:600px){
+  body.duel-online.duel-brain .game-screen{padding:10px 5px 5px!important;gap:5px!important}
+  body.duel-online.duel-brain .game-header{margin-top:3px!important;margin-bottom:2px!important}
+}
+body.duel-online.duel-brain #onlineReadingStatus:empty,
+body.duel-online.duel-brain #onlineReadingStatus.hidden,
+body.duel-online.duel-brain #brainSuggestionStatus:empty,
+body.duel-online.duel-brain #brainSuggestionStatus.hidden{display:none!important;min-height:0!important;height:0!important;margin:0!important;padding:0!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important}
+body.duel-online.duel-brain #brainInlinePanel{gap:0!important}
+body.duel-online.duel-brain #brainInlinePanel .sequence-heading{margin-bottom:2px!important}

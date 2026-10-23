@@ -636,11 +636,11 @@ function resolverConcepto(concepto, personaje) {
         famoso: () => typeof personaje.famoso === 'boolean' ? personaje.famoso : null,
         poderes: () => typeof personaje.poderes === 'boolean' ? personaje.poderes : null,
         poderoso: () => typeof personaje.poderoso === 'boolean' ? personaje.poderoso : null,
-        anime: () => typeof personaje.anime === 'boolean' ? personaje.anime : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('anime') ? true : (['dragon ball','naruto','one piece'].includes(normalizar(personaje.universo||'')) ? true : null)),
-        marvel: () => typeof personaje.marvel === 'boolean' ? personaje.marvel : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('marvel') ? true : null),
-        dc: () => typeof personaje.dc === 'boolean' ? personaje.dc : (Array.isArray(personaje.etiquetas) && (personaje.etiquetas.includes('dc') || personaje.etiquetas.includes('dc_comics')) ? true : null),
+        anime: () => typeof personaje.anime === 'boolean' ? personaje.anime : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('anime') ? true : (['dragon ball','naruto','one piece','yu-gi-oh','yu gi oh','pokemon'].includes(normalizar(personaje.universo||'')) ? true : (Array.isArray(personaje.medios) && personaje.medios.some(m => ['anime','manga'].includes(normalizar(m))) ? true : null))),
+        marvel: () => typeof personaje.marvel === 'boolean' ? personaje.marvel : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['marvel','universo_marvel'].includes(normalizar(t))) ? true : (normalizar(personaje.universo||'').includes('marvel') ? true : (personaje.tipo === 'ficticio' && personaje.universo && !['ficcion','ficticio','fiction'].includes(normalizar(personaje.universo)) ? false : null))),
+        dc: () => typeof personaje.dc === 'boolean' ? personaje.dc : (Array.isArray(personaje.etiquetas) && (personaje.etiquetas.includes('dc') || personaje.etiquetas.includes('dc_comics')) ? true : (normalizar(personaje.universo||'').includes('dc comics') || normalizar(personaje.universo||'') === 'dc' ? true : (personaje.tipo === 'ficticio' && personaje.universo && !['ficcion','ficticio','fiction'].includes(normalizar(personaje.universo)) ? false : null))),
         star_wars: () => typeof personaje.star_wars === 'boolean' ? personaje.star_wars : (personaje.universo === 'star wars' || (Array.isArray(personaje.etiquetas) && (personaje.etiquetas.includes('jedi') || personaje.etiquetas.includes('sith'))) ? true : null),
-        combate: () => typeof personaje.combate === 'boolean' ? personaje.combate : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('combate') ? true : null),
+        combate: () => typeof personaje.combate === 'boolean' ? personaje.combate : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['combate','guerrero','soldado','militar','luchador','peleador','ninja','jedi','sith','superheroe','superheroina','usa_espada','usa_armas'].includes(normalizar(t))) ? true : null),
         hijos: () => typeof personaje.hijos === 'boolean' ? personaje.hijos : null,
         terrestre: () => typeof personaje.origen_terrestre === 'boolean' ? personaje.origen_terrestre : null,
         magia: () => typeof personaje.magia === 'boolean' ? personaje.magia : null,
@@ -657,6 +657,9 @@ function resolverConcepto(concepto, personaje) {
         const mapa = { region_europa:'europa', region_africa:'africa', region_america:'america', region_espacio:'espacio', region_tierra_media:'tierra media', region_asia:'asia' };
         return typeof personaje.region === 'string' && personaje.region ? personaje.region === mapa[concepto] : null;
     }
+    if (concepto === 'deportista' && Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['futbolista','deportista','tenista','basquetbolista','boxeador','atleta'].includes(normalizar(t)))) return true;
+    if (concepto === 'musico' && Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['cantante','musico','musica','compositor','guitarrista','bajista'].includes(normalizar(t)))) return true;
+    if (concepto === 'escritor' && Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['escritor','escritora','novelista','autor','poeta','dramaturgo'].includes(normalizar(t)))) return true;
     if (concepto.startsWith('nac_')) {
         const mapa = {
             nac_aleman:'aleman', nac_frances:'frances', nac_italiano:'italiano', nac_egipcio:'egipcio', nac_britanico:'britanico', nac_ingles:'ingles',

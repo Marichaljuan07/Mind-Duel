@@ -4,7 +4,7 @@ const base=JSON.parse(fs.readFileSync('./oraculo_base_v3_2.json','utf8'));let fa
 const t=(n,got,exp)=>{const ok=got===exp;if(!ok)fail++;console.log(ok?'OK  ':'FAIL',n,'=>',got)};
 t('50+ personajes',P.length>=50,true);t('sin nombres repetidos',new Set(P.map(p=>p.nombre)).size,P.length);
 for(const p of P){const c=Logic.resolverConcepto('tipo_real',p);if(typeof c!=='boolean'){fail++;console.log('FAIL dato roto',p.nombre)}}
-t('Legolas arco',Logic.resolverConcepto('tiene_arco',g('Legolas')),true);t('Einstein arco',Logic.resolverConcepto('tiene_arco',g('Albert Einstein')),false);
+t('Legolas arco',Logic.resolverConcepto('tiene_arco',g('Legolas')),true);t('Einstein arco desconocido (no inventar NO)',Logic.resolverConcepto('tiene_arco',g('Albert Einstein')),null);
 t('Gandhi pacifista',Logic.resolverConcepto('pacifista',g('Gandhi')),true);t('Aristóteles filósofo',Logic.resolverConcepto('filosofo',g('Aristóteles')),true);
 t('Cleopatra reina',Logic.resolverConcepto('reina',g('Cleopatra')),true);t('Marie Curie nobel',Logic.resolverConcepto('premio_nobel',g('Marie Curie')),true);
 (async()=>{
