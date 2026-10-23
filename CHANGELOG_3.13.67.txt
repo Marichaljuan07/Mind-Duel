@@ -1,0 +1,8 @@
+Mind Duel Fusion v3.13.67 PREVIA — Privacidad del personaje en capturas
+
+- Añade al rótulo del personaje secreto un control manual OCULTAR/MOSTRAR para el rol Cerebro en multijugador.
+- Al activar OCULTAR, el nombre se reemplaza por puntos y se conserva el resto de la pantalla para capturas completas.
+- La privacidad no depende de detectar capturas: los navegadores web no proporcionan una señal universal y fiable de captura de pantalla.
+- No se transmite el secreto al rival; el cambio afecta únicamente a la presentación local del Cerebro.
+- Basada en v3.13.66. No se modifica la versión estable 3.13.49.
+- Pendiente de prueba visual en dos dispositivos y prueba manual de captura en Android.

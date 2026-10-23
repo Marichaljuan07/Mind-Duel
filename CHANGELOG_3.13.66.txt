@@ -1,0 +1,12 @@
+Mind Duel Fusion v3.13.66 PREVIA
+
+Base: v3.13.65 PREVIA. Se conserva el contenido y las funciones existentes.
+
+Cambios:
+- La desconexión usa un solo aviso superior persistente, con apariencia de panel de juego; se oculta la barra duplicada inferior.
+- El aviso diferencia al anfitrión (la conexión del otro jugador no se detecta; mantener/copy código) del jugador invitado (partida desconectada; reconectar).
+- Los eventos online/offline del navegador detectan pérdidas de Wi-Fi/datos reportadas por el sistema y pausan el reloj.
+- Se agrega latido entre pares cada 3 segundos; si no se reciben confirmaciones por 12 segundos, se considera conexión perdida y se pausa la partida.
+- Al recuperar internet no se reanuda el reloj a ciegas: se solicita reconexión/sincronización.
+
+Limitación: debe probarse en dos dispositivos o navegadores independientes. navigator.onLine puede ser impreciso y una pestaña en segundo plano puede retrasar temporizadores; el latido reduce pero no elimina ese límite.
