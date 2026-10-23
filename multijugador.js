@@ -16,17 +16,8 @@ function recoverGameTranscript(saved){if(Array.isArray(saved?.transcript)&&saved
 function retryRestoreSavedSession(){const saved=readSavedSession();if(!saved||!saved.roomId){status('No hay ninguna partida guardada para recuperar.');refreshRestoreButton();return;}try{if(conn)conn.close();}catch{}try{if(peer)peer.destroy();}catch{}conn=null;peer=null;connected=false;reconnecting=true;status('Intentando recuperar la partida guardada…');restoreSavedSession();refreshRestoreButton();}
 window.addEventListener('mind:restore-saved-online',e=>{const chosen=e.detail?.snapshot;if(!chosen||!chosen.myRole){showModal();status('Esta partida no tiene un guardado automático suficiente en este dispositivo.');return;}restoreMatchId=String(e.detail?.matchId||'');try{localStorage.setItem(ONLINE_SESSION_KEY,JSON.stringify(chosen));}catch{}restoreSnapshotOffline(chosen);});
 function restoreSnapshotOffline(saved){
- restoreSnapshot=saved;host=!!saved.host;connected=false;clockElapsedBase=getSavedElapsedSeconds(saved);clockRunStartedAt=0;clockPaused=true;myRole=String(saved.myRole||'');theirRole=String(saved.theirRole||'');secret=myRole==='brain'?String(saved.secret||''):'';onlineStartedAt=Number(saved.startedAt)||Date.now();onlineRoundStarted=!!(saved.myRole&&saved.startedAt);onlineQuestionCount=Number(saved.questionCount)||0;onlineAnswerCount=Number(saved.answerCount)||0;onlineGuessesLeft=Math.max(0,Math.min(2,Number(saved.guessesLeft??2)));pendingQuestion=String(saved.pendingQuestion||'');waitingForAnswer=!!saved.waitingForAnswer;waitingForGuess=!!saved.waitingForGuess;pendingOnlineGuess=String(saved.pendingOnlineGuess||'');lastGuessResolution=saved.lastGuessResolution||null;lastOnlineQuestion=String(saved.lastQuestion||'');lastOnlineAnswer=String(saved.lastAnswer||'');localTranscript=recoverGameTranscript(saved);phoneTranscript=recoverPhoneTranscript(saved);phoneUnreadCount=Math.max(0,Number(saved.phoneUnreadCount)||(phoneTranscript.length?phoneTranscript.length:0));remotePeerId=host?'':String(saved.roomId||'');localPeerId=String(saved.localPeerId||'');remotePlayerPeerId=String(saved.remotePlayerPeerId||'');
- if($('roomCode'))$('roomCode').textContent=String(saved.roomId||'');offlineRecovery=true;showModal();enterGame(onlineStartedAt,true);showOfflineRecoveryBar();$('offlineRecoveryBar')?.classList.add('hidden');showLibraryReconnectNotice(saved);status('Partida recuperada en este dispositivo. Todavía no hay conexión con tu rival.');persistSession();
-}
-function showLibraryReconnectNotice(saved){
- const reconstructed=!!saved?.reconstructedFromHistory;
- const message=reconstructed?'HISTORIAL RECUPERADO · No hay datos suficientes para reabrir esta sala.':'PARTIDA DESCONECTADA · PARTIDA PAUSADA Y GUARDADA · Usá este mismo cartel para reconectar.';
- showOnlineNotice(message,'warning',0,reconstructed?'VER HISTORIAL':(saved?.host?'REABRIR SALA':'RECONECTAR PARTIDA'),()=>{
-  if(reconstructed){status('Este registro conserva el historial, pero no el estado necesario para reconectar.');return;}
-  showOnlineNotice('CONEXIÓN DETECTADA · SINCRONIZANDO LA PARTIDA…','warning',0);
-  reopenSavedRoom();
- });
+ restoreSnapshot=saved;host=!!saved.host;connected=false;clockElapsedBase=getSavedElapsedSeconds(saved);clockRunStartedAt=0;clockPaused=true;myRole=String(saved.myRole||'');theirRole=String(saved.theirRole||'');secret=myRole==='brain'?String(saved.secret||''):'';onlineStartedAt=Number(saved.startedAt)||Date.now();onlineQuestionCount=Number(saved.questionCount)||0;onlineAnswerCount=Number(saved.answerCount)||0;onlineGuessesLeft=Math.max(0,Math.min(2,Number(saved.guessesLeft??2)));pendingQuestion=String(saved.pendingQuestion||'');waitingForAnswer=!!saved.waitingForAnswer;waitingForGuess=!!saved.waitingForGuess;pendingOnlineGuess=String(saved.pendingOnlineGuess||'');lastGuessResolution=saved.lastGuessResolution||null;lastOnlineQuestion=String(saved.lastQuestion||'');lastOnlineAnswer=String(saved.lastAnswer||'');localTranscript=recoverGameTranscript(saved);phoneTranscript=recoverPhoneTranscript(saved);phoneUnreadCount=Math.max(0,Number(saved.phoneUnreadCount)||(phoneTranscript.length?phoneTranscript.length:0));remotePeerId=host?'':String(saved.roomId||'');localPeerId=String(saved.localPeerId||'');remotePlayerPeerId=String(saved.remotePlayerPeerId||'');
+ if($('roomCode'))$('roomCode').textContent=String(saved.roomId||'');offlineRecovery=true;showModal();enterGame(onlineStartedAt,true);showOfflineRecoveryBar();status('Partida recuperada en este dispositivo. Todavía no hay conexión con tu rival.');persistSession();
 }
 function showOfflineRecoveryBar(){
  let bar=$('offlineRecoveryBar');
@@ -35,21 +26,9 @@ function showOfflineRecoveryBar(){
   if(restoreSnapshot?.reconstructedFromHistory){bar.innerHTML='<span id="offlineRecoveryText">HISTORIAL RECUPERADO · RELOJ PAUSADO · No hay estado suficiente para reabrir esta sala.</span>';}
   else{bar.innerHTML='<span id="offlineRecoveryText">PARTIDA RECUPERADA · RELOJ PAUSADO</span><div class="offline-recovery-actions"><button id="reopenSavedRoomBtn" type="button">↻ Reconectar</button><button id="copySavedRoomCodeBtn" type="button">Copiar código</button></div>';}
   const chat=$('chat');if(chat)chat.insertAdjacentElement('beforebegin',bar);else{const target=document.querySelector('#gameScreen .mind-console');if(target)target.append(bar);else document.body.append(bar);}
-  if($('reopenSavedRoomBtn'))$('reopenSavedRoomBtn').addEventListener('click',handleRecoveryReconnect);if($('copySavedRoomCodeBtn'))$('copySavedRoomCodeBtn').addEventListener('click',copyRecoveryCode);
+  if($('reopenSavedRoomBtn'))$('reopenSavedRoomBtn').addEventListener('click',reopenSavedRoom);if($('copySavedRoomCodeBtn'))$('copySavedRoomCodeBtn').addEventListener('click',copyRecoveryCode);
  }
  const actions=bar.querySelector('.offline-recovery-actions');if(actions)actions.classList.remove('hidden');bar.classList.remove('sync-toast');clearRecoveryBarTimer();bar.classList.remove('hidden');
-}
-function handleRecoveryReconnect(){
- const saved=readSavedSession()||restoreSnapshot;
- if(host){
-  if(peer&&peer.open&&!peer.destroyed&&!peer.disconnected){pauseOnlineClock();showOnlineNotice('SALA ORIGINAL ABIERTA · CÓDIGO '+String($('roomCode')?.textContent||saved?.roomId||'')+' · Esperando que tu rival vuelva.','warning',0,'COPIAR CÓDIGO',copyRecoveryCode);status('La sala original sigue abierta. Compartí el mismo código; no generes otro.');copyRecoveryCode();return;}
-  showOnlineNotice('REABRIENDO LA SALA ORIGINAL…','warning',0);reopenSavedRoom();return;
- }
- if(peer&&!peer.destroyed&&remotePeerId){
-  try{reconnecting=true;offlineRecovery=true;pauseOnlineClock();showOnlineNotice('RECONECTANDO CON EL OTRO JUGADOR…','warning',0);ready(peer.connect(remotePeerId,{reliable:true}));return;}
-  catch(e){status('No se pudo iniciar la reconexión. Volvé a intentarlo.');}
- }
- showLibraryReconnectNotice(saved);
 }
 async function copyRecoveryCode(){const code=String($('roomCode')?.textContent||readSavedSession()?.roomId||'').trim();if(!code){setText('offlineRecoveryText','Primero reabrí la sala para generar un código.');return;}try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(code);else throw new Error('clipboard unavailable');setText('offlineRecoveryText','CÓDIGO COPIADO: '+code+'. Compartilo con tu rival para volver a esta sala.');}catch{const ta=document.createElement('textarea');ta.value=code;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.append(ta);ta.select();let ok=false;try{ok=document.execCommand('copy');}catch{}ta.remove();setText('offlineRecoveryText',ok?'CÓDIGO COPIADO: '+code+'. Compartilo con tu rival para volver a esta sala.':'Código de sala: '+code+'. Mantené presionado el código para copiarlo.');}}
 
@@ -58,7 +37,7 @@ function reopenSavedRoom(){
  if(restoreSnapshot?.reconstructedFromHistory||saved?.reconstructedFromHistory){setText('offlineRecoveryText','Este registro solo conserva el historial; no tiene el estado necesario para reabrir la partida original.');return;}
  if(!saved||!saved.myRole||!saved.roomId){status('No hay una sesión completa para reabrir.');return;}
  if(!window.Peer){showModal();status('No se pudo cargar PeerJS. Revisá internet e intentá de nuevo.');return;}
- if(saved.host&&peer&&peer.open&&!peer.destroyed&&!peer.disconnected){host=true;connected=false;remotePeerId='';pauseOnlineClock();showOnlineNotice('SALA ORIGINAL ABIERTA · CÓDIGO '+String(saved.roomId)+' · Esperando que tu rival vuelva.','warning',0,'COPIAR CÓDIGO',copyRecoveryCode);status('La sala original sigue activa. No se creó una sala nueva.');copyRecoveryCode();return;}
+ if(saved.host&&peer&&peer.open&&!peer.destroyed&&!peer.disconnected){host=true;connected=false;remotePeerId='';pauseOnlineClock();setText('offlineRecoveryText','La sala original sigue abierta · código: '+String(saved.roomId)+' · pasáselo al rival para que entre a esta misma partida.');status('La sala original sigue activa. No se creó una sala nueva.');copyRecoveryCode();return;}
  try{if(conn)conn.close();}catch{}try{if(peer)peer.destroy();}catch{}
  conn=null;peer=null;connected=false;offlineRecovery=true;pauseOnlineClock();
  const roomId=String(saved.roomId);host=true;remotePeerId='';remotePlayerPeerId='';
@@ -66,13 +45,13 @@ function reopenSavedRoom(){
  if($('roomCode'))$('roomCode').textContent=roomId;
  $('createRoomBtn')?.classList.add('hidden');$('joinRoomBtn')?.classList.add('hidden');$('hostRoom')?.classList.toggle('hidden',!host);$('joinRoom')?.classList.toggle('hidden',host);$('newRoomCodeBtn')?.classList.add('hidden');$('shareRoomBtn')?.classList.toggle('hidden',!host);
  if(!host&&$('roomInput'))$('roomInput').value=roomId;
- showOnlineNotice(host?'REABRIENDO LA SALA ORIGINAL…':'RECONECTANDO CON LA SALA ORIGINAL…','warning',0);
+ setText('offlineRecoveryText',host?'Reabriendo la sala original…':'Reconectando con el código de la sala original…');
  try{localStorage.setItem(ONLINE_SESSION_KEY,JSON.stringify({...saved,host:true,roomId,localPeerId,remotePlayerPeerId:'',savedAt:Date.now()}));}catch{}
  try{
   peer=new Peer(localPeerId);
   peer.on('open',id=>{
    localPeerId=id;
-   if(host){showOnlineNotice('SALA ORIGINAL ABIERTA · CÓDIGO '+roomId+' · Esperando que tu rival se reconecte…','warning',0,'COPIAR CÓDIGO',copyRecoveryCode);status('Sala original recuperada. Esperando que tu rival se reconecte…');persistSession();copyRecoveryCode();}
+   if(host){setText('offlineRecoveryText','Sala original abierta · código: '+roomId+' · pasáselo al rival.');status('Sala original recuperada. Esperando que tu rival se reconecte…');persistSession();copyRecoveryCode();}
    else{status('Buscando la sala original…');persistSession();ready(peer.connect(roomId,{reliable:true}));}
   });
   if(host)peer.on('connection',c=>{if(conn&&conn.open){c.close();return;}remotePlayerPeerId=c.peer;remotePeerId=c.peer;ready(c);});
@@ -81,7 +60,7 @@ function reopenSavedRoom(){
     try{peer?.destroy();}catch{}peer=null;host=false;remotePeerId=roomId;remotePlayerPeerId='';
     localPeerId='mdf-'+Array.from(crypto.getRandomValues(new Uint8Array(12))).map(x=>x.toString(16).padStart(2,'0')).join('');
     try{localStorage.setItem(ONLINE_SESSION_KEY,JSON.stringify({...saved,host:false,roomId,localPeerId,remotePlayerPeerId:'',savedAt:Date.now()}));}catch{}
-    showOnlineNotice('LA SALA ORIGINAL YA ESTÁ ABIERTA · ENTRANDO A ESA MISMA PARTIDA…','warning',0);
+    setText('offlineRecoveryText','La sala original ya está abierta. Entrando como jugador a esa misma sala…');
     try{peer=new Peer(localPeerId);peer.on('open',()=>{persistSession();ready(peer.connect(roomId,{reliable:true}));});peer.on('error',err=>{const msg='No se pudo conectar a la sala original ('+(err.type||'error')+'). No se creó otra partida; reintentá con el mismo código.';setText('offlineRecoveryText',msg);status(msg);});}catch(err){status('No se pudo conectar a la sala original. Reintentá con el mismo código.');}
     return;
    }
@@ -142,29 +121,23 @@ function randomDiscovererGuessLine(){return discovererGuessLines[Math.floor(Math
 const nativeChat=$('chat');
 function status(t){setText('duelStatus',t);}
 let onlineNoticeTimer=null;
-let connectionWatchdogId=null, lastPeerHeartbeat=Date.now(), heartbeatSeq=0, onlineRoundStarted=false;
-function startConnectionWatchdog(){if(connectionWatchdogId)clearInterval(connectionWatchdogId);lastPeerHeartbeat=Date.now();connectionWatchdogId=setInterval(()=>{if(!document.body.classList.contains('duel-online')||onlineMatchFinished||onlineCleanupInProgress||!onlineStartedAt||!onlineRoundStarted)return;if(!navigator.onLine){handleNetworkLoss('Tu dispositivo perdió la conexión a internet.');return;}if(!conn||!conn.open)return;const now=Date.now();if(now-lastPeerHeartbeat>12000){handleNetworkLoss('No se reciben señales del otro jugador. La conexión puede haberse cortado.');return;}send({type:'mdf_heartbeat',id:++heartbeatSeq,at:now});},3000);}
-function stopConnectionWatchdog(){if(connectionWatchdogId){clearInterval(connectionWatchdogId);connectionWatchdogId=null;}}
-function handleNetworkLoss(reason){if(onlineCleanupInProgress||onlineMatchFinished||!document.body.classList.contains('duel-online')||!onlineRoundStarted||offlineRecovery)return;offlineRecovery=true;connected=false;pauseOnlineClock();persistSession();status(reason+' El reloj está pausado y la partida se conserva.');showReconnectOption();}
-window.addEventListener('offline',()=>handleNetworkLoss('Tu dispositivo perdió la conexión a internet (Wi-Fi o datos móviles).'));
-window.addEventListener('online',()=>{if(document.body.classList.contains('duel-online')&&offlineRecovery){showOnlineNotice('INTERNET DETECTADO · Pulsa RECONETAR para recuperar la partida.','warning',0,'RECONETAR',handleRecoveryReconnect);}});
 let recoveryBarTimer=null;
 let onlineMatchFinished=false;
 let onlineCleanupInProgress=false;
-function hideOnlineNotice(){if(onlineNoticeTimer){clearTimeout(onlineNoticeTimer);onlineNoticeTimer=null;}const node=$('onlineTransientNotice');if(node){node.classList.remove('visible','has-action');node.replaceChildren();}}
+function hideOnlineNotice(){if(onlineNoticeTimer){clearTimeout(onlineNoticeTimer);onlineNoticeTimer=null;}const node=$('onlineTransientNotice');if(node){node.classList.remove('visible');node.textContent='';}}
 function clearRecoveryBarTimer(){if(recoveryBarTimer){clearTimeout(recoveryBarTimer);recoveryBarTimer=null;}}
 function hideRecoveryBar(){clearRecoveryBarTimer();const bar=$('offlineRecoveryBar');if(bar){bar.classList.add('hidden');bar.classList.remove('sync-toast');const actions=bar.querySelector('.offline-recovery-actions');if(actions)actions.classList.remove('hidden');}}
-function showRecoverySyncToast(){clearRecoveryBarTimer();const bar=$('offlineRecoveryBar');if(bar)bar.classList.add('hidden');showOnlineNotice('✓ PARTIDA RECONECTADA','success',8000); }
+function showRecoverySyncToast(){const bar=$('offlineRecoveryBar');if(!bar)return;clearRecoveryBarTimer();bar.classList.add('sync-toast');const actions=bar.querySelector('.offline-recovery-actions');if(actions)actions.classList.add('hidden');setText('offlineRecoveryText','✓ PARTIDA SINCRONIZADA · AMBOS JUGADORES CONECTADOS · RELOJ EN MARCHA');bar.classList.remove('hidden');recoveryBarTimer=setTimeout(()=>{recoveryBarTimer=null;const current=$('offlineRecoveryBar');if(current===bar){bar.classList.add('hidden');bar.classList.remove('sync-toast');if(actions)actions.classList.remove('hidden');}},5000);}
 function clearOnlineTransientUi(){
- hideOnlineNotice();hideRecoveryBar();stopConnectionWatchdog();
+ hideOnlineNotice();hideRecoveryBar();
  $('chatBubbleBtn')?.classList.add('hidden');$('floatingChat')?.classList.add('hidden');$('offlineRecoveryBar')?.classList.add('hidden');$('reconnectDuelBtn')?.remove();
  $('onlineGuessConfirmModal')?.classList.add('hidden');$('guessModal')?.classList.add('hidden');$('gameMenuModal')?.classList.add('hidden');
  // No ocultar duelModal desde la limpieza genérica: reset() también se usa al crear sala.
  // Las salidas de modo y los botones de cerrar ocultan el modal explícitamente.
 }
-function showOnlineNotice(message,kind='warning',duration=5000,actionLabel='',actionHandler=null){
+function showOnlineNotice(message,kind='warning',duration=5000){
  let node=$('onlineTransientNotice');if(!node){node=document.createElement('div');node.id='onlineTransientNotice';node.className='online-transient-notice';node.setAttribute('role','status');node.setAttribute('aria-live','polite');document.body.append(node);}
- if(onlineNoticeTimer){clearTimeout(onlineNoticeTimer);onlineNoticeTimer=null;}node.replaceChildren();node.className='online-transient-notice '+(kind==='success'?'success':kind==='error'?'error':'warning');const text=document.createElement('span');text.textContent=String(message||'');node.append(text);if(actionLabel&&typeof actionHandler==='function'){const btn=document.createElement('button');btn.type='button';btn.className='reconnect-room-action';btn.textContent=actionLabel;btn.addEventListener('click',actionHandler);node.append(btn);node.classList.add('has-action');}node.classList.add('visible');if(Number(duration)>0)onlineNoticeTimer=setTimeout(()=>{node.classList.remove('visible','has-action');node.replaceChildren();onlineNoticeTimer=null;},duration);
+ node.className='online-transient-notice '+(kind==='success'?'success':kind==='error'?'error':'warning');node.textContent=String(message||'');node.classList.add('visible');if(onlineNoticeTimer)clearTimeout(onlineNoticeTimer);onlineNoticeTimer=setTimeout(()=>{node.classList.remove('visible');onlineNoticeTimer=null;},duration);
 }
 function applyDiscovererQuestionLimit(){
  if(myRole!=='guess'||!document.body.classList.contains('duel-online'))return;
@@ -245,33 +218,6 @@ function renderOnlineSequence(question){
   if(hint)hint.classList.add('hidden');
  }
 }
-
-// Privacidad manual del personaje secreto para capturas completas y compartir pantalla.
-// El navegador no ofrece una API fiable para detectar capturas de pantalla.
-let secretPrivacyEnabled=false;
-function renderSecretPrivacy(){
- const label=$('onlineSecretLabel'); if(!label)return;
- const value=String(secret||'').trim();
- const visible=myRole==='brain'&&!!value;
- label.classList.toggle('hidden',!visible);
- if(!visible){label.textContent='';return;}
- label.classList.remove('secret-privacy-active');
- label.replaceChildren();
- const prefix=document.createElement('span');
- prefix.className='online-secret-prefix';
- prefix.textContent='PERSONAJE ELEGIDO: ';
- const name=document.createElement('span');
- name.className='online-secret-value';
- name.textContent=secretPrivacyEnabled?'••••••':value;
- name.setAttribute('aria-label',secretPrivacyEnabled?'Nombre del personaje oculto':'Nombre del personaje');
- const btn=document.createElement('button');
- btn.type='button';btn.className='secret-privacy-toggle';
- btn.textContent=secretPrivacyEnabled?'MOSTRAR':'OCULTAR';
- btn.setAttribute('aria-pressed',String(secretPrivacyEnabled));
- btn.setAttribute('aria-label',secretPrivacyEnabled?'Mostrar nombre del personaje':'Ocultar solamente el nombre del personaje');
- btn.addEventListener('click',()=>{secretPrivacyEnabled=!secretPrivacyEnabled;renderSecretPrivacy();});
- label.append(prefix,name,btn);
-}
 function enterGame(startAt,restoring=false){
  onlineMatchFinished=false;onlineCleanupInProgress=false;
  clearInterval(onlineTimerId);onlineTimerId=null;onlineStartedAt=Number(startAt)||Date.now();if(!restoring){onlineQuestionCount=0;onlineAnswerCount=0;onlineGuessesLeft=2;}
@@ -279,7 +225,7 @@ function enterGame(startAt,restoring=false){
  modal.classList.add('hidden');
  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
  $('gameScreen').classList.remove('hidden');$('chatBubbleBtn').classList.remove('hidden');$('floatingChat')?.classList.add('hidden');hideOnlineNotice();
- renderSecretPrivacy();
+ const secretLabel=$('onlineSecretLabel');if(secretLabel){const showSecret=myRole==='brain'&&!!String(secret||'').trim();secretLabel.textContent=showSecret?'PERSONAJE ELEGIDO: '+String(secret).trim():'';secretLabel.classList.toggle('hidden',!showSecret);}
  document.body.classList.add('duel-online');document.body.classList.toggle('duel-brain',myRole==='brain');document.body.classList.toggle('duel-guess',myRole==='guess');document.body.classList.remove('classic','name-phase');
  $('classicEnd').classList.add('hidden');$('brainInlinePanel').classList.remove('hidden');$('classicPanel').classList.toggle('hidden',myRole!=='brain');
  $('suggestBtn').classList.add('hidden');$('guessBtn').classList.toggle('hidden',myRole==='brain');
@@ -299,9 +245,6 @@ function enterGame(startAt,restoring=false){
  status(restoring?'Partida recuperada. Verificá el estado y seguí jugando.':'Duelo online iniciado.');persistSession();
 }
 function onData(d){if(!d||typeof d!=='object')return;
- if(d.type==='secret_ready'&&d.ready){onlineRoundStarted=true;return;}
- if(d.type==='mdf_heartbeat'){send({type:'mdf_heartbeat_ack',id:d.id});return;}
- if(d.type==='mdf_heartbeat_ack'){lastPeerHeartbeat=Date.now();return;}
  // La sala activa manda su rol y estado al jugador que vuelve. No se abre el selector de roles.
  if(d.type==='resume_state'){
   const remote=d.snapshot&&typeof d.snapshot==='object'?d.snapshot:{};
@@ -316,7 +259,7 @@ function onData(d){if(!d||typeof d!=='object')return;
   const assignedRole=(localRole==='brain'||localRole==='guess')?localRole:(remoteRole==='brain'?'guess':'brain');
   const base=sameLocal?prior:(restoreSnapshot&&restoreSnapshot.startedAt?restoreSnapshot:remote);
   myRole=assignedRole;theirRole=remoteRole;connected=true;offlineRecovery=false;
-  onlineStartedAt=Number(base.startedAt||remote.startedAt)||Date.now();onlineRoundStarted=true;
+  onlineStartedAt=Number(base.startedAt||remote.startedAt)||Date.now();
   onlineQuestionCount=Math.max(0,Number(base.questionCount??remote.questionCount??remote.questionsSeen)||0);
   onlineAnswerCount=Math.max(0,Number(base.answerCount??remote.answerCount??remote.answersSeen)||0);
   onlineGuessesLeft=Math.max(0,Math.min(2,Number(base.guessesLeft??remote.guessesLeft??2)));
@@ -333,7 +276,7 @@ function onData(d){if(!d||typeof d!=='object')return;
   restoreSnapshot={...remote,...base,host,roomId:String(room||base.roomId||''),myRole,theirRole,startedAt:onlineStartedAt,elapsedSeconds:Math.max(getSavedElapsedSeconds(base),getSavedElapsedSeconds(remote)),secret:myRole==='brain'?secret:'',transcript:localTranscript,phoneTranscript,phoneUnreadCount};
   try{localStorage.setItem(ONLINE_SESSION_KEY,JSON.stringify(restoreSnapshot));}catch{}
   $('roleChooser')?.classList.add('hidden');$('brainRolePanel')?.classList.add('hidden');$('guessRolePanel')?.classList.add('hidden');$('duelConnected')?.classList.add('hidden');
-  enterGame(onlineStartedAt,true);resumeOnlineClock();$('peerStatus').textContent='🟢 AMBOS JUGADORES CONECTADOS';showRecoverySyncToast();showOnlineNotice('✓ Rival reconectado. Se recuperó la misma partida, con los roles y el turno conservados.','success',5000);
+  enterGame(onlineStartedAt,true);resumeOnlineClock();$('peerStatus').textContent='🟢 AMBOS JUGADORES CONECTADOS';showRecoverySyncToast();
   status('🟢 Ambos jugadores conectados. Partida reanudada como '+(myRole==='brain'?'Cerebro':'Descubridor')+'; reloj en marcha y turno recuperado.');
   send({type:'resume_ack',role:myRole,startedAt:onlineStartedAt});persistSession();return;
  }
@@ -399,7 +342,7 @@ function onData(d){if(!d||typeof d!=='object')return;
   if(d.result==='win'||d.result==='lose'){gameMessage((d.name||'Tu rival')+(d.result==='win'?' confirmó la victoria.':' confirmó la derrota.'),'system');showResult(d.result==='lose',d.result==='win'?'Tu rival confirmó la victoria':'Tu rival confirmó la derrota',d.secret||secret);}
  }
 }
-function showResult(win,title,character){onlineMatchFinished=true;clearOnlineTransientUi();$('onlineSecretLabel')?.classList.add('hidden');$('brainInlinePanel')?.classList.add('hidden');$('playAgainBtn')?.classList.remove('hidden');$('playAgainBtn').textContent='JUGAR OTRA VEZ';$('playAgainSwapRolesBtn')?.classList.remove('hidden');try{window.SavedMatches?.markCompleted?.({character:String(character||secret||'').trim(),result:win?'Victoria':'Derrota',title:String(title||'Partida finalizada')});}catch(e){console.warn('[MIND] No se pudo actualizar el estado final de la partida guardada:',e);}try{localStorage.removeItem(ONLINE_SESSION_KEY);localStorage.removeItem(ONLINE_SAVE_KEY);}catch{}clearInterval(onlineTimerId);onlineTimerId=null;$('onlineGuessConfirmModal')?.classList.add('hidden');const finalName=String(character||secret||window.MindDuelResult?.character||'').trim();window.MindDuelResult={win,title,character:finalName,mode:'multiplayer'};window.MatchHistory?.record('SISTEMA',title||'Partida finalizada','result');window.MatchHistory?.finish(win?'Victoria':'Derrota',{personaje:finalName});$('resultTag').textContent='MODO ONLINE · '+(myRole==='guess'?'DESCUBRIDOR':'CEREBRO');$('resultTitle').textContent=win?'¡HAS GANADO!':'HAS PERDIDO';$('resultCharacter').textContent=finalName||'Personaje secreto';const known=findCharacter(finalName);let description='';try{description=(localStorage.getItem('mind_character_description_'+finalName)||'').trim()}catch{}if(!description&&known)description=String(known.descripcion||'').trim();const brainWon = myRole==='brain' ? win : !win;const taunt=window.MindDuelTaunt?window.MindDuelTaunt(finalName,brainWon):(brainWon?'¡JAJAJA! ¡No pudiste descubrirme!':'¡¿Me ganaste?! ¡No te agrandes, que fue una sola partida!');$('resultDescription').textContent=[description,taunt].filter(Boolean).join(' ');$('editCharacterBtn').classList.toggle('hidden',!finalName);document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));$('resultScreen').classList.remove('hidden');$('gameMenuModal').classList.add('hidden');try{window.MindDuelLearningPrompt?.(finalName)}catch(e){console.warn('[MIND] No se pudo abrir la pregunta de aprendizaje:',e)}}
+function showResult(win,title,character){onlineMatchFinished=true;clearOnlineTransientUi();$('onlineSecretLabel')?.classList.add('hidden');$('brainInlinePanel')?.classList.add('hidden');$('playAgainBtn')?.classList.remove('hidden');$('playAgainBtn').textContent='JUGAR OTRA VEZ';$('playAgainSwapRolesBtn')?.classList.remove('hidden');try{window.SavedMatches?.markCompleted?.({character:String(character||secret||'').trim(),result:win?'Victoria':'Derrota',title:String(title||'Partida finalizada')});}catch(e){console.warn('[MIND] No se pudo actualizar el estado final de la partida guardada:',e);}try{localStorage.removeItem(ONLINE_SESSION_KEY);localStorage.removeItem(ONLINE_SAVE_KEY);}catch{}clearInterval(onlineTimerId);onlineTimerId=null;$('onlineGuessConfirmModal')?.classList.add('hidden');const finalName=String(character||secret||window.MindDuelResult?.character||'').trim();window.MindDuelResult={win,title,character:finalName,mode:'multiplayer'};window.MatchHistory?.record('SISTEMA',title||'Partida finalizada','result');window.MatchHistory?.finish(win?'Victoria':'Derrota',{personaje:finalName});$('resultTag').textContent='MODO ONLINE · '+(myRole==='guess'?'DESCUBRIDOR':'CEREBRO');$('resultTitle').textContent=win?'¡HAS GANADO!':'HAS PERDIDO';$('resultCharacter').textContent=finalName||'Personaje secreto';const known=findCharacter(finalName);let description='';try{description=(localStorage.getItem('mind_character_description_'+finalName)||'').trim()}catch{}if(!description&&known)description=String(known.descripcion||'').trim();const brainWon = myRole==='brain' ? win : !win;const taunt=window.MindDuelTaunt?window.MindDuelTaunt(finalName,brainWon):(brainWon?'¡JAJAJA! ¡No pudiste descubrirme!':'¡¿Me ganaste?! ¡No te agrandes, que fue una sola partida!');$('resultDescription').textContent=[description,taunt].filter(Boolean).join(' ');$('editCharacterBtn').classList.toggle('hidden',!finalName);document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));$('resultScreen').classList.remove('hidden');$('gameMenuModal').classList.add('hidden');}
 let rematchLock=false;
 function prepareRematch(swap,remote=false){
  if(rematchLock)return;rematchLock=true;setTimeout(()=>{rematchLock=false;},800);
@@ -423,17 +366,8 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(online
 window.addEventListener('pagehide',saveOnlineProgress);window.addEventListener('freeze',saveOnlineProgress);
 window.addEventListener('beforeunload',e=>{if(document.body.classList.contains('duel-online')&&onlineStartedAt&&!document.getElementById('resultScreen')?.classList.contains('hidden'))return; if(document.body.classList.contains('duel-online')&&onlineStartedAt){saveOnlineProgress();e.preventDefault();e.returnValue='La partida online está en curso. Si cerrás o recargás, la conexión con tu rival puede perderse.';return e.returnValue;}});
 window.addEventListener('mindduel-surrender',()=>{send({type:'result',result:'surrender',role:myRole,name:saveName(),secret:secret});showResult(false,'Te rendiste antes de terminar la partida',secret);});window.addEventListener('mindduel-leave',()=>{try{persistSession()}catch{};document.body.classList.remove('duel-online','duel-brain','duel-guess');reset(true);modal?.classList.add('hidden');clearOnlineTransientUi();document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));$('stageScreen').classList.remove('hidden');});
- function showReconnectOption(){
- connected=false;offlineRecovery=true;pauseOnlineClock();persistSession();refreshRestoreButton();
- if(host){$('newRoomCodeBtn')?.classList.remove('hidden');$('shareRoomBtn')?.classList.remove('hidden');}
- const st=$('duelStatus');if(st)st.textContent='Conexión interrumpida. El reloj está pausado y el estado de la partida se conserva.';
- // Un solo aviso: conservamos el cartel superior, pero con apariencia de panel de juego.
- $('offlineRecoveryBar')?.classList.add('hidden');
- const label=host?'NO SE DETECTÓ LA CONEXIÓN DEL OTRO JUGADOR. La sala queda abierta; compartí el mismo código para que vuelva.':'TU PARTIDA SE HA DESCONECTADO. El reloj está pausado. Pulsa Reconectar para recuperar la partida.';
- showOnlineNotice('⚠ '+label,'warning',0,host?'COPIAR CÓDIGO':'RECONETAR',host?copyRecoveryCode:handleRecoveryReconnect);
- }
-
-function ready(c){conn=c;conn.on('open',()=>{lastPeerHeartbeat=Date.now();startConnectionWatchdog();const wasReconnecting=!!(offlineRecovery||reconnecting);status('Conexión abierta. Verificando que la partida y el turno estén sincronizados…');connected=true;reconnecting=false;if(document.body.classList.contains('duel-online')){offlineRecovery=true;pauseOnlineClock();const rbbar=$('offlineRecoveryBar');if(rbbar)rbbar.classList.add('hidden');if(wasReconnecting)showOnlineNotice('CONEXIÓN DETECTADA · SINCRONIZANDO LA PARTIDA…','warning',0);}refreshRestoreButton();const rb=$('reconnectDuelBtn');if(rb)rb.remove();$('duelConnected').classList.remove('hidden');$('createRoomBtn').classList.add('hidden');$('joinRoomBtn').classList.add('hidden');$('hostRoom').classList.toggle('hidden',!host);$('joinRoom').classList.add('hidden');if($('newRoomCodeBtn'))$('newRoomCodeBtn').classList.add('hidden');if($('shareRoomBtn'))$('shareRoomBtn').classList.add('hidden');$('peerStatus').textContent='🟢 AMBOS JUGADORES CONECTADOS';populateCharacters();
+function showReconnectOption(){connected=false;refreshRestoreButton();if(host){$('newRoomCodeBtn')?.classList.remove('hidden');$('shareRoomBtn')?.classList.remove('hidden');}const st=$('duelStatus');if(!st)return;const code=String($('roomCode')?.textContent||readSavedSession()?.roomId||remotePeerId||'');st.textContent='⚠ TU RIVAL SE DESCONECTÓ. La partida queda guardada en este dispositivo. Código de la sala: '+(code||'no disponible')+'. Compartíselo para que vuelva a entrar sin cambiar de rol ni de turno.';let b=$('reconnectDuelBtn');if(!b){b=document.createElement('button');b.id='reconnectDuelBtn';b.className='btn btn-cyan reconnect-room-action';b.textContent=host?'MANTENER / RECUPERAR SALA':'RECONECTAR A LA MISMA SALA';b.style.margin='8px auto';st.insertAdjacentElement('afterend',b);b.addEventListener('click',()=>{if(host){status('La sala original sigue abierta. Pasale el mismo código al rival; no generes otro código.');return;}if(!peer||!remotePeerId){status('Recargá el juego: intentará recuperar la sala guardada.');return;}try{reconnecting=true;status('Intentando recuperar la partida…');ready(peer.connect(remotePeerId,{reliable:true}));}catch(e){status('No se pudo reconectar. Volvé a intentar en unos segundos.');}});}}
+function ready(c){conn=c;conn.on('open',()=>{const wasReconnecting=!!(offlineRecovery||reconnecting);status('Conexión abierta. Verificando que la partida y el turno estén sincronizados…');connected=true;reconnecting=false;if(document.body.classList.contains('duel-online')){offlineRecovery=true;pauseOnlineClock();const rbbar=$('offlineRecoveryBar');if(rbbar){setText('offlineRecoveryText','CONEXIÓN DETECTADA · SINCRONIZANDO LA PARTIDA…');rbbar.classList.remove('hidden');}}refreshRestoreButton();const rb=$('reconnectDuelBtn');if(rb)rb.remove();$('duelConnected').classList.remove('hidden');$('createRoomBtn').classList.add('hidden');$('joinRoomBtn').classList.add('hidden');$('hostRoom').classList.toggle('hidden',!host);$('joinRoom').classList.add('hidden');if($('newRoomCodeBtn'))$('newRoomCodeBtn').classList.add('hidden');if($('shareRoomBtn'))$('shareRoomBtn').classList.add('hidden');$('peerStatus').textContent='🟢 AMBOS JUGADORES CONECTADOS';populateCharacters();
  const saved=readSavedSession();
  // Si el jugador que conserva la sala sigue dentro del juego, la reconexión no debe
  // depender de que localStorage se haya escrito correctamente ni volver al selector.
@@ -444,7 +378,7 @@ function ready(c){conn=c;conn.on('open',()=>{lastPeerHeartbeat=Date.now();startC
    restoreSnapshot={...(saved||restoreSnapshot||{}),version:6,host,roomId:host?String($('roomCode')?.textContent||'').trim():remotePeerId,myRole,theirRole,secret:myRole==='brain'?secret:'',startedAt:onlineStartedAt,questionCount:onlineQuestionCount,answerCount:onlineAnswerCount,guessesLeft:onlineGuessesLeft,pendingQuestion,waitingForAnswer,waitingForGuess,pendingOnlineGuess,lastGuessResolution,lastQuestion:lastOnlineQuestion,lastAnswer:lastOnlineAnswer,transcript:localTranscript.slice(-500),phoneTranscript:phoneTranscript.slice(-300),phoneUnreadCount,elapsedSeconds:Math.floor(getOnlineElapsedSeconds()),inGame:true,savedAt:Date.now()};
    persistSession();
   }else{
-   restoreSnapshot=saved;clockElapsedBase=getSavedElapsedSeconds(saved);clockRunStartedAt=0;clockPaused=true;myRole=saved.myRole;theirRole=saved.theirRole||'';secret=myRole==='brain'?String(saved.secret||''):'';onlineStartedAt=Number(saved.startedAt)||Date.now();onlineRoundStarted=!!(saved.myRole&&saved.startedAt);onlineQuestionCount=Number(saved.questionCount)||0;onlineAnswerCount=Number(saved.answerCount)||0;onlineGuessesLeft=Math.max(0,Math.min(2,Number(saved.guessesLeft??2)));pendingQuestion=String(saved.pendingQuestion||'');waitingForAnswer=!!saved.waitingForAnswer;waitingForGuess=!!saved.waitingForGuess;pendingOnlineGuess=String(saved.pendingOnlineGuess||'');lastGuessResolution=saved.lastGuessResolution||null;lastOnlineQuestion=String(saved.lastQuestion||'');lastOnlineAnswer=String(saved.lastAnswer||'');localTranscript=recoverGameTranscript(saved);phoneTranscript=recoverPhoneTranscript(saved);phoneUnreadCount=Math.max(0,Number(saved.phoneUnreadCount)||(phoneTranscript.length?phoneTranscript.length:0));enterGame(onlineStartedAt,true);
+   restoreSnapshot=saved;clockElapsedBase=getSavedElapsedSeconds(saved);clockRunStartedAt=0;clockPaused=true;myRole=saved.myRole;theirRole=saved.theirRole||'';secret=myRole==='brain'?String(saved.secret||''):'';onlineStartedAt=Number(saved.startedAt)||Date.now();onlineQuestionCount=Number(saved.questionCount)||0;onlineAnswerCount=Number(saved.answerCount)||0;onlineGuessesLeft=Math.max(0,Math.min(2,Number(saved.guessesLeft??2)));pendingQuestion=String(saved.pendingQuestion||'');waitingForAnswer=!!saved.waitingForAnswer;waitingForGuess=!!saved.waitingForGuess;pendingOnlineGuess=String(saved.pendingOnlineGuess||'');lastGuessResolution=saved.lastGuessResolution||null;lastOnlineQuestion=String(saved.lastQuestion||'');lastOnlineAnswer=String(saved.lastAnswer||'');localTranscript=recoverGameTranscript(saved);phoneTranscript=recoverPhoneTranscript(saved);phoneUnreadCount=Math.max(0,Number(saved.phoneUnreadCount)||(phoneTranscript.length?phoneTranscript.length:0));enterGame(onlineStartedAt,true);
   }
  }
  else{status('Conexión establecida. Elegí tu papel.');addMessage('SISTEMA','Conexión establecida.','system');if(myRole&&theirRole)updateRoles();}
@@ -452,7 +386,7 @@ function ready(c){conn=c;conn.on('open',()=>{lastPeerHeartbeat=Date.now();startC
  // Ambos extremos comparten su instantánea al reconectar. Así, aunque el anfitrión
  // haya tenido que reabrir la conexión como cliente, el otro lado también vuelve al juego.
  if(myRole&&onlineStartedAt)send({type:'resume_state',hostRole:myRole,snapshot:{version:6,host,roomId:host?String($('roomCode')?.textContent||'').trim():remotePeerId,myRole,theirRole,startedAt:onlineStartedAt,questionCount:onlineQuestionCount,answerCount:onlineAnswerCount,guessesLeft:onlineGuessesLeft,pendingQuestion,lastQuestion:lastOnlineQuestion,lastAnswer:lastOnlineAnswer,waitingForAnswer,waitingForGuess,pendingOnlineGuess,lastGuessResolution:publicGuessResolution(lastGuessResolution),transcript:localTranscript.slice(-500),phoneTranscript:phoneTranscript.slice(-300),phoneUnreadCount,questionBox:$('onlineQuestionBox')?.textContent||'',readingStatus:$('onlineReadingStatus')?.textContent||'',elapsedSeconds:Math.floor(getOnlineElapsedSeconds())}});
- persistSession();status('🟢 Ambos jugadores están conectados. La partida continúa con el mismo rol y turno.');});conn.on('data',onData);conn.on('close',()=>{stopConnectionWatchdog();if(onlineCleanupInProgress||onlineMatchFinished||!document.body.classList.contains('duel-online'))return;$('peerStatus').textContent='🔴 RIVAL DESCONECTADO';pauseOnlineClock();offlineRecovery=true;showOfflineRecoveryBar();showReconnectOption();showOnlineNotice('⚠️ Tu rival se desconectó. La partida quedó pausada y guardada; puede volver a entrar a la misma sala.','error',6500);persistSession();});conn.on('error',e=>{stopConnectionWatchdog();if(onlineCleanupInProgress||onlineMatchFinished||!document.body.classList.contains('duel-online'))return;const message='Falló la conexión ('+(e.type||'error')+'). Revisá internet y el código de sala; si persiste, que el anfitrión reabra la partida.';status(message);offlineRecovery=true;showOnlineNotice('⚠ '+message+' La partida queda pausada hasta verificar el turno.','error',0,'RECONECTAR PARTIDA',()=>showReconnectOption());persistSession();});}
+ persistSession();status('🟢 Ambos jugadores están conectados. La partida continúa con el mismo rol y turno.');if(wasReconnecting)showOnlineNotice('✓ Rival reconectado. La partida continúa con el mismo rol y turno.','success',5000);});conn.on('data',onData);conn.on('close',()=>{if(onlineCleanupInProgress||onlineMatchFinished||!document.body.classList.contains('duel-online'))return;$('peerStatus').textContent='🔴 RIVAL DESCONECTADO';pauseOnlineClock();offlineRecovery=true;showOfflineRecoveryBar();showReconnectOption();showOnlineNotice('⚠️ Tu rival se desconectó. La partida quedó pausada y se guardó; podés reconectar a la misma sala.','error',6500);persistSession();});conn.on('error',e=>{if(onlineCleanupInProgress||onlineMatchFinished||!document.body.classList.contains('duel-online'))return;const message='Falló la conexión ('+(e.type||'error')+'). Revisá internet y el código de sala; si persiste, que el anfitrión reabra la partida.';status(message);showOnlineNotice('⚠️ '+message,'error',6500);persistSession();});}
 $('dueloBtn').textContent='DUELO ONLINE';on('dueloBtn','click',async()=>{if(typeof closeStageCurtain==='function'&&typeof openStageCurtain==='function'){document.getElementById('stageMenu')?.classList.add('hidden');await closeStageCurtain(900);await openStageCurtain(900);}reset();showModal();});
 function createRoomCode(){
  if(!window.Peer){status('No se pudo cargar la conexión online. Revisá internet y recargá.');return;}
@@ -505,7 +439,7 @@ on('roleGuessBtn','click',()=>{if(theirRole==='guess'){status('Tu amigo ya eligi
 function normalizeName(v){return String(v||'').trim().toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
 function findCharacter(name){const people=(typeof PERSONAJES!=='undefined'?PERSONAJES:window.PERSONAJES)||[];return people.find(p=>normalizeName(p.nombre)===normalizeName(name)||((p.alias||[]).some(a=>normalizeName(a)===normalizeName(name))))||null;}
 function setSecret(value){secret=String(value||'').trim();if(secret){const known=findCharacter(secret);$('brainSetupStatus').textContent=known?'Personaje de la lista seleccionado. Las sugerencias usarán sus datos.':'Personaje propio seleccionado. La memoria aprenderá de las respuestas que des.';$('startDuelBtn').disabled=false;}else{$('brainSetupStatus').textContent='Elegí un personaje o escribí uno propio.';$('startDuelBtn').disabled=true;}}
-on('secretCharacter','change',()=>setSecret($('secretCharacter').value));on('secretCharacter','input',()=>setSecret($('secretCharacter').value));on('startDuelBtn','click',()=>{setSecret($('secretCharacter').value);if(!secret){$('brainSetupStatus').textContent='Elegí o escribí un personaje antes de entrar.';return;}rememberCustomCharacter(secret);onlineRoundStarted=true;const startedAt=Date.now();send({type:'secret_ready',ready:true,startedAt});enterGame(startedAt);persistSession();});
+on('secretCharacter','change',()=>setSecret($('secretCharacter').value));on('secretCharacter','input',()=>setSecret($('secretCharacter').value));on('startDuelBtn','click',()=>{setSecret($('secretCharacter').value);if(!secret){$('brainSetupStatus').textContent='Elegí o escribí un personaje antes de entrar.';return;}rememberCustomCharacter(secret);const startedAt=Date.now();send({type:'secret_ready',ready:true,startedAt});enterGame(startedAt);persistSession();});
 function readTraining(){try{return JSON.parse(localStorage.getItem('mind_duel_human_training')||'[]')}catch{return []}}
 function rememberCustomCharacter(name){try{const key='mind_duel_custom_characters';const list=JSON.parse(localStorage.getItem(key)||'[]');if(!findCharacter(name)&&!list.some(x=>normalizeName(x.nombre)===normalizeName(name)))list.push({nombre:name,creado:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(list.slice(-500)));}catch{}}
 // Intercepta el formulario NATIVO del juego: en modo cerebro envía respuestas; en modo descubridor envía preguntas.
