@@ -1,0 +1,8 @@
+Mind Duel Fusion v3.13.71 PREVIA
+Corrección:
+- Se elimina la asignación posterior de textContent que sobrescribía la etiqueta creada por renderSecretPrivacy() y borraba el botón MOSTRAR/OCULTAR.
+- Se conserva la implementación de privacidad manual de v3.13.68: solo se oculta el nombre del personaje; el prefijo y el botón permanecen visibles.
+- Se mantiene el multijugador restaurado desde v3.13.54 y el resto del paquete de v3.13.70 sin cambios funcionales intencionales.
+Verificación:
+- ZIP íntegro y sintaxis JavaScript comprobados al generar el paquete.
+- No se ha realizado una prueba real entre dos dispositivos; verificar el botón en el navegador del juego.
