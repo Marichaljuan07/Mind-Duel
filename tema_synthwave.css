@@ -636,6 +636,8 @@ body.classic #onlineSecretLabel {
 .reconnect-room-action{border:1px solid #19f0ff!important;background:linear-gradient(135deg,rgba(0,245,255,.16),rgba(104,45,180,.25))!important;color:#e7fdff!important;box-shadow:0 0 10px rgba(0,245,255,.16)!important}
 .online-transient-notice{position:fixed;z-index:100500;top:max(12px,env(safe-area-inset-top));left:50%;transform:translate(-50%,-12px);width:min(92vw,560px);box-sizing:border-box;padding:12px 15px;border:1px solid rgba(255,193,89,.75);border-radius:12px;background:rgba(12,10,30,.97);color:#fff1d0;font:13px/1.4 'Share Tech Mono','Courier New',monospace;text-align:center;box-shadow:0 0 20px rgba(0,0,0,.45),0 0 14px rgba(255,193,89,.15);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease}
 .online-transient-notice.visible{opacity:1;transform:translate(-50%,0)}
+.online-transient-notice.has-action{pointer-events:auto!important}
+.online-transient-notice.has-action button{pointer-events:auto!important;cursor:pointer;touch-action:manipulation;position:relative;z-index:1;margin:8px 4px 0;padding:8px 12px;border-radius:8px;font:inherit;font-weight:bold;max-width:100%;white-space:normal}
 .online-transient-notice.success{border-color:rgba(25,240,255,.75);color:#c9fcff;box-shadow:0 0 20px rgba(0,245,255,.15)}
 .online-transient-notice.error{border-color:rgba(255,79,150,.78);color:#ffd5e5;box-shadow:0 0 20px rgba(255,45,149,.13)}
 @media(max-width:520px){

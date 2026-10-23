@@ -1,0 +1,23 @@
+MIND DUEL FUSION v3.13.64 PREVIA
+Base: v3.13.63 PREVIA. La versión estable 3.13.49 no se modifica.
+
+1) CARTEL UNIFICADO DE DESCONEXIÓN/RECUPERACIÓN
+- Se corrige la secuencia que mostraba el aviso y lo ocultaba inmediatamente al cerrarse la conexión.
+- El flujo usa el cartel superior original con una acción de reconexión.
+- Al recuperar desde la biblioteca, se usa el mismo cartel superior en vez del aviso inferior como interfaz principal.
+- Se muestra “✓ PARTIDA RECONECTADA” durante 8 segundos en el punto donde ambos estados se sincronizan.
+- La confirmación depende de la recepción del estado de recuperación; no se muestra solo por abrir el canal.
+
+2) SPARRING ESTRATÉGICO OCULTO
+- Nuevo sparring.js, conectado a Solo y Clásico.
+- Registra preguntas, respuestas desconocidas, intentos de adivinación, repeticiones y estimaciones de capacidad discriminativa cuando hay candidatos con valores conocidos.
+- El informe se adjunta a los metadatos de la partida al finalizar; no se muestra al jugador durante la partida.
+
+3) ANALIZADOR
+- auditor_integrado.js conserva la auditoría del catálogo y añade auditarPartida(match) para diagnóstico estratégico basado en eventos e informe del sparring.
+- Separa la cobertura de datos del diagnóstico de decisiones. Los desconocidos no se reinterpretan como NO.
+
+VALIDACIÓN
+- Comprobación de sintaxis Node.js de todos los archivos JavaScript del paquete.
+- Pruebas deterministas del módulo de sparring y de la función de análisis de partidas.
+- No se declara probada la reconexión real entre dos dispositivos; requiere una prueba manual con dos navegadores/dispositivos.

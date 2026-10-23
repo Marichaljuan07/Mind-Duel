@@ -1,0 +1,13 @@
+Mind Duel Fusion v3.13.65 PREVIA
+
+Base: v3.13.64 PREVIA. La v3.13.49 ESTABLE no se modifica.
+
+Cambios:
+- Aviso de desconexión persistente con barra visible dentro de la partida y controles disponibles.
+- Mensaje diferenciado según el lado local: anfitrión ve que no se detecta al otro jugador; invitado ve que su partida se desconectó.
+- El reloj se pausa al perder la conexión y el estado guardado se conserva.
+- El botón del aviso flotante vuelve a aceptar interacción táctil: se corrige pointer-events:none cuando el aviso tiene una acción.
+- En el anfitrión, mantener la sala y copiar el código existente; no generar otro código por defecto. En el invitado, reintentar conexión a la sala conocida y recurrir a la recuperación guardada si no hay conexión disponible.
+- Se conservan los demás archivos y funciones de la v3.13.64, incluidos sparring y auditor integrado.
+
+Verificación: ZIP y sintaxis JavaScript. No se ha probado una reconexión PeerJS real entre dos dispositivos; debe validarse manualmente.

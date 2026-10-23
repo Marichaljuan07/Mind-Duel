@@ -328,7 +328,7 @@ async function startClassic() {
   window.MindDuelCleanupForMode?.();
   resetGame();
   classicSetMode(true);
-  window.MatchHistory?.begin('clásico');
+  window.MatchHistory?.begin('clásico'); window.MindSparring?.start('clásico');
   classic.s = Clasico.nuevo(PERSONAJES);
   classic.cur = null; classic.fails = 0; classic.phase = 'ask';
   classicBusy = true;
@@ -361,6 +361,8 @@ async function nextClassic() {
   if (!q && s.n < MAX_QUESTIONS) q = (Sugeridor.POOL || []).find(x => !s.asked.has(MindLogic.normalizar(x)));
   if (!q) return classicGuess(true);
   classic.cur = { tipo: 'q', q };
+  const sparringCandidates=(classic.s?.ps||[]).map((p,i)=>({weight:classic.s?.w?.[i]||0,value:Sugeridor.val(MindLogic,q,p)}));
+  window.MindSparring?.question('clásico',q,{candidates:sparringCandidates});
   await addMessage(Clasico.frase(q), 'mind');
   classicBusy = false;
 }
@@ -518,7 +520,7 @@ window.MindDuelLearningPrompt = mostrarPreguntaAprendizaje;
 async function classicEnd(result = {}) {
   el('playAgainBtn')?.classList.add('hidden');
   el('playAgainSwapRolesBtn')?.classList.add('hidden');
-  if (classic.phase !== 'end') window.MatchHistory?.finish(result.wonBy === 'brain' ? 'Victoria del Cerebro' : result.wonBy === 'player' ? 'Victoria del jugador' : 'Finalizada', {modo:'clásico', personaje: result.nombre || ''});
+  if (classic.phase !== 'end') { const sparringReport=window.MindSparring?.finish('clásico',{result:result.wonBy||'finished'}); window.MatchHistory?.finish(result.wonBy === 'brain' ? 'Victoria del Cerebro' : result.wonBy === 'player' ? 'Victoria del jugador' : 'Finalizada', {modo:'clásico', personaje: result.nombre || '', sparring:sparringReport||null}); }
   classic.phase = 'end'; classic.cur = null; classicBusy = true; state.active=false;
   clearInterval(state.timerId);
   document.body.classList.remove('name-phase');
@@ -550,7 +552,7 @@ async function classicAnswer(ans) {
   classicBusy = true;
   if (c.tipo === 'q') await addMessage(CL_LABEL[ans], 'player');
   if (c.tipo === 'q') {
-    Clasico.responder(classic.s, MindLogic, c.q, ans); machineAutosave();
+    Clasico.responder(classic.s, MindLogic, c.q, ans); window.MindSparring?.answer('clásico',c.q,ans); machineAutosave();
     // El Cerebro no narra obviedades después de cada cuatro respuestas.
     // Su razonamiento debe notarse en la calidad y progresión de las preguntas.
     classicBusy = false;
@@ -558,11 +560,12 @@ async function classicAnswer(ans) {
   }
   el('classicGuessModal').classList.add('hidden');
   if (ans === 'si' || ans === 'psi') {
+    window.MindSparring?.guess('clásico',c.p?.nombre,true);
     await addMessage(`¡Lo sabía! Eras ${c.p.nombre}.`, 'mind');
     await classicEnd({wonBy:'brain', nombre:c.p.nombre, descripcion:c.p.descripcion || 'El personaje que estabas pensando.'});
     return;
   }
-  classic.fails++; Clasico.rechazar(classic.s, c.i);
+  classic.fails++; window.MindSparring?.guess('clásico',c.p?.nombre,false); Clasico.rechazar(classic.s, c.i);
   if (classic.fails >= MAX_GUESSES || !Clasico.mejor(classic.s)) return classicName();
   await addMessage('Esa no era. No importa: reajusto mis deducciones y continúo.', 'mind');
   classicBusy = false;
@@ -680,7 +683,7 @@ async function startGame() {
   classicSetMode(false);
   const modeHud = el('modeHud'); if (modeHud) modeHud.textContent = 'SOLO';
   resetGame();
-  window.MatchHistory?.begin('solo', {personaje: state.secret?.nombre || ''});
+  window.MatchHistory?.begin('solo', {personaje: state.secret?.nombre || ''}); window.MindSparring?.start('solo');
   show(ui.game);
   await addMessage('He elegido a alguien. Tienes veinte preguntas. Empieza.', 'mind');
   startTimer();
@@ -705,6 +708,7 @@ async function askQuestion(text) {
     return;
   }
   addMessage(clean, 'player');
+  window.MindSparring?.question('solo',clean);
   state.asked.add(MindLogic.normalizar(clean));
   lockInput(true);
 
@@ -723,13 +727,14 @@ async function askQuestion(text) {
   }
 
   if (answer === null) {
+    window.MindSparring?.answer('solo',clean,'unknown',{source:'knowledge_gap'});
     addMessage(pickLine(['Esa pregunta todavía se me resiste, detective. No voy a inventar un SÍ o un NO; probá con otra pista.', 'Mmm… esa pieza no la tengo. No confundas una laguna con una respuesta: preguntá de otra manera.', 'No tengo evidencia suficiente para responderte eso. Mi orgullo no me obliga a mentir; seguí interrogándome.', 'Esa no la puedo resolver con lo que sé. Guardaré la pregunta para mejorar, pero por ahora no pienso chamuyarte.']), 'mind');
     lockInput(false);
     ui.input.focus();
     return;
   }
 
-  state.facts.push({ texto: clean, concepto: conceptoUsado, answer: !!answer }); machineAutosave();
+  state.facts.push({ texto: clean, concepto: conceptoUsado, answer: !!answer }); window.MindSparring?.answer('solo',clean,!!answer,{source:source}); machineAutosave();
   state.questionCount++;
   if (answer) state.consecutiveNo = 0;
   else state.consecutiveNo++;
@@ -985,7 +990,7 @@ function finish(win, reason) {
   if (el('playAgainBtn')) el('playAgainBtn').textContent = 'JUGAR DE NUEVO';
   el('playAgainSwapRolesBtn')?.classList.add('hidden');
   window.MatchHistory?.record('SISTEMA', reason, 'result');
-  window.MatchHistory?.finish(win ? 'Victoria' : 'Derrota', {personaje: state.secret?.nombre || ''});
+  const sparringReport=window.MindSparring?.finish('solo',{result:win?'win':'loss'}); window.MatchHistory?.finish(win ? 'Victoria' : 'Derrota', {personaje: state.secret?.nombre || '', sparring:sparringReport||null});
   state.active = false;
   lockInput(true);
   clearInterval(state.timerId);
