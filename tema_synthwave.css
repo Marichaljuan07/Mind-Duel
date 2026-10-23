@@ -775,8 +775,8 @@ body.duel-online.duel-brain #brainInlinePanel .sequence-heading{margin-bottom:2p
 .online-transient-notice.has-action .reconnect-room-action{pointer-events:auto!important;touch-action:manipulation!important;min-height:44px!important;border-radius:9px!important;padding:10px 16px!important;background:rgba(0,216,255,.12)!important;border:1px solid rgba(25,240,255,.68)!important;color:#e7fdff!important}
 
 /* v3.13.67: control de privacidad del secreto en capturas completas */
-body.duel-online .online-secret-label{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
-body.duel-online .online-secret-value{min-width:0;overflow-wrap:anywhere;flex:1}
-body.duel-online .online-secret-label.secret-privacy-active{border-color:rgba(255,210,90,.7);color:#ffe6a1}
-body.duel-online .secret-privacy-toggle{flex-shrink:0;min-height:34px;padding:6px 10px;border:1px solid currentColor;border-radius:7px;background:rgba(3,8,25,.8);color:inherit;font:inherit;font-size:.85em;cursor:pointer;touch-action:manipulation}
+body.duel-online .online-secret-label{display:flex;align-items:center;justify-content:flex-start;gap:4px;flex-wrap:wrap}
+body.duel-online .online-secret-prefix{flex:0 0 auto}
+body.duel-online .online-secret-value{min-width:0;overflow-wrap:anywhere;flex:0 1 auto}
+body.duel-online .secret-privacy-toggle{flex-shrink:0;min-height:30px;margin-left:auto;padding:4px 8px;border:1px solid currentColor;border-radius:7px;background:rgba(3,8,25,.8);color:inherit;font:inherit;font-size:.78em;cursor:pointer;touch-action:manipulation}
 body.duel-online .secret-privacy-toggle:focus-visible{outline:2px solid #fff;outline-offset:2px}

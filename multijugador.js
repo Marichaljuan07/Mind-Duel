@@ -16,7 +16,7 @@ function recoverGameTranscript(saved){if(Array.isArray(saved?.transcript)&&saved
 function retryRestoreSavedSession(){const saved=readSavedSession();if(!saved||!saved.roomId){status('No hay ninguna partida guardada para recuperar.');refreshRestoreButton();return;}try{if(conn)conn.close();}catch{}try{if(peer)peer.destroy();}catch{}conn=null;peer=null;connected=false;reconnecting=true;status('Intentando recuperar la partida guardada…');restoreSavedSession();refreshRestoreButton();}
 window.addEventListener('mind:restore-saved-online',e=>{const chosen=e.detail?.snapshot;if(!chosen||!chosen.myRole){showModal();status('Esta partida no tiene un guardado automático suficiente en este dispositivo.');return;}restoreMatchId=String(e.detail?.matchId||'');try{localStorage.setItem(ONLINE_SESSION_KEY,JSON.stringify(chosen));}catch{}restoreSnapshotOffline(chosen);});
 function restoreSnapshotOffline(saved){
- restoreSnapshot=saved;host=!!saved.host;connected=false;clockElapsedBase=getSavedElapsedSeconds(saved);clockRunStartedAt=0;clockPaused=true;myRole=String(saved.myRole||'');theirRole=String(saved.theirRole||'');secret=myRole==='brain'?String(saved.secret||''):'';onlineStartedAt=Number(saved.startedAt)||Date.now();onlineQuestionCount=Number(saved.questionCount)||0;onlineAnswerCount=Number(saved.answerCount)||0;onlineGuessesLeft=Math.max(0,Math.min(2,Number(saved.guessesLeft??2)));pendingQuestion=String(saved.pendingQuestion||'');waitingForAnswer=!!saved.waitingForAnswer;waitingForGuess=!!saved.waitingForGuess;pendingOnlineGuess=String(saved.pendingOnlineGuess||'');lastGuessResolution=saved.lastGuessResolution||null;lastOnlineQuestion=String(saved.lastQuestion||'');lastOnlineAnswer=String(saved.lastAnswer||'');localTranscript=recoverGameTranscript(saved);phoneTranscript=recoverPhoneTranscript(saved);phoneUnreadCount=Math.max(0,Number(saved.phoneUnreadCount)||(phoneTranscript.length?phoneTranscript.length:0));remotePeerId=host?'':String(saved.roomId||'');localPeerId=String(saved.localPeerId||'');remotePlayerPeerId=String(saved.remotePlayerPeerId||'');
+ restoreSnapshot=saved;host=!!saved.host;connected=false;clockElapsedBase=getSavedElapsedSeconds(saved);clockRunStartedAt=0;clockPaused=true;myRole=String(saved.myRole||'');theirRole=String(saved.theirRole||'');secret=myRole==='brain'?String(saved.secret||''):'';onlineStartedAt=Number(saved.startedAt)||Date.now();onlineRoundStarted=!!(saved.myRole&&saved.startedAt);onlineQuestionCount=Number(saved.questionCount)||0;onlineAnswerCount=Number(saved.answerCount)||0;onlineGuessesLeft=Math.max(0,Math.min(2,Number(saved.guessesLeft??2)));pendingQuestion=String(saved.pendingQuestion||'');waitingForAnswer=!!saved.waitingForAnswer;waitingForGuess=!!saved.waitingForGuess;pendingOnlineGuess=String(saved.pendingOnlineGuess||'');lastGuessResolution=saved.lastGuessResolution||null;lastOnlineQuestion=String(saved.lastQuestion||'');lastOnlineAnswer=String(saved.lastAnswer||'');localTranscript=recoverGameTranscript(saved);phoneTranscript=recoverPhoneTranscript(saved);phoneUnreadCount=Math.max(0,Number(saved.phoneUnreadCount)||(phoneTranscript.length?phoneTranscript.length:0));remotePeerId=host?'':String(saved.roomId||'');localPeerId=String(saved.localPeerId||'');remotePlayerPeerId=String(saved.remotePlayerPeerId||'');
  if($('roomCode'))$('roomCode').textContent=String(saved.roomId||'');offlineRecovery=true;showModal();enterGame(onlineStartedAt,true);showOfflineRecoveryBar();$('offlineRecoveryBar')?.classList.add('hidden');showLibraryReconnectNotice(saved);status('Partida recuperada en este dispositivo. Todavía no hay conexión con tu rival.');persistSession();
 }
 function showLibraryReconnectNotice(saved){
@@ -142,10 +142,10 @@ function randomDiscovererGuessLine(){return discovererGuessLines[Math.floor(Math
 const nativeChat=$('chat');
 function status(t){setText('duelStatus',t);}
 let onlineNoticeTimer=null;
-let connectionWatchdogId=null, lastPeerHeartbeat=Date.now(), heartbeatSeq=0;
-function startConnectionWatchdog(){if(connectionWatchdogId)clearInterval(connectionWatchdogId);lastPeerHeartbeat=Date.now();connectionWatchdogId=setInterval(()=>{if(!document.body.classList.contains('duel-online')||onlineMatchFinished||onlineCleanupInProgress||!onlineStartedAt)return;if(!navigator.onLine){handleNetworkLoss('Tu dispositivo perdió la conexión a internet.');return;}if(!conn||!conn.open)return;const now=Date.now();if(now-lastPeerHeartbeat>12000){handleNetworkLoss('No se reciben señales del otro jugador. La conexión puede haberse cortado.');return;}send({type:'mdf_heartbeat',id:++heartbeatSeq,at:now});},3000);}
+let connectionWatchdogId=null, lastPeerHeartbeat=Date.now(), heartbeatSeq=0, onlineRoundStarted=false;
+function startConnectionWatchdog(){if(connectionWatchdogId)clearInterval(connectionWatchdogId);lastPeerHeartbeat=Date.now();connectionWatchdogId=setInterval(()=>{if(!document.body.classList.contains('duel-online')||onlineMatchFinished||onlineCleanupInProgress||!onlineStartedAt||!onlineRoundStarted)return;if(!navigator.onLine){handleNetworkLoss('Tu dispositivo perdió la conexión a internet.');return;}if(!conn||!conn.open)return;const now=Date.now();if(now-lastPeerHeartbeat>12000){handleNetworkLoss('No se reciben señales del otro jugador. La conexión puede haberse cortado.');return;}send({type:'mdf_heartbeat',id:++heartbeatSeq,at:now});},3000);}
 function stopConnectionWatchdog(){if(connectionWatchdogId){clearInterval(connectionWatchdogId);connectionWatchdogId=null;}}
-function handleNetworkLoss(reason){if(onlineCleanupInProgress||onlineMatchFinished||!document.body.classList.contains('duel-online')||offlineRecovery)return;offlineRecovery=true;connected=false;pauseOnlineClock();persistSession();status(reason+' El reloj está pausado y la partida se conserva.');showReconnectOption();}
+function handleNetworkLoss(reason){if(onlineCleanupInProgress||onlineMatchFinished||!document.body.classList.contains('duel-online')||!onlineRoundStarted||offlineRecovery)return;offlineRecovery=true;connected=false;pauseOnlineClock();persistSession();status(reason+' El reloj está pausado y la partida se conserva.');showReconnectOption();}
 window.addEventListener('offline',()=>handleNetworkLoss('Tu dispositivo perdió la conexión a internet (Wi-Fi o datos móviles).'));
 window.addEventListener('online',()=>{if(document.body.classList.contains('duel-online')&&offlineRecovery){showOnlineNotice('INTERNET DETECTADO · Pulsa RECONETAR para recuperar la partida.','warning',0,'RECONETAR',handleRecoveryReconnect);}});
 let recoveryBarTimer=null;
@@ -255,19 +255,22 @@ function renderSecretPrivacy(){
  const visible=myRole==='brain'&&!!value;
  label.classList.toggle('hidden',!visible);
  if(!visible){label.textContent='';return;}
- label.classList.toggle('secret-privacy-active',secretPrivacyEnabled);
+ label.classList.remove('secret-privacy-active');
  label.replaceChildren();
+ const prefix=document.createElement('span');
+ prefix.className='online-secret-prefix';
+ prefix.textContent='PERSONAJE ELEGIDO: ';
  const name=document.createElement('span');
  name.className='online-secret-value';
- name.textContent=secretPrivacyEnabled?'••••••••':('PERSONAJE ELEGIDO: '+value);
- name.setAttribute('aria-label',secretPrivacyEnabled?'Personaje oculto por privacidad':'Personaje elegido');
+ name.textContent=secretPrivacyEnabled?'••••••':value;
+ name.setAttribute('aria-label',secretPrivacyEnabled?'Nombre del personaje oculto':'Nombre del personaje');
  const btn=document.createElement('button');
  btn.type='button';btn.className='secret-privacy-toggle';
- btn.textContent=secretPrivacyEnabled?'👁 MOSTRAR':'◉ OCULTAR';
+ btn.textContent=secretPrivacyEnabled?'MOSTRAR':'OCULTAR';
  btn.setAttribute('aria-pressed',String(secretPrivacyEnabled));
- btn.setAttribute('aria-label',secretPrivacyEnabled?'Mostrar personaje secreto':'Ocultar personaje secreto para compartir la pantalla');
+ btn.setAttribute('aria-label',secretPrivacyEnabled?'Mostrar nombre del personaje':'Ocultar solamente el nombre del personaje');
  btn.addEventListener('click',()=>{secretPrivacyEnabled=!secretPrivacyEnabled;renderSecretPrivacy();});
- label.append(name,btn);
+ label.append(prefix,name,btn);
 }
 function enterGame(startAt,restoring=false){
  onlineMatchFinished=false;onlineCleanupInProgress=false;
@@ -296,6 +299,7 @@ function enterGame(startAt,restoring=false){
  status(restoring?'Partida recuperada. Verificá el estado y seguí jugando.':'Duelo online iniciado.');persistSession();
 }
 function onData(d){if(!d||typeof d!=='object')return;
+ if(d.type==='secret_ready'&&d.ready){onlineRoundStarted=true;return;}
  if(d.type==='mdf_heartbeat'){send({type:'mdf_heartbeat_ack',id:d.id});return;}
  if(d.type==='mdf_heartbeat_ack'){lastPeerHeartbeat=Date.now();return;}
  // La sala activa manda su rol y estado al jugador que vuelve. No se abre el selector de roles.
@@ -312,7 +316,7 @@ function onData(d){if(!d||typeof d!=='object')return;
   const assignedRole=(localRole==='brain'||localRole==='guess')?localRole:(remoteRole==='brain'?'guess':'brain');
   const base=sameLocal?prior:(restoreSnapshot&&restoreSnapshot.startedAt?restoreSnapshot:remote);
   myRole=assignedRole;theirRole=remoteRole;connected=true;offlineRecovery=false;
-  onlineStartedAt=Number(base.startedAt||remote.startedAt)||Date.now();
+  onlineStartedAt=Number(base.startedAt||remote.startedAt)||Date.now();onlineRoundStarted=true;
   onlineQuestionCount=Math.max(0,Number(base.questionCount??remote.questionCount??remote.questionsSeen)||0);
   onlineAnswerCount=Math.max(0,Number(base.answerCount??remote.answerCount??remote.answersSeen)||0);
   onlineGuessesLeft=Math.max(0,Math.min(2,Number(base.guessesLeft??remote.guessesLeft??2)));
@@ -440,7 +444,7 @@ function ready(c){conn=c;conn.on('open',()=>{lastPeerHeartbeat=Date.now();startC
    restoreSnapshot={...(saved||restoreSnapshot||{}),version:6,host,roomId:host?String($('roomCode')?.textContent||'').trim():remotePeerId,myRole,theirRole,secret:myRole==='brain'?secret:'',startedAt:onlineStartedAt,questionCount:onlineQuestionCount,answerCount:onlineAnswerCount,guessesLeft:onlineGuessesLeft,pendingQuestion,waitingForAnswer,waitingForGuess,pendingOnlineGuess,lastGuessResolution,lastQuestion:lastOnlineQuestion,lastAnswer:lastOnlineAnswer,transcript:localTranscript.slice(-500),phoneTranscript:phoneTranscript.slice(-300),phoneUnreadCount,elapsedSeconds:Math.floor(getOnlineElapsedSeconds()),inGame:true,savedAt:Date.now()};
    persistSession();
   }else{
-   restoreSnapshot=saved;clockElapsedBase=getSavedElapsedSeconds(saved);clockRunStartedAt=0;clockPaused=true;myRole=saved.myRole;theirRole=saved.theirRole||'';secret=myRole==='brain'?String(saved.secret||''):'';onlineStartedAt=Number(saved.startedAt)||Date.now();onlineQuestionCount=Number(saved.questionCount)||0;onlineAnswerCount=Number(saved.answerCount)||0;onlineGuessesLeft=Math.max(0,Math.min(2,Number(saved.guessesLeft??2)));pendingQuestion=String(saved.pendingQuestion||'');waitingForAnswer=!!saved.waitingForAnswer;waitingForGuess=!!saved.waitingForGuess;pendingOnlineGuess=String(saved.pendingOnlineGuess||'');lastGuessResolution=saved.lastGuessResolution||null;lastOnlineQuestion=String(saved.lastQuestion||'');lastOnlineAnswer=String(saved.lastAnswer||'');localTranscript=recoverGameTranscript(saved);phoneTranscript=recoverPhoneTranscript(saved);phoneUnreadCount=Math.max(0,Number(saved.phoneUnreadCount)||(phoneTranscript.length?phoneTranscript.length:0));enterGame(onlineStartedAt,true);
+   restoreSnapshot=saved;clockElapsedBase=getSavedElapsedSeconds(saved);clockRunStartedAt=0;clockPaused=true;myRole=saved.myRole;theirRole=saved.theirRole||'';secret=myRole==='brain'?String(saved.secret||''):'';onlineStartedAt=Number(saved.startedAt)||Date.now();onlineRoundStarted=!!(saved.myRole&&saved.startedAt);onlineQuestionCount=Number(saved.questionCount)||0;onlineAnswerCount=Number(saved.answerCount)||0;onlineGuessesLeft=Math.max(0,Math.min(2,Number(saved.guessesLeft??2)));pendingQuestion=String(saved.pendingQuestion||'');waitingForAnswer=!!saved.waitingForAnswer;waitingForGuess=!!saved.waitingForGuess;pendingOnlineGuess=String(saved.pendingOnlineGuess||'');lastGuessResolution=saved.lastGuessResolution||null;lastOnlineQuestion=String(saved.lastQuestion||'');lastOnlineAnswer=String(saved.lastAnswer||'');localTranscript=recoverGameTranscript(saved);phoneTranscript=recoverPhoneTranscript(saved);phoneUnreadCount=Math.max(0,Number(saved.phoneUnreadCount)||(phoneTranscript.length?phoneTranscript.length:0));enterGame(onlineStartedAt,true);
   }
  }
  else{status('Conexión establecida. Elegí tu papel.');addMessage('SISTEMA','Conexión establecida.','system');if(myRole&&theirRole)updateRoles();}
@@ -501,7 +505,7 @@ on('roleGuessBtn','click',()=>{if(theirRole==='guess'){status('Tu amigo ya eligi
 function normalizeName(v){return String(v||'').trim().toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
 function findCharacter(name){const people=(typeof PERSONAJES!=='undefined'?PERSONAJES:window.PERSONAJES)||[];return people.find(p=>normalizeName(p.nombre)===normalizeName(name)||((p.alias||[]).some(a=>normalizeName(a)===normalizeName(name))))||null;}
 function setSecret(value){secret=String(value||'').trim();if(secret){const known=findCharacter(secret);$('brainSetupStatus').textContent=known?'Personaje de la lista seleccionado. Las sugerencias usarán sus datos.':'Personaje propio seleccionado. La memoria aprenderá de las respuestas que des.';$('startDuelBtn').disabled=false;}else{$('brainSetupStatus').textContent='Elegí un personaje o escribí uno propio.';$('startDuelBtn').disabled=true;}}
-on('secretCharacter','change',()=>setSecret($('secretCharacter').value));on('secretCharacter','input',()=>setSecret($('secretCharacter').value));on('startDuelBtn','click',()=>{setSecret($('secretCharacter').value);if(!secret){$('brainSetupStatus').textContent='Elegí o escribí un personaje antes de entrar.';return;}rememberCustomCharacter(secret);const startedAt=Date.now();send({type:'secret_ready',ready:true,startedAt});enterGame(startedAt);persistSession();});
+on('secretCharacter','change',()=>setSecret($('secretCharacter').value));on('secretCharacter','input',()=>setSecret($('secretCharacter').value));on('startDuelBtn','click',()=>{setSecret($('secretCharacter').value);if(!secret){$('brainSetupStatus').textContent='Elegí o escribí un personaje antes de entrar.';return;}rememberCustomCharacter(secret);onlineRoundStarted=true;const startedAt=Date.now();send({type:'secret_ready',ready:true,startedAt});enterGame(startedAt);persistSession();});
 function readTraining(){try{return JSON.parse(localStorage.getItem('mind_duel_human_training')||'[]')}catch{return []}}
 function rememberCustomCharacter(name){try{const key='mind_duel_custom_characters';const list=JSON.parse(localStorage.getItem(key)||'[]');if(!findCharacter(name)&&!list.some(x=>normalizeName(x.nombre)===normalizeName(name)))list.push({nombre:name,creado:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(list.slice(-500)));}catch{}}
 // Intercepta el formulario NATIVO del juego: en modo cerebro envía respuestas; en modo descubridor envía preguntas.

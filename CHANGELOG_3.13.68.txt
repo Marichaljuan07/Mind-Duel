@@ -1,0 +1,9 @@
+Mind Duel Fusion v3.13.68 PREVIA — Privacidad precisa y desconexión solo durante partida
+
+- El control de privacidad oculta únicamente el nombre del personaje; conserva el texto “PERSONAJE ELEGIDO:”, el color, fondo y borde originales de la franja.
+- Se quita el cambio de color naranja al activar la privacidad.
+- Ajusta el botón de privacidad para que sea secundario y no sustituya el contenido de la franja.
+- La detección de pérdida de conexión por eventos offline/heartbeat solo muestra el aviso de partida desconectada cuando la ronda ya empezó, no durante la creación de sala ni en la selección inicial.
+- La ronda se considera iniciada cuando el Cerebro confirma el personaje; al recuperar una partida guardada se restaura ese estado.
+- Basada en v3.13.67 PREVIA. No modifica la v3.13.49 ESTABLE.
+- Pendiente de pruebas reales en dos dispositivos, de pérdida de red y captura de pantalla en Android.
