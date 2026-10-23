@@ -1,0 +1,20 @@
+const assert=require('assert');
+const fs=require('fs'),vm=require('vm');
+const ctx={};vm.createContext(ctx);vm.runInContext(fs.readFileSync('./personajes.js','utf8')+';globalThis.PERSONAJES=PERSONAJES',ctx);
+const P=ctx.PERSONAJES,L=require('./motor_logico.js'),K=require('./conocimiento.js'),S=require('./sugeridor.js'),C=require('./clasico.js'),A=require('./auditor_integrado.js');
+global.window={MindKnowledge:K};global.Sugeridor=S;global.MindLogic=L;global.PERSONAJES=P;
+let pass=0;function ok(test,msg){assert.ok(test,msg);pass++;console.log('OK  '+msg)}
+const scooby=P.find(p=>p.nombre==='Scooby-Doo');
+ok(P.length===98,'catálogo conserva 98 candidatos canónicos');
+ok(L.evaluarPregunta('¿Aparece en televisión o series?',scooby)===true,'televisión/series reconoce el valor explícito del catálogo');
+ok(L.evaluarPregunta('¿Aparece en películas?',scooby)===true,'películas reconoce singular/plural');
+ok(L.evaluarPregunta('¿Es inglés?',{tipo:'ficticio',genero:'otro',nacionalidades:[]})===null,'nacionalidad ausente queda DESCONOCIDA, no NO');
+ok(S.val(L,'¿Es artista?',P.find(p=>p.nombre==='Leonardo da Vinci'))===true,'pregunta artista usa etiquetas de la ficha');
+ok(S.val(L,'¿Es pacifista?',P.find(p=>p.nombre==='Albert Einstein'))===true,'pregunta pacifista usa etiquetas de la ficha');
+ok(S.val(L,'¿Es de la Antigüedad?',P.find(p=>p.nombre==='Cleopatra'))===true,'pregunta Antigüedad reconocida');
+ok(S.val(L,'¿Es de la Edad Media?',{nombre:'Ficha sin época',tipo:'real',etiquetas:[]})===null,'no inventa época histórica ausente si no hay evidencia de ninguna época');
+ok(S.val(L,'¿Es de Asia?',scooby)===null,'región geográfica sin evidencia queda desconocida');
+const report=A.auditar(P,L,K,S);ok(report.fichas===98,'auditor revisa todo el catálogo');ok(report.conceptosCubiertos===report.conceptosProbados,'auditor confirma cobertura de los conceptos probados');
+const st=C.nuevo(P);const oldRandom=Math.random;Math.random=()=>0;const q1=C.pregunta(st,L);ok(typeof q1==='string'&&q1.length>0,'Clásico produce pregunta con el catálogo real');
+C.responder(st,L,q1,'si');const q2=C.pregunta(st,L);Math.random=oldRandom;ok(typeof q2==='string'&&L.normalizar(q1)!==L.normalizar(q2),'Clásico adapta la siguiente pregunta y evita repetir (aleatoriedad fijada en el test)');
+console.log(`\nRESULTADO: ${pass}/13 pruebas correctas; auditoría: ${report.errores} errores estructurales y ${report.advertencias} advertencias.`);

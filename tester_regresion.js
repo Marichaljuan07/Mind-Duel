@@ -7,7 +7,7 @@ const tests=[
  ['Einstein real','¿Es una persona real?',get('Albert Einstein'),true],
  ['Einstein mujer','¿Es una mujer?',get('Albert Einstein'),false],
  ['Leonardo artista','¿Es artista?',get('Leonardo da Vinci'),true],
- ['Messi científico no confirmado','¿Es científico?',get('Lionel Messi'),null],
+ ['Messi no es científico según su ficha','¿Es científico?',get('Lionel Messi'),false],
  ['Gandalf magia','¿Usa magia?',get('Gandalf'),true],
  ['Batman poderes','¿Tiene poderes?',get('Batman'),false],
  ['Hermione mujer','¿Es una mujer?',get('Hermione Granger'),true],

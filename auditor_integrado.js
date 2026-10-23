@@ -1,0 +1,28 @@
+/* Auditor automático de catálogo y cobertura lógica. Solo diagnostica; no inventa ni corrige hechos. */
+(function(){
+'use strict';
+const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+function auditar(ps,L,K,S){const issues=[],warnings=[];const names=new Map(),aliases=new Map();let valid=0,unknownFields=0,conceptTests=0;
+ const issue=(kind,msg)=>issues.push({kind,msg});
+ (ps||[]).forEach((p,i)=>{if(!p||!String(p.nombre||'').trim()){issue('ficha','Ficha '+i+' sin nombre');return}valid++;const n=norm(p.nombre);if(names.has(n))issue('duplicado','Nombre duplicado: '+p.nombre);else names.set(n,p);
+  for(const a of (Array.isArray(p.alias)?p.alias:[])){const k=norm(a);if(!k)continue;if(names.has(k)&&names.get(k)!==p)issue('alias','Alias '+a+' coincide con otro nombre canónico');if(aliases.has(k)&&aliases.get(k)!==p)issue('alias','Alias duplicado entre fichas: '+a);else aliases.set(k,p)}
+  if(!Array.isArray(p.alias))issue('estructura','Alias no es una lista: '+p.nombre);
+  if(!['real','ficticio'].includes(p.tipo))issue('dato','Tipo ausente/incorrecto: '+p.nombre);
+  if(!['hombre','mujer','otro'].includes(p.genero))issue('dato','Género ausente/incorrecto: '+p.nombre);
+  if(typeof p.real==='boolean'&&((p.tipo==='real'&&!p.real)||(p.tipo==='ficticio'&&p.real)))issue('contradiccion','Campo real contradice tipo: '+p.nombre);
+  if(typeof p.ficticio==='boolean'&&((p.tipo==='real'&&p.ficticio)||(p.tipo==='ficticio'&&!p.ficticio)))issue('contradiccion','Campo ficticio contradice tipo: '+p.nombre);
+  if(p.genero==='hombre'&&p.mujer===true)issue('contradiccion','Género hombre y campo mujer=true: '+p.nombre);
+  if(p.genero==='mujer'&&p.hombre===true)issue('contradiccion','Género mujer y campo hombre=true: '+p.nombre);
+  if(p.region==='europa'&&p.region_america===true)issue('contradiccion','Región Europa y region_america=true: '+p.nombre);
+  if(p.region==='america'&&p.region_europa===true)issue('contradiccion','Región América y region_europa=true: '+p.nombre);
+  if(Array.isArray(p.nacionalidades)&&p.nacionalidades.some(x=>norm(x)==='ficcion'))warnings.push('La nacionalidad mezcla ficción con nacionalidades: '+p.nombre);
+  const checks=[['peliculas','pelicula'],['libros','libro'],['comics','comic'],['television','serie'],['animacion','animacion']];for(const [field,medio] of checks){if(typeof p[field]==='boolean'&&Array.isArray(p.medios)&&p.medios.length){const set=p.medios.map(norm);const aliases=medio==='serie'?['serie','television','tv']:medio==='pelicula'?['pelicula','peliculas','cine']:medio==='comic'?['comic','comics','historieta']:medio==='libro'?['libro','libros','novela','literatura']:['animacion','anime','manga'];if(p[field]!==set.some(x=>aliases.includes(x)))warnings.push('Campo '+field+' no coincide con medios de '+p.nombre)}}
+ });
+ const sample=[['¿Es artista?','artista'],['¿Es pacifista?','pacifista'],['¿Es de Asia?','region_asia'],['¿Es de la Antigüedad?','antiguedad'],['¿Es de la Edad Media?','medieval'],['¿Es del Renacimiento?','renacimiento'],['¿Es inglés?','nac_ingles'],['¿Es español?','nac_espanol'],['¿Aparece en televisión o series?','television']];
+ for(const [q,c] of sample){const mapped=(K&&K.conceptoDePregunta(q))|| (S&&S.concepto(q));if(mapped===c)conceptTests++;else issue('concepto','Pregunta sin mapeo compartido correcto: '+q+' → '+String(mapped));}
+ const atributos=['hijos','animal','origen_terrestre','artista','pacifista','combate'];const cobertura={};for(const field of atributos){let confirmados=0,inferibles=0,desconocidos=0;for(const p of (ps||[])){const v=field==='origen_terrestre'?p.origen_terrestre:p[field];if(typeof v==='boolean')confirmados++;else if(field==='origen_terrestre'&&p.tipo==='real')inferibles++;else if(field==='artista'&&(p.etiquetas||[]).some(t=>['artista','pintor','musico','autor','escritor','dramaturgo','poeta','cantante','compositor','actor','actriz','director','escultor','fotografo','bailarin','bailarina'].includes(norm(t))))inferibles++;else if(field==='pacifista'&&(p.etiquetas||[]).some(t=>norm(t)==='pacifista'))inferibles++;else if(field==='combate'&&(p.etiquetas||[]).some(t=>['combate','guerrero','soldado','militar','luchador','peleador','ninja','jedi','sith'].includes(norm(t))))inferibles++;else if(field==='animal'&&(p.etiquetas||[]).some(t=>['animal','perro','gato','canino','felino'].includes(norm(t))))inferibles++;else desconocidos++;}cobertura[field]={confirmados,inferibles,desconocidos};}
+ const report={version:'3.13.59',fichas:valid,conceptosProbados:sample.length,conceptosCubiertos:conceptTests,errores:issues.length,advertencias:warnings.length,cobertura,issues,warnings,fecha:new Date().toISOString()};
+ return report;
+}
+const api={auditar};if(typeof module!=='undefined'&&module.exports)module.exports=api;else{window.MindAudit=api;try{const report=auditar(window.PERSONAJES,window.MindLogic,window.MindKnowledge,window.Sugeridor);window.MindAuditReport=report;console.info('[Mind Duel auditoría]',report);document.addEventListener('DOMContentLoaded',()=>{const el=document.getElementById('mindAuditStatus');if(el){const cov=Object.entries(report.cobertura||{}).map(([k,v])=>`${k}: ${v.confirmados} confirmados, ${v.inferibles} inferibles, ${v.desconocidos} pendientes`).join(' · ');el.textContent=`Auditoría automática: ${report.fichas} fichas · ${report.errores} errores estructurales · ${report.advertencias} advertencias. Cobertura prioritaria: ${cov}. Los datos desconocidos se mantienen como desconocidos.`;}}); }catch(e){console.warn('[Mind Duel auditoría] No se pudo completar:',e)}}
+})();

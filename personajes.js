@@ -189,6 +189,7 @@ const PERSONAJES = [
   },
   {
     "nombre": "William Shakespeare",
+    "hijos": true, "animal": false, "origen_terrestre": true, "artista": true, "combate": false,
     "alias": [
       "shakespeare"
     ],
@@ -297,6 +298,7 @@ const PERSONAJES = [
   },
   {
     "nombre": "Lionel Messi",
+    "hijos": true, "animal": false, "origen_terrestre": true, "artista": false, "escritor": false, "cientifico": false, "combate": false,
     "alias": [
       "messi",
       "leo messi"
@@ -1335,6 +1337,7 @@ const PERSONAJES = [
   },
   {
     "nombre": "Yoda",
+    "animal": false,
     "alias": [
       "yoda"
     ],
@@ -2621,6 +2624,7 @@ const PERSONAJES = [
   },
   {
     "nombre": "Pikachu",
+    "animal": true, "origen_terrestre": false, "artista": false, "combate": false,
     "alias": [
       "pikachu"
     ],
@@ -3378,6 +3382,7 @@ const PERSONAJES = [
   },
   {
     "nombre": "Goku",
+    "hijos": true, "animal": false, "artista": false,
     "alias": [
       "goku"
     ],
@@ -3391,10 +3396,8 @@ const PERSONAJES = [
     "vivo": true,
     "humano": false,
     "famoso": true,
-    "region": "asia",
-    "nacionalidades": [
-      "ficcion"
-    ],
+    "region": null,
+    "nacionalidades": [],
     "idiomas": [
       "espanol"
     ],
@@ -3427,9 +3430,7 @@ const PERSONAJES = [
     "humano": true,
     "famoso": true,
     "region": "asia",
-    "nacionalidades": [
-      "ficcion"
-    ],
+    "nacionalidades": [],
     "idiomas": [
       "espanol"
     ],
@@ -3463,9 +3464,7 @@ const PERSONAJES = [
     "humano": false,
     "famoso": true,
     "region": "asia",
-    "nacionalidades": [
-      "ficcion"
-    ],
+    "nacionalidades": [],
     "idiomas": [
       "espanol"
     ],
@@ -3498,9 +3497,7 @@ const PERSONAJES = [
     "humano": true,
     "famoso": true,
     "region": "asia",
-    "nacionalidades": [
-      "ficcion"
-    ],
+    "nacionalidades": [],
     "idiomas": [
       "espanol"
     ],
@@ -3533,9 +3530,7 @@ const PERSONAJES = [
     "humano": true,
     "famoso": true,
     "region": "asia",
-    "nacionalidades": [
-      "ficcion"
-    ],
+    "nacionalidades": [],
     "idiomas": [
       "espanol"
     ],
@@ -3567,10 +3562,8 @@ const PERSONAJES = [
     "vivo": true,
     "humano": false,
     "famoso": true,
-    "region": "asia",
-    "nacionalidades": [
-      "ficcion"
-    ],
+    "region": null,
+    "nacionalidades": [],
     "idiomas": [
       "espanol"
     ],

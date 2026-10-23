@@ -130,7 +130,7 @@ const ORACULO = {
   main: 'Una elección audaz. El telón se alza. Veamos qué camino eliges, mortal.',
   menuReturn: 'Bienvenido de nuevo, mortal. El escenario está listo: elegí cómo querés jugar o volvé cuando quieras.',
   classicReturn: 'Muy bien, dejamos la revancha para después. Podés iniciar o continuar una partida, consultar el historial o volver al menú anterior.',
-  classicChooseCharacter: 'Pensá en un personaje real o ficticio y escribí su nombre. Cuando estés listo, empezamos una nueva partida clásica.',
+  classicChooseCharacter: 'Elegí a tu personaje, mortal. Yo haré las preguntas, vos decidirás qué respuestas me das… y veremos si mi deducción está a la altura de mi reputación.',
   classicSetupReturn: 'El modo clásico sigue disponible, mortal. Si querés probar de nuevo, aceptá y elegí un personaje; si no, podés volver al menú principal.',
   solo: '¿Un desafío solitario? Pretendes enfrentarte a la infinidad de mi mente sin ayuda... Interesante.',
   espejo: 'El Espejo aún se está puliendo, mortal. Vuelve cuando el cristal esté listo.',
@@ -141,7 +141,7 @@ const ORACULO = {
   strike2: '¿Intentas agotar mi paciencia? Escribe una respuesta o cancela.',
   strike3: 'Has agotado mi paciencia. El privilegio de adivinar te ha sido revocado... por ahora.',
   vuelve: 'Te devuelvo el derecho de adivinar. No lo malgastes.',
-  clasico: 'Invertimos los papeles, mortal. Piensa en un personaje, real o ficticio, y yo intentaré adivinarlo en 20 preguntas.',
+  clasico: 'Ahora elegís vos el misterio y yo hago el trabajo. Pensá en alguien real o ficticio: voy a interrogar cada pista hasta descubrirlo. No confundas mi paciencia con falta de inteligencia, mortal.',
   bloqueada: 'Aún no puedo guiarte. Averigua lo básico: ¿real o ficticio? ¿hombre o mujer? ¿humano?'
 };
 
@@ -260,7 +260,7 @@ async function startSelectedMachineMode(){
   if(state.pendingMode==='classic'){
     const form=el('classicSecretNameForm');
     if(form){form.classList.remove('hidden');el('classicSecretNameInput').value='';el('classicSecretNameInput').focus();}
-    ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${nextStageDialogue('classicChooseCharacter', [ORACULO.classicChooseCharacter, 'Bien, mortal: pensá en alguien real o ficticio y escribí su nombre. Cuando lo tengas, pondremos a prueba mis deducciones.', 'Elegí un personaje y escribí su nombre. No me lo cuentes en el chat: voy a intentar descubrirlo con tus respuestas.'])}`;
+    ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${nextStageDialogue('classicChooseCharacter', [ORACULO.classicChooseCharacter, 'Bien, mortal: pensá en alguien real o ficticio y escribí su nombre. Cuando lo tengas, pondremos a prueba mis deducciones.', 'Elegí un personaje y anotá su nombre para preparar la partida. Después, dejame hacer las preguntas: veremos si consigo descubrirlo.'])}`;
     ui.stage.classList.add('stage-ready');
     return;
   }
@@ -337,7 +337,7 @@ async function startClassic() {
   const chosen=el('classicChosenCharacter'); if(chosen) chosen.textContent='';
   const secretLabel=el('onlineSecretLabel'); if(secretLabel){secretLabel.textContent='PERSONAJE ELEGIDO: '+classicSecretName;secretLabel.classList.remove('hidden');}
   classicBusy = false;
-  await addMessage('Ya elegiste tu personaje. Voy a intentar descubrirlo con tus respuestas; no hace falta que me lo reveles en el chat.', 'mind');
+  await addMessage(pickLine(['Ya tengo el tablero listo. Respondé con cuidado, mortal: cada pista puede acercarme a tu personaje.', 'Perfecto. Ahora empieza mi investigación. No confundas una pregunta sencilla con una deducción sencilla.', 'Que empiece el interrogatorio. Vos conocés la respuesta; yo voy a demostrar que puedo encontrarla.']), 'mind');
   startTimer();
   // La pregunta inicial se solicita después de que termine la presentación.
   classicBusy = false;
@@ -388,33 +388,58 @@ async function classicGuess(announce = false) {
 async function classicName() {
   classicBusy = true;
   classic.cur = null; classic.phase = 'name';
-  if (classicSecretName.trim()) { await addMessage('No logré descubrirlo. Reconozco tu victoria.', 'mind'); const known=findKnownCharacter(classicSecretName); const saved=localStorage.getItem('mind_character_description_'+classicSecretName)||''; return classicEnd({wonBy:'player',nombre:classicSecretName,descripcion:(known&&known.descripcion)||saved||'El Cerebro no logró identificar tu personaje.'}); }
-  await addMessage('No he logrado identificarlo. Decime en quién estabas pensando y lo anotamos.', 'mind');
+  await addMessage(pickLine([
+    '¡No puede ser! Se me acabaron las teorías, no el orgullo. Anotá en este chat quién era tu personaje; quiero estudiar este fracaso antes de que te agrandes.',
+    'Esta vez se me escapó. Escribí el nombre de tu personaje acá mismo en el chat, detective. Después hablamos de tu supuesta victoria.',
+    '¡Una laguna en mi brillante razonamiento! Anotá el nombre del personaje en el chat. Quiero saber qué caso me hizo perder el tiempo.'
+  ]), 'mind');
   document.body.classList.add('name-phase');
   $cl('classicPanel').classList.add('hidden');
-  ui.resultTag.textContent='MODO CLÁSICO';
-  ui.resultTitle.textContent='¡EL CEREBRO NO LO DESCIFRÓ!';
-  ui.resultCharacter.textContent='Tu personaje sigue siendo un misterio.';
-  ui.resultDescription.textContent='Tu victoria está casi lista. Contame quién era para mostrar el resultado final.';
-  el('resultActions').classList.add('hidden');
-  el('classicCharacterNameForm').classList.remove('hidden');
-  show(ui.result);
-  el('classicCharacterNameInput').value='';
-  el('classicCharacterNameInput').focus();
+  el('classicGuessModal')?.classList.add('hidden');
+  el('classicCharacterNameForm')?.classList.add('hidden');
+  show(ui.game);
+  ui.input.disabled = false; ui.send.disabled = false;
+  ui.input.placeholder = 'Anotá acá el nombre de tu personaje…';
+  ui.input.setAttribute('aria-label','Nombre del personaje que elegiste');
+  ui.input.focus();
+  classicBusy = false;
 }
 
 async function classicSaveName(text) {
-  const nombre = text.trim();
-  if (!nombre) return;
+  const nombre = String(text || '').trim();
+  if (!nombre || classic.phase !== 'name') return;
+  classicBusy = true;
   await addMessage(nombre, 'player');
-  try {
+  if (classicSecretName.trim()) {
+    const originalKnown=findKnownCharacter(classicSecretName), enteredKnown=findKnownCharacter(nombre);
+    const sameKnown=originalKnown&&enteredKnown&&MindLogic.normalizar(originalKnown.nombre)===MindLogic.normalizar(enteredKnown.nombre);
+    if (MindLogic.normalizar(classicSecretName)!==MindLogic.normalizar(nombre) && !sameKnown) {
+      await addMessage('Ese nombre no coincide con el que elegiste al comenzar. Anotalo otra vez, detective; no voy a registrar un caso equivocado.', 'mind');
+      classicBusy=false; ui.input.focus(); return;
+    }
+  }
+  const known=findKnownCharacter(nombre); const nombreCanonico=known?.nombre||nombre;
+  if(!known)try {
     const k = 'mind_personajes_nuevos';
     const l = JSON.parse(localStorage.getItem(k) || '[]');
-    l.push({ nombre, fecha: new Date().toISOString(), respuestas: classic.s.log });
+    const norm = MindLogic.normalizar(nombreCanonico);
+    const ix = l.findIndex(x => MindLogic.normalizar(x.nombre || '') === norm);
+    const row = { nombre:nombreCanonico, fecha: new Date().toISOString(), respuestas: classic.s?.log || [], origen: 'clásico', resultado: 'jugador' };
+    if (ix >= 0) l[ix] = { ...l[ix], ...row }; else l.push(row);
     localStorage.setItem(k, JSON.stringify(l));
   } catch (e) {}
-  await addMessage(`Anotado: ${nombre}. Me has superado esta vez. Disfruta tu victoria; volveré mejor preparado.`, 'mind');
-  const known=findKnownCharacter(nombre); const saved=localStorage.getItem('mind_character_description_'+nombre)||''; if(window.MindKnowledge){window.MindKnowledge.plantilla(nombre,{descripcion:saved||'',origen:'clasico'});window.MindKnowledge.registrarRespuestasPartida(nombre,classic.s?.log||[],known||null);} classicEnd({wonBy:'player', nombre, descripcion:(known&&known.descripcion)||saved||'El Cerebro no logró identificar tu personaje.'});
+  await addMessage(pickLine([
+    `Anotado: ${nombre}. ¡Qué humillación! Disfrutá la victoria, detective; voy a revisar cada una de tus respuestas.`,
+    `${nombre}… ya veo dónde se me escapó. Esta ronda es tuya, pero no te acostumbres.`,
+    `Queda registrado: ${nombre}. Ganaste esta vez. Mi orgullo está herido; mi curiosidad, no.`
+  ]), 'mind');
+  const saved=localStorage.getItem('mind_character_description_'+nombreCanonico)||localStorage.getItem('mind_character_description_'+nombre)||'';
+  if(window.MindKnowledge){window.MindKnowledge.plantilla(nombreCanonico,{descripcion:(known&&known.descripcion)||saved||'',origen:'clasico',datosPendientes:!known});window.MindKnowledge.registrarRespuestasPartida(nombreCanonico,classic.s?.log||[],known||null);}
+  classicSecretName = nombreCanonico;
+  await sleep(1100);
+  document.body.classList.remove('name-phase');
+  ui.input.placeholder = 'Pregunta de sí/no...'; ui.input.setAttribute('aria-label','Pregunta');
+  await classicEnd({wonBy:'player', nombre:nombreCanonico, descripcion:(known&&known.descripcion)||saved||'El Cerebro no logró identificar tu personaje.'});
 }
 
 function pickLine(lines) { return lines[Math.floor(Math.random() * lines.length)]; }
@@ -456,7 +481,7 @@ const CLASSIC_PLAYER_WIN_LINES = [
   n => `¡Esta vez me ganaste! ${n} me dejó sin respuesta. Celebralo ahora, porque la próxima partida voy a elegir mejor mis preguntas.`,
   n => `¡Increíble! Tu personaje era ${n} y mis deducciones no alcanzaron. Te llevás esta ronda, pero no te acostumbres.`
 ];
-function findKnownCharacter(name){try{return (PERSONAJES||[]).find(p=>MindLogic.normalizar(p.nombre)===MindLogic.normalizar(name))||null;}catch{return null;}}
+function findKnownCharacter(name){try{const n=MindLogic.normalizar(name);return (PERSONAJES||[]).find(p=>MindLogic.normalizar(p.nombre)===n||(Array.isArray(p.alias)&&p.alias.some(a=>MindLogic.normalizar(a)===n)))||null;}catch{return null;}}
 function getCharacterDescription(name, fallback=''){
   const key='mind_character_description_'+String(name||'');
   try { const custom=localStorage.getItem(key); if(custom && custom.trim()) return custom.trim(); } catch {}
@@ -523,6 +548,23 @@ async function classicAnswer(ans) {
   if (c.tipo === 'q') await addMessage(CL_LABEL[ans], 'player');
   if (c.tipo === 'q') {
     Clasico.responder(classic.s, MindLogic, c.q, ans); machineAutosave();
+    const log = classic.s?.log || [];
+    if (log.length >= 4 && log.length % 4 === 0) {
+      const recent = log.slice(-4);
+      const yes = recent.filter(x => x.a === 'si' || x.a === 'psi').length;
+      const no = recent.filter(x => x.a === 'no' || x.a === 'pno').length;
+      const eras = recent.filter(x => /antiguedad|edad media|medieval|renacimiento/i.test(MindLogic.normalizar(x.q || '')));
+      const allLog = log.map(x => ({...x, nq: MindLogic.normalizar(x.q || '')}));
+      const descartoEuropa = allLog.some(x => /europa|europeo|europea/.test(x.nq) && ['no','pno'].includes(x.a));
+      const preguntoEpoca = allLog.some(x => /antiguedad|edad media|medieval|renacimiento/.test(x.nq));
+      let observation = '';
+      if (descartoEuropa && preguntoEpoca) observation = 'Ya descartaste Europa y ahora estás tanteando las épocas históricas… Bien, detective: voy a cruzar esas pistas antes de arriesgar un nombre.';
+      else if (eras.length >= 2) observation = 'Veo que estás acotando por épocas. Interesante… voy a cruzar esas pistas antes de arriesgar un nombre.';
+      else if (yes >= 3) observation = 'Cuatro respuestas y casi todas afirmativas. Ya empiezo a ver un patrón, aunque todavía no voy a cantar victoria.';
+      else if (no >= 3) observation = 'Vaya racha de negativas. Estás descartando terreno; ahora me toca encontrar qué comparten los sospechosos restantes.';
+      else observation = 'Tus respuestas no dibujan un patrón sencillo. Mejor cruzo las pistas antes de sacar conclusiones precipitadas.';
+      await addMessage(observation, 'mind');
+    }
     classicBusy = false;
     return nextClassic();
   }
@@ -664,7 +706,7 @@ function lockInput(v) {
 }
 
 async function askQuestion(text) {
-  if (state.mode === 'classic') { if (classic.phase === 'name') classicSaveName(text); return; }
+  if (state.mode === 'classic') { if (classic.phase === 'name') await classicSaveName(text); return; }
   if (!state.active || state.busy) return;
   const clean = text.trim();
   if (!clean) return;
@@ -693,7 +735,7 @@ async function askQuestion(text) {
   }
 
   if (answer === null) {
-    addMessage('Todavía no tengo un concepto fiable para responder eso. Guardé la pregunta para poder enseñársela al Cerebro; por ahora no voy a inventar un SÍ o un NO. Probá otra pregunta.', 'mind');
+    addMessage(pickLine(['Esa pregunta todavía se me resiste, detective. No voy a inventar un SÍ o un NO; probá con otra pista.', 'Mmm… esa pieza no la tengo. No confundas una laguna con una respuesta: preguntá de otra manera.', 'No tengo evidencia suficiente para responderte eso. Mi orgullo no me obliga a mentir; seguí interrogándome.', 'Esa no la puedo resolver con lo que sé. Guardaré la pregunta para mejorar, pero por ahora no pienso chamuyarte.']), 'mind');
     lockInput(false);
     ui.input.focus();
     return;

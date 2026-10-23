@@ -27,4 +27,4 @@ console.log(fail?fail+' FALLOS':'Todo OK');process.exitCode=fail?1:0;
 
 // El banco inicial debe ser amplio y no revelar categorías específicas.
 const early=S.sugerir(L,P,[],new Set(),30,5);
-t('etapa inicial: evita categorías reveladoras',early.every(q=>['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es una mujer?','¿Es un hombre?','¿Sigue con vida?','¿Es de Europa?','¿Es de América?','¿Es científico?','¿Es artista?','¿Es escritor?','¿Es filósofo?','¿Es político?','¿Es militar?','¿Es detective?','¿Es pacifista?','¿Es rico?','¿Es de la Antigüedad?','¿Es de la Edad Media?'].includes(q)));
+t('etapa inicial: evita categorías reveladoras',early.every(q=>['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es un animal?','¿Es una mujer?','¿Es un hombre?','¿Sigue con vida?','¿Es de Europa?','¿Es de América?','¿Es científico?','¿Es artista?','¿Es escritor?','¿Es filósofo?','¿Es político?','¿Es militar?','¿Es detective?','¿Es pacifista?','¿Es rico?','¿Es de la Antigüedad?','¿Es de la Edad Media?'].includes(q)));

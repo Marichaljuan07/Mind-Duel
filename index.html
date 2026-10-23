@@ -201,7 +201,7 @@
 
   <div id="suggestModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="suggestTitle">
     <div class="modal-card suggestion-card">
-      <div class="suggestion-title-row"><span class="neon-brain brain-sm" aria-hidden="true"></span><div class="suggestion-heading"><h2 id="suggestTitle">SUGERENCIAS DEL CEREBRO</h2><p class="suggestion-intro">Preguntas basadas en lo que ya descubriste.</p></div><button id="rerollSuggestionsBtn" class="refresh-btn" type="button" aria-label="Refrescar preguntas" title="Otras preguntas">↻</button></div>
+      <div class="suggestion-title-row"><span class="neon-brain brain-sm" aria-hidden="true"></span><div class="suggestion-heading"><h2 id="suggestTitle">SUGERENCIAS DEL CEREBRO</h2><p class="suggestion-intro">Preguntas basadas en lo que ya descubriste.</p><p id="mindAuditStatus" class="suggestion-intro" aria-live="polite">Auditoría automática del catálogo en curso…</p></div><button id="rerollSuggestionsBtn" class="refresh-btn" type="button" aria-label="Refrescar preguntas" title="Otras preguntas">↻</button></div>
       <div class="suggestion-counter" id="rerollStatus">2 renovaciones disponibles</div>
       <div id="suggestions" class="suggestions"></div>
       <button data-close="suggestModal" class="btn btn-purple suggestion-close">VOLVER AL JUEGO</button>
@@ -253,6 +253,7 @@
   <script src="oraculo_local.js"></script>
   <script src="cerebro.js"></script>
   <script src="sugeridor.js"></script>
+  <script src="auditor_integrado.js"></script>
   <script src="clasico.js"></script>
   <script src="match_history.js"></script>
   <script src="saved_matches.js"></script>

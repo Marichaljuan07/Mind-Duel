@@ -65,6 +65,12 @@ function evaluarPregunta(pregunta, personaje) {
         return typeof personaje.vivo === "boolean" ? !personaje.vivo : null;
     }
 
+    if (contiene(texto, ["es un animal", "es animal", "es una mascota", "es una bestia"])) {
+        if (typeof personaje.animal === "boolean") return personaje.animal;
+        if (Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ["animal", "perro", "gato", "canino", "felino"].includes(normalizar(t)))) return true;
+        return null;
+    }
+
     // ==================================================
     // HUMANO / PERSONA
     // ==================================================
@@ -165,7 +171,7 @@ function evaluarPregunta(pregunta, personaje) {
 
     for (const [palabra, nacionalidad] of nacionalidades) {
         if (contiene(texto, [palabra])) {
-            return personaje.nacionalidades.includes(nacionalidad);
+            return Array.isArray(personaje.nacionalidades) && personaje.nacionalidades.length ? personaje.nacionalidades.includes(nacionalidad) : null;
         }
     }
 
@@ -400,7 +406,9 @@ function evaluarPregunta(pregunta, personaje) {
             }
             const learnedField = ({pelicula:'peliculas', libro:'libros', comic:'comics', serie:'television', animacion:'animacion'})[medio];
             if (learnedField && typeof personaje[learnedField] === 'boolean') return personaje[learnedField];
-            return Array.isArray(personaje.medios) && personaje.medios.length ? personaje.medios.includes(medio) : null;
+            if (!Array.isArray(personaje.medios) || !personaje.medios.length) return null;
+            const aliasesMedio = medio === 'serie' ? ['serie','television','tv'] : medio === 'pelicula' ? ['pelicula','peliculas','cine'] : medio === 'comic' ? ['comic','comics','historieta'] : medio === 'libro' ? ['libro','libros','novela','literatura'] : medio === 'animacion' ? ['animacion','anime','manga'] : [medio];
+            return personaje.medios.some(m => aliasesMedio.includes(normalizar(m)));
         }
     }
 
@@ -516,6 +524,8 @@ const CONCEPTOS_PERMITIDOS = [
     "nac_egipcio",
     "nac_britanico",
     "nac_ingles",
+    "nac_espanol",
+    "animal",
     "nac_polaco",
     "nac_serbio",
     "nac_usa",
@@ -633,6 +643,12 @@ function resolverConcepto(concepto, personaje) {
         vivo: () => typeof personaje.vivo === 'boolean' ? personaje.vivo : null,
         muerto: () => typeof personaje.vivo === 'boolean' ? !personaje.vivo : null,
         humano: () => typeof personaje.humano === 'boolean' ? personaje.humano : null,
+        animal: () => typeof personaje.animal === 'boolean' ? personaje.animal : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['animal','perro','gato','canino','felino'].includes(normalizar(t))) ? true : null),
+        artista: () => typeof personaje.artista === 'boolean' ? personaje.artista : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['artista','pintor','musico','autor','escritor','dramaturgo','poeta'].includes(normalizar(t))) ? true : null),
+        pacifista: () => typeof personaje.pacifista === 'boolean' ? personaje.pacifista : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('pacifista') ? true : null),
+        antiguedad: () => typeof personaje.antiguedad === 'boolean' ? personaje.antiguedad : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('antiguedad') ? true : null),
+        medieval: () => typeof personaje.medieval === 'boolean' ? personaje.medieval : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('medieval') ? true : null),
+        renacimiento: () => typeof personaje.renacimiento === 'boolean' ? personaje.renacimiento : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('renacimiento') ? true : null),
         famoso: () => typeof personaje.famoso === 'boolean' ? personaje.famoso : null,
         poderes: () => typeof personaje.poderes === 'boolean' ? personaje.poderes : null,
         poderoso: () => typeof personaje.poderoso === 'boolean' ? personaje.poderoso : null,
@@ -663,9 +679,15 @@ function resolverConcepto(concepto, personaje) {
     if (concepto.startsWith('nac_')) {
         const mapa = {
             nac_aleman:'aleman', nac_frances:'frances', nac_italiano:'italiano', nac_egipcio:'egipcio', nac_britanico:'britanico', nac_ingles:'ingles',
-            nac_polaco:'polaco', nac_serbio:'serbio', nac_usa:'estadounidense', nac_mexico:'mexicano', nac_argentina:'argentino', nac_amazona:'amazona'
+            nac_polaco:'polaco', nac_serbio:'serbio', nac_usa:'estadounidense', nac_mexico:'mexicano', nac_argentina:'argentino', nac_amazona:'amazona', nac_espanol:'espanol'
         };
-        return Array.isArray(personaje.nacionalidades) && personaje.nacionalidades.includes(mapa[concepto]);
+        if (!Array.isArray(personaje.nacionalidades) || !personaje.nacionalidades.length) return null;
+        const ns=personaje.nacionalidades.map(normalizar);
+        if (ns.includes(normalizar(mapa[concepto]))) return true;
+        if (concepto==='nac_ingles' && (ns.includes('espanol')||ns.includes('españa'))) return false;
+        if (concepto==='nac_espanol' && (ns.includes('ingles')||ns.includes('britanico')||ns.includes('britanica'))) return false;
+        const nacionalesConocidas=['aleman','argentina','argentino','belga','brasileno','britanica','britanico','canadiense','chino','colombiana','egipcio','espanol','estadounidense','frances','galo','griego','hongkones','indio','ingles','italiano','jamaicano','latinoamericana','macedonio','mexicano','polinesia','portugues','polaco','romano','rumano','ruso','serbio','sudafricano','suizo','venezolano'];
+        return ns.some(n=>nacionalesConocidas.includes(n))?false:null;
     }
     if (concepto.startsWith('idioma_')) {
         const idioma = concepto.replace('idioma_', '');
@@ -675,7 +697,7 @@ function resolverConcepto(concepto, personaje) {
         const medio = concepto.replace('medio_', '');
         const learnedField = ({pelicula:'peliculas',libro:'libros',comic:'comics',serie:'television'})[medio];
         if (learnedField && typeof personaje[learnedField] === 'boolean') return personaje[learnedField];
-        return Array.isArray(personaje.medios) && personaje.medios.length ? personaje.medios.includes(medio) : null;
+        if (!Array.isArray(personaje.medios) || !personaje.medios.length) return null; const aliasesMedio = medio==='serie'?['serie','television','tv']:medio==='pelicula'?['pelicula','peliculas','cine']:medio==='comic'?['comic','comics','historieta']:medio==='libro'?['libro','libros','novela','literatura']:medio==='animacion'?['animacion','anime','manga']:[medio]; return personaje.medios.some(m=>aliasesMedio.includes(normalizar(m)));
     }
     if (concepto.startsWith('universo_')) {
         if (concepto === 'universo_marvel' && typeof personaje.marvel === 'boolean') return personaje.marvel;
