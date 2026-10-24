@@ -1,0 +1,9 @@
+MIND DUEL FUSION — CHANGELOG v3.13.74 PREVIA
+
+- Se revierte únicamente el bloque de estilos de cabecera/menú añadido en v3.13.73.
+- Se recupera la disposición anterior del menú, cronómetro e indicadores, sin rediseñar el menú.
+- Se conserva el código de MOSTRAR/OCULTAR del personaje secreto sin modificaciones.
+- Se conserva la ocultación del texto técnico de auditoría en la interfaz.
+- No se modifica la versión estable v3.13.49.
+
+Validación: ZIP e integridad de archivos comprobados. La apariencia final debe verificarse en el dispositivo.
