@@ -1,0 +1,49 @@
+MIND DUEL FUSION — v3.13.78 CEREBRO QUE RAZONA (modo Clásico)
+
+BASE
+- Parte de la estable v3.13.74 con la entrega v3.13.77 (geografía contextual) aplicada encima.
+- Solo cambian clasico.js y 12 líneas de script.js (todas dentro del flujo del modo Clásico).
+- Idénticos a v3.13.74/77: index.html, style.css, tema_synthwave.css, multijugador.js, motor_logico.js,
+  conocimiento.js, personajes.js, sugeridor.js, modo Solo, multijugador y reconexión.
+
+QUÉ SE ARREGLÓ (a partir de la partida contra Shrek del 24/10)
+1) El Cerebro ya no repite ni pregunta lo que ya se deduce.
+   - Equivalentes: "poderes" = "superpoderes"; "está vivo en su historia" = "sigue con vida".
+   - Implicaciones: real=NO => ficticio; real=SÍ => ficticio=NO, sin poderes, sin magia, sin franquicias;
+     poderes=NO => sin magia; hombre=SÍ => no es mujer (y al revés); humano=SÍ => no es animal (y al revés);
+     una franquicia o un continente en SÍ descarta los otros.
+   - mujer=NO NO implica hombre (hay personajes sin género binario).
+   - Una pregunta ya hecha con "no lo sé" tampoco se repite con otra redacción.
+   - Aplica también a las preguntas de respaldo de script.js.
+2) El Cerebro muestra por qué sospecha (con datos reales de la partida, no texto decorativo).
+   - Al arriesgar: "Así llegué hasta acá: sé que ... Quedan N posibles y X es el que mejor encaja. Es una apuesta, pero no al azar."
+     Usa las respuestas que más candidatos descartaron y que el candidato cumple. Si quedan varios, lo dice.
+   - Notas de rumbo (máximo 3 por partida): un resumen hacia la pregunta 7, una "corazonada" cuando hay hipótesis
+     fuerte y la pregunta la pone a prueba, y un aviso cuando quedan pocos candidatos.
+   - Si falla: "No era X. Lo tacho de mi lista y rehago mis cuentas...", ahora nombrando al personaje.
+3) Si ninguna pregunta cumple la cobertura habitual, se relaja de a poco (.58 -> .30 -> .12) antes de adivinar a ciegas.
+
+NO SE TOCÓ
+- Pesos, respuestas de 5 niveles, cuándo adivinar (debeAdivinar), pop-up del personaje, límites 20 preguntas / 2 intentos.
+
+PRUEBAS EJECUTADAS (simulación con las 98 fichas; hechos desconocidos = "no lo sé")
+- Preguntas redundantes en 98 partidas: 501 (v3.13.77) -> 0.
+- Partidas adivinadas: 65/98 en ambas versiones (sin pérdida).
+- Preguntas promedio en las partidas ganadas: 15.7 -> 12.8.
+- Reproducción de la partida real contra Shrek: superpoderes, sigue con vida, usa magia, ficticio y mujer se detectan como redundantes.
+- tester_clasico_78.js (nuevo): 412 controles correctos, 0 fallidos.
+- Los 10 testers previos terminan con código 0 (auditoría 98 fichas, 0 fallidos; 14/14; 13/13; 8/8; geografía OK).
+
+LIMITACIONES (importante)
+- NO se probó en navegador ni en teléfono. Los textos nuevos del Cerebro no se vieron en pantalla.
+- La simulación no certifica precisión: los datos que faltan en las fichas se responden "no lo sé" y 33 de 98 no se adivinan.
+- En unas 15 de 98 partidas simuladas el Cerebro igual se arriesga antes de la pregunta 12 porque ya no le quedan
+  preguntas útiles que hacer (11 de esos intentos acertaron). Hace falta un banco de preguntas más rico y fichas más completas.
+- El "barrido de franquicias" (Marvel, Star Wars, DC, Harry Potter una tras otra) NO se resolvió: se probaron 3 variantes de
+  orden y no cambiaron la secuencia. Falta un banco de preguntas generales para personajes ficticios
+  (por ejemplo medio/tipo de criatura/estilo de obra) para no depender de franquicias.
+- clasico_v77_referencia.js es solo una copia de la v3.13.77 para que el tester pueda comparar. El juego no la usa.
+
+PRÓXIMO PASO SUGERIDO
+- Jugar 3 o 4 partidas Clásico en el teléfono (Shrek, Batman, Einstein, Goku) y revisar cómo se leen las notas.
+- Ampliar el banco de preguntas generales y completar hijos/animal/de la Tierra en las fichas.

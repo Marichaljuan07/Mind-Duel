@@ -354,15 +354,18 @@ async function nextClassic() {
   // El banco puede no dividir al conjunto inicial; no dejar nunca al Cerebro sin preguntar.
   if (!q) {
     const fallback = ['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es un animal?','¿Es conocido principalmente por la ciencia?','¿Es conocido por el entretenimiento?', ...(Sugeridor.POOL || [])];
-    q = fallback.find(x => !s.asked.has(MindLogic.normalizar(x)));
+    q = fallback.find(x => !s.asked.has(MindLogic.normalizar(x)) && !Clasico.esRedundante(s, MindLogic, x));
   }
   // Si todavía no llegamos al límite, no convertir la falta de una pregunta
   // puntuable en una adivinanza prematura: usar una pregunta pendiente del banco.
-  if (!q && s.n < MAX_QUESTIONS) q = (Sugeridor.POOL || []).find(x => !s.asked.has(MindLogic.normalizar(x)));
+  if (!q && s.n < MAX_QUESTIONS) q = (Sugeridor.POOL || []).find(x => !s.asked.has(MindLogic.normalizar(x)) && !Clasico.esRedundante(s, MindLogic, x));
   if (!q) return classicGuess(true);
   classic.cur = { tipo: 'q', q };
   const sparringCandidates=(classic.s?.ps||[]).map((p,i)=>({weight:classic.s?.w?.[i]||0,value:Sugeridor.val(MindLogic,q,p)}));
   window.MindSparring?.question('clásico',q,{candidates:sparringCandidates});
+  // v3.13.78: a veces el Cerebro comenta su rumbo (máx. 3 por partida), siempre con datos reales de la partida.
+  const notaRumbo = Clasico.nota ? Clasico.nota(s, MindLogic, q) : null;
+  if (notaRumbo) await addMessage(notaRumbo, 'mind');
   await addMessage(Clasico.frase(q), 'mind');
   classicBusy = false;
 }
@@ -381,6 +384,9 @@ async function classicGuess(announce = false) {
       'Voy a jugármela: creo que sé qué personaje elegiste.'
     ];
     await addMessage(lines[Math.floor(Math.random() * lines.length)], 'mind');
+    // v3.13.78: explicar el intento con las respuestas reales que más descartaron.
+    const porque = Clasico.razonar ? Clasico.razonar(classic.s, MindLogic, m) : null;
+    if (porque) await addMessage(porque, 'mind');
   }
   el('classicGuessCharacter').textContent = m.p.nombre;
   const knownDescription = getCharacterDescription(m.p.nombre, m.p.descripcion || '');
@@ -567,7 +573,7 @@ async function classicAnswer(ans) {
   }
   classic.fails++; window.MindSparring?.guess('clásico',c.p?.nombre,false); Clasico.rechazar(classic.s, c.i);
   if (classic.fails >= MAX_GUESSES || !Clasico.mejor(classic.s)) return classicName();
-  await addMessage('Esa no era. No importa: reajusto mis deducciones y continúo.', 'mind');
+  await addMessage((Clasico.notaFallo && c.p?.nombre) ? Clasico.notaFallo(classic.s, c.p.nombre) : 'Esa no era. No importa: reajusto mis deducciones y continúo.', 'mind');
   classicBusy = false;
   await nextClassic();
 }
