@@ -1,0 +1,12 @@
+Mind Duel Fusion v3.13.73 PREVIA
+
+Correcciones visuales:
+- Se elimina el borde inferior rosado de la cabecera del juego y se mantiene el contorno cian.
+- El panel de secuencia del Cerebro online y el borde de la pregunta usan el color cian, evitando el resaltado rosado anterior.
+- En pantallas móviles, la cabecera online coloca menú y título en la primera fila, y cronómetro/indicadores en una segunda fila compacta.
+- El menú desplegable queda anclado al botón y por encima de los elementos de la partida.
+- Se conserva la corrección del texto de auditoría y el botón MOSTRAR/OCULTAR de la versión anterior.
+
+Verificación:
+- Paquete generado a partir de v3.13.72; no se modificó la versión estable 3.13.49.
+- Pendiente prueba visual en navegador móvil y partida real entre dos dispositivos.

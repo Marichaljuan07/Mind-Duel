@@ -780,3 +780,31 @@ body.duel-online .online-secret-prefix{flex:0 0 auto}
 body.duel-online .online-secret-value{min-width:0;overflow-wrap:anywhere;flex:0 1 auto}
 body.duel-online .secret-privacy-toggle{flex-shrink:0;min-height:30px;margin-left:auto;padding:4px 8px;border:1px solid currentColor;border-radius:7px;background:rgba(3,8,25,.8);color:inherit;font:inherit;font-size:.78em;cursor:pointer;touch-action:manipulation}
 body.duel-online .secret-privacy-toggle:focus-visible{outline:2px solid #fff;outline-offset:2px}
+
+
+/* v3.13.73: restauración visual de la cabecera y panel online */
+.game-header{border-bottom-color:rgba(0,216,255,.4)!important;}
+body.duel-online .online-brain-panel{border-color:var(--cy)!important;box-shadow:0 0 12px rgba(0,245,255,.12)!important;}
+body.duel-online #onlineQuestionBox{border-left-color:var(--cy)!important;background:rgba(0,245,255,.06)!important;}
+body.duel-online .sequence-heading{color:var(--cy)!important;}
+@media(max-width:600px){
+  body.duel-online .game-header{
+    box-sizing:border-box;display:grid;grid-template-columns:40px minmax(0,1fr);
+    grid-template-areas:"menu title" "hud hud";gap:7px 8px;padding:7px 8px;min-height:0;
+    align-items:center;overflow:visible;
+  }
+  body.duel-online .header-menu-wrap{grid-area:menu;justify-self:start;align-self:center;}
+  body.duel-online .mind-sign{grid-area:title;justify-self:center;min-width:0;text-align:center;line-height:1.15;}
+  body.duel-online .hud{grid-area:hud;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;width:100%;min-width:0;}
+  body.duel-online .hud-item{box-sizing:border-box;min-width:0;width:100%;padding:5px 2px;}
+  body.duel-online .hud-item b{font-size:clamp(9px,2.8vw,12px);white-space:nowrap;}
+  body.duel-online .hud-item small{font-size:6px;letter-spacing:0;white-space:nowrap;}
+  body.duel-online .game-menu-dropdown{z-index:12050;left:0;top:calc(100% + 5px);}
+}
+@media(max-width:360px){
+  body.duel-online .game-screen{padding:7px;}
+  body.duel-online .game-header{gap:6px 5px;padding:6px;}
+  body.duel-online .hud{gap:3px;}
+  body.duel-online .hud-item{padding:4px 1px;}
+  body.duel-online .hud-item b{font-size:9px;}
+}
