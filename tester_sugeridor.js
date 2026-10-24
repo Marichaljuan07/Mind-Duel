@@ -1,4 +1,5 @@
-const L=require('./motor_logico.js'),S=require('./sugeridor.js'),fs=require('fs'),vm=require('vm');
+const L=require('./motor_logico.js'),K=require('./conocimiento.js'),S=require('./sugeridor.js'),fs=require('fs'),vm=require('vm');
+global.window={MindKnowledge:K};
 const c={};vm.createContext(c);vm.runInContext(fs.readFileSync('./personajes.js','utf8')+';globalThis.__P=PERSONAJES;',c);const P=c.__P;let fail=0;
 const t=(n,ok)=>{if(!ok)fail++;console.log(ok?'OK  ':'FAIL',n)};
 const run=(facts)=>{const all=new Set();for(let i=0;i<40;i++)S.sugerir(L,P,facts,new Set(),5).forEach(q=>all.add(q));return all};
@@ -15,12 +16,19 @@ const fr=[{texto:'¿Es una persona real?',concepto:null,answer:true},{texto:'¿E
 const sf=S.sugerir(L,P,fr,new Set(),10);
 t('hechos conocidos filtran personajes incompatibles',S.consistentes(L,P,fr).every(p=>p.tipo==='real'&&p.genero==='hombre'));
 t('sugerencias coherentes con real + hombre',!['¿Es ficticio?','¿Es una mujer?'].some(q=>sf.includes(q)));
+
+const naruto=P.find(p=>p.nombre==='Naruto Uzumaki'),pikachu=P.find(p=>p.nombre==='Pikachu');
+t('Naruto tiene poderes según su ficha',S.val(L,'¿Tiene poderes?',naruto)===true);
+t('Pikachu participa en combates según su ficha',S.val(L,'¿Participa en combates?',pikachu)===true);
+t('la pregunta de poderes se enruta al concepto correcto',S.concepto('¿Tiene poderes?')==='poderes');
 console.log(fail?fail+' FALLOS':'Todo OK');process.exitCode=fail?1:0;
 (()=>{const R=(a,b,c)=>({texto:a,concepto:null,answer:b});let f=0;const t=(n,o)=>{if(!o)f++;console.log(o?'OK  ':'FAIL',n)};
  t('sin preguntas: bloqueada',!S.desbloqueada(L,P,[]));
  t('solo "real": sigue bloqueada',!S.desbloqueada(L,P,[R('¿Es una persona real?',true)]));
- t('cuatro respuestas: sigue bloqueada',!S.desbloqueada(L,P,[R('a',true),R('b',true),R('c',true),R('d',true)]));
- t('cinco respuestas válidas: se habilita',S.desbloqueada(L,P,[R('a',true),R('b',true),R('c',true),R('d',true),R('e',true)]));
+ t('cuatro conceptos reconocidos: sigue bloqueada',!S.desbloqueada(L,P,[R('¿Es una persona real?',true),R('¿Es un hombre?',true),R('¿Es humano?',true),R('¿Es de Europa?',false)]));
+ t('cinco conceptos reconocidos y distintos: se habilita',S.desbloqueada(L,P,[R('¿Es una persona real?',true),R('¿Es un hombre?',true),R('¿Es humano?',true),R('¿Es de Europa?',false),R('¿Tiene poderes?',false)]));
+ t('preguntas desconocidas no cuentan para desbloquear',!S.desbloqueada(L,P,[R('¿Es una persona real?',true),R('¿Es un hombre?',true),R('¿Es humano?',true),R('¿Es de Europa?',false),R('pregunta inventada',false)]));
+ t('repetir el mismo concepto no cuenta dos veces',!S.desbloqueada(L,P,[R('¿Es una persona real?',true),R('¿Es real?',true),R('¿Es un hombre?',true),R('¿Es humano?',true),R('¿Es de Europa?',false)]));
  t('ficticio + género: falta humano',!S.desbloqueada(L,P,[R('¿Es ficticio?',true),R('¿Es un hombre?',true)]));
  t('tres datos básicos no adelantan el desbloqueo',!S.desbloqueada(L,P,[R('¿Es ficticio?',true),R('¿Es un hombre?',true),R('¿Es humano?',true)]));
  if(f)process.exitCode=1;console.log(f?f+' FALLOS (desbloqueo)':'Desbloqueo OK')})();

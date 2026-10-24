@@ -17,6 +17,15 @@ function aplicarEquivalencias(texto) {
     return texto;
 }
 
+// La geografía terrestre solo aplica a personajes reales o a mundos ficticios
+// que declaren explícitamente que usan la geografía real de la Tierra.
+function geografiaRealAplicable(personaje) {
+    if (!personaje || typeof personaje !== "object") return false;
+    if (personaje.tipo === "real") return true;
+    return personaje.geografia_real === true || personaje.mundo_real === true ||
+        personaje.ambientacion_terrestre === true || personaje.geografia === "tierra_real";
+}
+
 function evaluarPregunta(pregunta, personaje) {
     const texto = aplicarEquivalencias(normalizar(pregunta));
 
@@ -111,8 +120,12 @@ function evaluarPregunta(pregunta, personaje) {
     }
 
     // ==================================================
-    // REGIÓN
+    // REGIÓN: no trasladar continentes terrestres a mundos ficticios
+    // salvo que la ficha declare explícitamente geografía real.
     // ==================================================
+
+    const preguntaGeografica = contiene(texto, ["europa", "europe", "africa", "african", "america", "american", "asia", "asiatic", "pais", "nacionalidad", "francia", "frances", "alemania", "aleman", "inglaterra", "ingles", "espana", "espanol", "italia", "italiano", "egipto", "egipcio"]);
+    if (preguntaGeografica && !geografiaRealAplicable(personaje)) return null;
 
     const regiones = [
         ["europa", "europa"],
@@ -668,6 +681,7 @@ function resolverConcepto(concepto, personaje) {
     if (concepto === 'deportista' || concepto === 'futbolista' || concepto === 'cientifico' || concepto === 'escritor' || concepto === 'musico') { if (typeof personaje[concepto] === 'boolean') return personaje[concepto]; return Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes(concepto) ? true : null; }
 
     if (concepto.startsWith('region_')) {
+        if (!geografiaRealAplicable(personaje)) return null;
         if (concepto === 'region_europa' && typeof personaje.region_europa === 'boolean') return personaje.region_europa;
         if (concepto === 'region_america' && typeof personaje.region_america === 'boolean') return personaje.region_america;
         const mapa = { region_europa:'europa', region_africa:'africa', region_america:'america', region_espacio:'espacio', region_tierra_media:'tierra media', region_asia:'asia' };
@@ -677,6 +691,7 @@ function resolverConcepto(concepto, personaje) {
     if (concepto === 'musico' && Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['cantante','musico','musica','compositor','guitarrista','bajista'].includes(normalizar(t)))) return true;
     if (concepto === 'escritor' && Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['escritor','escritora','novelista','autor','poeta','dramaturgo'].includes(normalizar(t)))) return true;
     if (concepto.startsWith('nac_')) {
+        if (!geografiaRealAplicable(personaje)) return null;
         const mapa = {
             nac_aleman:'aleman', nac_frances:'frances', nac_italiano:'italiano', nac_egipcio:'egipcio', nac_britanico:'britanico', nac_ingles:'ingles',
             nac_polaco:'polaco', nac_serbio:'serbio', nac_usa:'estadounidense', nac_mexico:'mexicano', nac_argentina:'argentino', nac_amazona:'amazona', nac_espanol:'espanol'

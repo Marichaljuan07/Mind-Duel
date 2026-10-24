@@ -2624,7 +2624,7 @@ const PERSONAJES = [
   },
   {
     "nombre": "Pikachu",
-    "animal": true, "origen_terrestre": false, "artista": false, "combate": false,
+    "animal": true, "origen_terrestre": false, "artista": false, "combate": true,
     "alias": [
       "pikachu"
     ],
@@ -3443,7 +3443,7 @@ const PERSONAJES = [
       "television",
       "pelicula"
     ],
-    "poderes": false,
+    "poderes": true,
     "magia": false,
     "universo": "naruto",
     "mascara": false,

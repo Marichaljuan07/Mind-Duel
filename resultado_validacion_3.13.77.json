@@ -1,0 +1,1297 @@
+{
+  "versionBase": "3.13.74",
+  "semilla": 31374,
+  "personajes": 10,
+  "preguntasFijas": 15,
+  "casosTotales": 150,
+  "evaluables": 137,
+  "correctas": 73,
+  "incorrectas": 0,
+  "sinRespuesta": 64,
+  "pendientesJuan": 13,
+  "porPersonaje": [
+    {
+      "personaje": "Albert Einstein",
+      "evaluables": 13,
+      "correctas": 7,
+      "incorrectas": 0,
+      "sinRespuesta": 6,
+      "pendientesJuan": 2
+    },
+    {
+      "personaje": "Cleopatra",
+      "evaluables": 13,
+      "correctas": 8,
+      "incorrectas": 0,
+      "sinRespuesta": 5,
+      "pendientesJuan": 2
+    },
+    {
+      "personaje": "Batman",
+      "evaluables": 13,
+      "correctas": 6,
+      "incorrectas": 0,
+      "sinRespuesta": 7,
+      "pendientesJuan": 2
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "evaluables": 15,
+      "correctas": 8,
+      "incorrectas": 0,
+      "sinRespuesta": 7,
+      "pendientesJuan": 0
+    },
+    {
+      "personaje": "Shrek",
+      "evaluables": 13,
+      "correctas": 5,
+      "incorrectas": 0,
+      "sinRespuesta": 8,
+      "pendientesJuan": 2
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "evaluables": 14,
+      "correctas": 8,
+      "incorrectas": 0,
+      "sinRespuesta": 6,
+      "pendientesJuan": 1
+    },
+    {
+      "personaje": "Darth Vader",
+      "evaluables": 15,
+      "correctas": 7,
+      "incorrectas": 0,
+      "sinRespuesta": 8,
+      "pendientesJuan": 0
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "evaluables": 14,
+      "correctas": 7,
+      "incorrectas": 0,
+      "sinRespuesta": 7,
+      "pendientesJuan": 1
+    },
+    {
+      "personaje": "Pikachu",
+      "evaluables": 12,
+      "correctas": 8,
+      "incorrectas": 0,
+      "sinRespuesta": 4,
+      "pendientesJuan": 3
+    },
+    {
+      "personaje": "Julio César",
+      "evaluables": 15,
+      "correctas": 9,
+      "incorrectas": 0,
+      "sinRespuesta": 6,
+      "pendientesJuan": 0
+    }
+  ],
+  "detalle": [
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Es una persona real?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Es un hombre?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Sigue con vida?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Es humano?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Es de Europa?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Es de la Edad Media?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Es de la Antigüedad?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Es de un anime?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Es de Marvel?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Es artista?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "No sé",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Tiene hijos?",
+      "esperada": "Sí",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Participa en combates?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Es un animal?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Tiene poderes?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Albert Einstein",
+      "pregunta": "¿Es pacifista?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "Sí",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Es una persona real?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Es un hombre?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Sigue con vida?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Es humano?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Es de Europa?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Es de la Edad Media?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Es de la Antigüedad?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Es de un anime?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Es de Marvel?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Es artista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Tiene hijos?",
+      "esperada": "Sí",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Participa en combates?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "No sé",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Es un animal?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Tiene poderes?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cleopatra",
+      "pregunta": "¿Es pacifista?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "No sé",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Es una persona real?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Es un hombre?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Sigue con vida?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "Sí",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Es humano?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Es de Europa?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Es de la Edad Media?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Es de la Antigüedad?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Es de un anime?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Es de Marvel?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Es artista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Tiene hijos?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "No sé",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Participa en combates?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Es un animal?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Tiene poderes?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Batman",
+      "pregunta": "¿Es pacifista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Es una persona real?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Es un hombre?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Sigue con vida?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Es humano?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Es de Europa?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Es de la Edad Media?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Es de la Antigüedad?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Es de un anime?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Es de Marvel?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Es artista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Tiene hijos?",
+      "esperada": "Sí",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Participa en combates?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Es un animal?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Tiene poderes?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Naruto Uzumaki",
+      "pregunta": "¿Es pacifista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Es una persona real?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Es un hombre?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Sigue con vida?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Es humano?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Es de Europa?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "No sé",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Es de la Edad Media?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Es de la Antigüedad?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Es de un anime?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Es de Marvel?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Es artista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Tiene hijos?",
+      "esperada": "Sí",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Participa en combates?",
+      "esperada": "Sí",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Es un animal?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Tiene poderes?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "No",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Shrek",
+      "pregunta": "¿Es pacifista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Es una persona real?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Es un hombre?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Sigue con vida?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Es humano?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Es de Europa?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Es de la Edad Media?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Es de la Antigüedad?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Es de un anime?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Es de Marvel?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Es artista?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Tiene hijos?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Participa en combates?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Es un animal?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Tiene poderes?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Frida Kahlo",
+      "pregunta": "¿Es pacifista?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "Sí",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Es una persona real?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Es un hombre?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Sigue con vida?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Es humano?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Es de Europa?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Es de la Edad Media?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Es de la Antigüedad?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Es de un anime?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Es de Marvel?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Es artista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Tiene hijos?",
+      "esperada": "Sí",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Participa en combates?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Es un animal?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Tiene poderes?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Darth Vader",
+      "pregunta": "¿Es pacifista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Es una persona real?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Es un hombre?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Sigue con vida?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Es humano?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Es de Europa?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Es de la Edad Media?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Es de la Antigüedad?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Es de un anime?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Es de Marvel?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Es artista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Tiene hijos?",
+      "esperada": "Sí",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Participa en combates?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Es un animal?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Tiene poderes?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Cristiano Ronaldo",
+      "pregunta": "¿Es pacifista?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "No sé",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Es una persona real?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Es un hombre?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "No sé",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Sigue con vida?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Es humano?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Es de Europa?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "No sé",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Es de la Edad Media?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Es de la Antigüedad?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Es de un anime?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Es de Marvel?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Es artista?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Tiene hijos?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Participa en combates?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Es un animal?",
+      "esperada": "PENDIENTE_JUAN",
+      "obtenida": "Sí",
+      "estado": "PENDIENTE_JUAN",
+      "revision": "CONSULTA_JUAN"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Tiene poderes?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Pikachu",
+      "pregunta": "¿Es pacifista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Es una persona real?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Es un hombre?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Sigue con vida?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Es humano?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Es de Europa?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Es de la Edad Media?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Es de la Antigüedad?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Es de un anime?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Es de Marvel?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Es artista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Tiene hijos?",
+      "esperada": "Sí",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Participa en combates?",
+      "esperada": "Sí",
+      "obtenida": "Sí",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Es un animal?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Tiene poderes?",
+      "esperada": "No",
+      "obtenida": "No",
+      "estado": "CORRECTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    },
+    {
+      "personaje": "Julio César",
+      "pregunta": "¿Es pacifista?",
+      "esperada": "No",
+      "obtenida": "No sé",
+      "estado": "SIN_RESPUESTA",
+      "revision": "VALIDADO_AUTONOMAMENTE"
+    }
+  ],
+  "nota": "Resultados de la lógica local (Sugeridor.val + motor_logico.js), no una prueba E2E de navegador. Las respuestas esperadas están pendientes de validación de Juan."
+}

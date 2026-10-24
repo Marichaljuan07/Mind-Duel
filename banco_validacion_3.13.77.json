@@ -1,0 +1,1070 @@
+{
+  "schemaVersion": 1,
+  "stage": "ETAPA 1 — VALIDACIÓN AUTÓNOMA DE HECHOS Y SUGERENCIAS",
+  "sourceVersion": "3.13.74",
+  "seed": 31374,
+  "reviewOwner": "Validación autónoma; dudas interpretativas reservadas a Juan",
+  "reviewStatus": "Hechos claros validados provisionalmente; los null siguen sin puntuar hasta aclarar definición/continuidad.",
+  "scoringRule": "Solo se puntúan respuestas esperadas true/false; null queda como DESCONOCIDO/PENDIENTE, no como falso.",
+  "questions": [
+    {
+      "id": "real",
+      "text": "¿Es una persona real?",
+      "concept": "real"
+    },
+    {
+      "id": "hombre",
+      "text": "¿Es un hombre?",
+      "concept": "hombre"
+    },
+    {
+      "id": "vivo",
+      "text": "¿Sigue con vida?",
+      "concept": "vivo"
+    },
+    {
+      "id": "humano",
+      "text": "¿Es humano?",
+      "concept": "humano"
+    },
+    {
+      "id": "europeo",
+      "text": "¿Es de Europa?",
+      "concept": "region_europa"
+    },
+    {
+      "id": "edad_media",
+      "text": "¿Es de la Edad Media?",
+      "concept": "medieval"
+    },
+    {
+      "id": "antiguedad",
+      "text": "¿Es de la Antigüedad?",
+      "concept": "antiguedad"
+    },
+    {
+      "id": "anime",
+      "text": "¿Es de un anime?",
+      "concept": "anime"
+    },
+    {
+      "id": "marvel",
+      "text": "¿Es de Marvel?",
+      "concept": "marvel"
+    },
+    {
+      "id": "artista",
+      "text": "¿Es artista?",
+      "concept": "artista"
+    },
+    {
+      "id": "hijos",
+      "text": "¿Tiene hijos?",
+      "concept": "hijos"
+    },
+    {
+      "id": "combate",
+      "text": "¿Participa en combates?",
+      "concept": "combate"
+    },
+    {
+      "id": "animal",
+      "text": "¿Es un animal?",
+      "concept": "animal"
+    },
+    {
+      "id": "poderes",
+      "text": "¿Tiene poderes?",
+      "concept": "poderes"
+    },
+    {
+      "id": "pacifista",
+      "text": "¿Es pacifista?",
+      "concept": "pacifista"
+    }
+  ],
+  "characters": [
+    {
+      "name": "Albert Einstein",
+      "facts": [
+        {
+          "questionId": "real",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hombre",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "vivo",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "humano",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "europeo",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "edad_media",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "antiguedad",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "anime",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "marvel",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "artista",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "Einstein tocaba el violín, pero su profesión principal era científica. ¿“Artista” incluye a alguien que practica música sin ser artista profesional?"
+        },
+        {
+          "questionId": "hijos",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "combate",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "animal",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "poderes",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "pacifista",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "La postura pacifista de Einstein cambió según el contexto histórico; ¿querés contar su posición general como pacifista?"
+        }
+      ]
+    },
+    {
+      "name": "Cleopatra",
+      "facts": [
+        {
+          "questionId": "real",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hombre",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "vivo",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "humano",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "europeo",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "edad_media",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "antiguedad",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "anime",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "marvel",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "artista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hijos",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "combate",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "Cleopatra dirigió guerras y alianzas, pero no es conocida por luchar personalmente. ¿“Participa en combates” incluye dirigir una guerra?"
+        },
+        {
+          "questionId": "animal",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "poderes",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "pacifista",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "Su papel político-militar hace que “pacifista” dependa de la definición; ¿preferís marcarla como no pacifista o desconocida?"
+        }
+      ]
+    },
+    {
+      "name": "Batman",
+      "facts": [
+        {
+          "questionId": "real",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hombre",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "vivo",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "La continuidad de Batman cambia según la historia; ¿tomamos la continuidad principal actual como referencia?"
+        },
+        {
+          "questionId": "humano",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "europeo",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "No es originario de Europa según la interpretación geográfica de la pregunta."
+        },
+        {
+          "questionId": "edad_media",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "antiguedad",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "anime",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "marvel",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "artista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hijos",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "En la continuidad principal, Bruce Wayne es padre de Damian; algunas versiones difieren. ¿Usamos la continuidad principal de DC?"
+        },
+        {
+          "questionId": "combate",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "animal",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "poderes",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "pacifista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        }
+      ]
+    },
+    {
+      "name": "Naruto Uzumaki",
+      "facts": [
+        {
+          "questionId": "real",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hombre",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "vivo",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "humano",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "europeo",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "No es originario de Europa según la interpretación geográfica de la pregunta."
+        },
+        {
+          "questionId": "edad_media",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "antiguedad",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "anime",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "marvel",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "artista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hijos",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "combate",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "animal",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "poderes",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "pacifista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        }
+      ]
+    },
+    {
+      "name": "Shrek",
+      "facts": [
+        {
+          "questionId": "real",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hombre",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "vivo",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "humano",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "europeo",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "El mundo de Shrek usa cuentos de hadas europeos, pero ocurre en un reino ficticio sin ubicación europea canónica. ¿Lo marcamos desconocido?"
+        },
+        {
+          "questionId": "edad_media",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "antiguedad",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "anime",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "marvel",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "artista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hijos",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "combate",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "animal",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "poderes",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "Shrek tiene fuerza propia de un ogro, pero no suele tener superpoderes sobrenaturales. ¿La pregunta cuenta fuerza extraordinaria como “poderes”?"
+        },
+        {
+          "questionId": "pacifista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        }
+      ]
+    },
+    {
+      "name": "Frida Kahlo",
+      "facts": [
+        {
+          "questionId": "real",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hombre",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "vivo",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "humano",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "europeo",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "edad_media",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "antiguedad",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "anime",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "marvel",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "artista",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hijos",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "combate",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "animal",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "poderes",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "pacifista",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "“Pacifista” no es un atributo factual simple de Frida y depende de qué se entienda por pacifismo. ¿Preferís desconocido?"
+        }
+      ]
+    },
+    {
+      "name": "Darth Vader",
+      "facts": [
+        {
+          "questionId": "real",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hombre",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "vivo",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "humano",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "europeo",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "No es originario de Europa según la interpretación geográfica de la pregunta."
+        },
+        {
+          "questionId": "edad_media",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "antiguedad",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "anime",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "marvel",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "artista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hijos",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "combate",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "animal",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "poderes",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "pacifista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        }
+      ]
+    },
+    {
+      "name": "Cristiano Ronaldo",
+      "facts": [
+        {
+          "questionId": "real",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hombre",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "vivo",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "humano",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "europeo",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "edad_media",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "antiguedad",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "anime",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "marvel",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "artista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hijos",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "combate",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "animal",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "poderes",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "pacifista",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "No hay una base clara para clasificar a Cristiano Ronaldo como pacifista o no pacifista. ¿Lo dejamos desconocido?"
+        }
+      ]
+    },
+    {
+      "name": "Pikachu",
+      "facts": [
+        {
+          "questionId": "real",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hombre",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "“Pikachu” puede referirse a la especie (con individuos de distintos géneros) o al Pikachu de Ash, que es macho. ¿Cuál usamos?"
+        },
+        {
+          "questionId": "vivo",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "humano",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "europeo",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "Pikachu pertenece al mundo ficticio Pokémon, no a un país/continente real. ¿Querés que las preguntas geográficas no aplicables queden desconocidas?"
+        },
+        {
+          "questionId": "edad_media",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "antiguedad",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "anime",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "marvel",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "artista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hijos",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "combate",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "animal",
+          "expected": null,
+          "reviewStatus": "CONSULTA_JUAN",
+          "reviewNote": "Pikachu es un Pokémon de categoría ratón, no un animal real. ¿En el juego lo clasificamos como animal por analogía o como no-animal?"
+        },
+        {
+          "questionId": "poderes",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "pacifista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        }
+      ]
+    },
+    {
+      "name": "Julio César",
+      "facts": [
+        {
+          "questionId": "real",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hombre",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "vivo",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "humano",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "europeo",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "edad_media",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "antiguedad",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "anime",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "marvel",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "artista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "hijos",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "combate",
+          "expected": true,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "animal",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "poderes",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        },
+        {
+          "questionId": "pacifista",
+          "expected": false,
+          "reviewStatus": "VALIDADO_AUTONOMAMENTE",
+          "reviewNote": "Respuesta categórica comprobada por ficha y conocimiento establecido; revisar solo si cambia la definición de la pregunta."
+        }
+      ]
+    }
+  ],
+  "evidenceSources": [
+    {
+      "claim": "Einstein tuvo hijos y fue científico alemán",
+      "url": "https://www.buscabiografias.com/biografia/verDetalle/284/Albert%20Einstein",
+      "note": "Biografía con datos biográficos y descendencia; no resuelve por sí sola la etiqueta subjetiva “artista/pacifista”."
+    },
+    {
+      "claim": "Cleopatra tuvo cuatro hijos",
+      "url": "https://www.nationalgeographic.com/history/article/uncovering-the-life-of-cleopatras-daughter",
+      "note": "National Geographic resume la descendencia de Cleopatra."
+    },
+    {
+      "claim": "Cristiano Ronaldo tiene hijos",
+      "url": "https://keyt.com/news/national-world/cnn-world/2024/03/08/cristiano-ronaldo-fast-facts-3/",
+      "note": "Resumen biográfico de CNN Newsource."
+    },
+    {
+      "claim": "Batman no tiene metahabilidades y tiene al hijo Damian en la continuidad DC descrita",
+      "url": "https://www.dc.com/characters/batman",
+      "note": "Perfil oficial de DC; las diferencias de continuidad justifican dejar algunos casos pendientes."
+    },
+    {
+      "claim": "Pikachu es una categoría Pokémon con ataques eléctricos y rol ofensivo en combates",
+      "url": "https://unite.pokemon.com/es-es/pokemon/pikachu/",
+      "note": "Ficha oficial de Pokémon UNITE; no resuelve por sí sola si el juego debe llamarlo “animal”."
+    },
+    {
+      "claim": "Naruto utiliza chakra y técnicas ninjutsu",
+      "url": "https://naruto-official.com/es/news/01_1895",
+      "note": "Sitio oficial de Naruto/Boruto."
+    }
+  ]
+}

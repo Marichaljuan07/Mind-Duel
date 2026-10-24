@@ -1,0 +1,26 @@
+MIND DUEL FUSION — v3.13.77 GEOGRAFÍA CONTEXTUAL
+
+BASE
+- Basada en la entrega v3.13.76, que parte de la estable v3.13.74.
+- index.html, style.css, tema_synthwave.css y multijugador.js son idénticos a v3.13.74.
+- No se alteraron el diseño, el flujo online ni la reconexión.
+
+CAMBIO PRINCIPAL
+- Europa/América y nacionalidades reales dejan de ser atributos universales para personajes ficticios.
+- La geografía terrestre solo se evalúa si el personaje es real o si su ficha declara explícitamente geografia_real, mundo_real, ambientacion_terrestre o geografia="tierra_real".
+- Los valores geográficos heredados en una ficha ficticia no bastan por sí solos: se devuelven como desconocidos (null).
+- El sugeridor omite preguntas sobre continentes cuando la ficción no declara que su mundo usa la geografía terrestre.
+- Los personajes reales pueden recibir preguntas geográficas. Una ficción con geografía terrestre explícita también puede recibirlas.
+- Se conserva el desbloqueo de sugerencias tras cinco respuestas válidas de conceptos distintos, y las correcciones de Naruto (poderes) y Pikachu (combate) de la entrega anterior.
+
+PRUEBAS EJECUTADAS
+- 10 testers previos ejecutados después de los cambios: todos terminan con código de salida 0; además, el tester nuevo de geografía contextual pasa 9/9 controles.
+- Nuevo tester_geografia_contextual.js: 9/9 controles correctos.
+- tester_etapas_1_2.js: 13/13 pruebas correctas.
+- tester_etapa1_validacion.js: 14/14 controles correctos.
+- Se comprobó que index.html, ambos CSS y multijugador.js no cambiaron respecto a v3.13.74.
+
+LIMITACIONES
+- El tester de Clásico termina con código 0, pero su salida sigue enumerando confusiones de personajes; no se considera una certificación de precisión de adivinanza.
+- No se hizo prueba manual en navegador/teléfono ni partida PeerJS entre dos dispositivos.
+- La geografía explícita en una ficha ficticia requiere que el dato esté marcado de forma deliberada; no se infiere por estética, inspiración cultural o nombre de franquicia.
