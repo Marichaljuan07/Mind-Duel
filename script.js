@@ -354,11 +354,11 @@ async function nextClassic() {
   // El banco puede no dividir al conjunto inicial; no dejar nunca al Cerebro sin preguntar.
   if (!q) {
     const fallback = ['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es un animal?','¿Es conocido principalmente por la ciencia?','¿Es conocido por el entretenimiento?', ...(Sugeridor.POOL || [])];
-    q = fallback.find(x => !s.asked.has(MindLogic.normalizar(x)) && !Clasico.esRedundante(s, MindLogic, x));
+    q = fallback.find(x => !s.asked.has(MindLogic.normalizar(x)) && !Clasico.esRedundante(s, MindLogic, x) && Clasico.separaLideres(s, MindLogic, x));
   }
   // Si todavía no llegamos al límite, no convertir la falta de una pregunta
   // puntuable en una adivinanza prematura: usar una pregunta pendiente del banco.
-  if (!q && s.n < MAX_QUESTIONS) q = (Sugeridor.POOL || []).find(x => !s.asked.has(MindLogic.normalizar(x)) && !Clasico.esRedundante(s, MindLogic, x));
+  if (!q && s.n < MAX_QUESTIONS) q = (Sugeridor.POOL || []).find(x => !s.asked.has(MindLogic.normalizar(x)) && !Clasico.esRedundante(s, MindLogic, x) && Clasico.separaLideres(s, MindLogic, x));
   if (!q) return classicGuess(true);
   classic.cur = { tipo: 'q', q };
   const sparringCandidates=(classic.s?.ps||[]).map((p,i)=>({weight:classic.s?.w?.[i]||0,value:Sugeridor.val(MindLogic,q,p)}));
@@ -732,6 +732,13 @@ async function askQuestion(text) {
     }
   }
 
+  // v3.13.80: si la lógica no sabe, el Cerebro intenta deducir la respuesta (con 5 niveles de seguridad).
+  let nivelRespuesta = null;
+  if (answer === null && window.Solo) {
+    const ded = window.Solo.deducir(MindLogic, clean, window.MindKnowledge ? window.MindKnowledge.enriquecer(state.secret) : state.secret);
+    if (ded) { nivelRespuesta = ded.nivel; answer = (ded.nivel === 'si' || ded.nivel === 'psi'); source = 'deduccion'; }
+  }
+
   if (answer === null) {
     window.MindSparring?.answer('solo',clean,'unknown',{source:'knowledge_gap'});
     addMessage(pickLine(['Esa pregunta todavía se me resiste, detective. No voy a inventar un SÍ o un NO; probá con otra pista.', 'Mmm… esa pieza no la tengo. No confundas una laguna con una respuesta: preguntá de otra manera.', 'No tengo evidencia suficiente para responderte eso. Mi orgullo no me obliga a mentir; seguí interrogándome.', 'Esa no la puedo resolver con lo que sé. Guardaré la pregunta para mejorar, pero por ahora no pienso chamuyarte.']), 'mind');
@@ -740,12 +747,14 @@ async function askQuestion(text) {
     return;
   }
 
-  state.facts.push({ texto: clean, concepto: conceptoUsado, answer: !!answer }); window.MindSparring?.answer('solo',clean,!!answer,{source:source}); machineAutosave();
+  // v3.13.80: una respuesta "probablemente" cuenta como pregunta pero NO como hecho firme (no alimenta sugerencias ni pistas).
+  const probable = (nivelRespuesta === 'psi' || nivelRespuesta === 'pno');
+  if (!probable) state.facts.push({ texto: clean, concepto: conceptoUsado, answer: !!answer });
+  window.MindSparring?.answer('solo',clean,!!answer,{source:source}); machineAutosave();
   state.questionCount++;
-  if (answer) state.consecutiveNo = 0;
-  else state.consecutiveNo++;
+  if (!probable) { if (answer) state.consecutiveNo = 0; else state.consecutiveNo++; }
   updateHud();
-  await addMessage(answer ? 'SÍ.' : 'NO.', 'mind');
+  await addMessage(nivelRespuesta && window.Solo ? window.Solo.texto(nivelRespuesta) : (answer ? 'SÍ.' : 'NO.'), 'mind');
   // Pistas adaptativas: no dependen de los turnos 5/10/15. Se activan
   // por negativas distintas acumuladas, no por repetir la misma pregunta.
   if (state.mode !== 'classic') {
@@ -756,7 +765,7 @@ async function askQuestion(text) {
     else if (state.hintsGiven === 1 && totalNegativos >= 8) nivel = 2;
     if (nivel) {
       state.hintsGiven = nivel;
-      await addMessage(buildBrainHint(state.secret, state.facts, nivel), 'mind');
+      await addMessage((window.Solo?.pista(state.secret, state.facts, nivel, MindLogic) || buildBrainHint(state.secret, state.facts, nivel)), 'mind');
     }
   }
 

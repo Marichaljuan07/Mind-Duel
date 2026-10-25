@@ -1,5 +1,7 @@
 // v3.13.78 — pruebas del Clásico: sin preguntas redundantes + razonamiento visible.
 // Usa los datos reales de las fichas; los hechos desconocidos se responden "no sé". No certifica precisión.
+// En el navegador existe window.MindKnowledge (inferencias); sin él los resultados no se parecen al juego real.
+global.window = { MindKnowledge: require('./conocimiento.js') };
 global.Sugeridor = require('./sugeridor.js');
 const L = require('./motor_logico.js'), C = require('./clasico.js'), fs = require('fs'), vm = require('vm');
 let OLD = null; try { OLD = require('./clasico_v77_referencia.js'); } catch (e) {}
@@ -9,6 +11,7 @@ const P = ctx.__P;
 let ok = 0, mal = 0;
 const t = (nombre, cond) => { if (cond) { ok++; } else { mal++; console.log('FALLA:', nombre); } };
 
+const rnd0 = () => 0.1; // elige siempre la primera frase: pruebas repetibles
 // 1) Caso real: la partida contra Shrek del 24/10 (respuestas del jugador, en orden).
 const partida = [
   ['¿Es una persona real?', 'no'], ['¿Tiene poderes?', 'no'], ['¿Es humano?', 'no'],
@@ -30,6 +33,30 @@ const s3 = C.nuevo(P); C.responder(s3, L, '¿Es una mujer?', 'no');
 t('mujer=NO no implica hombre (puede no ser binario)', !C.esRedundante(s3, L, '¿Es un hombre?'));
 const s4 = C.nuevo(P); C.responder(s4, L, '¿Tiene poderes?', 'nose');
 t('misma pregunta con otra palabra ya preguntada (aunque sea no lo sé)', C.esRedundante(s4, L, '¿Tiene superpoderes?'));
+
+// 1b) Segunda partida real (jugador pensando en Shrek con respuestas ruidosas): Frodo y luego Sonic.
+const log2 = [['¿Es una persona real?', 'no'], ['¿Tiene poderes?', 'no'], ['¿Es humano?', 'no'], ['¿Aparece en libros?', 'psi'],
+  ['¿Aparece en televisión o series?', 'si'], ['¿Es de Asia?', 'no'], ['¿Aparece en cómics?', 'no'], ['¿Es una mujer?', 'no'],
+  ['¿Está vivo en su historia?', 'si'], ['¿Es de DC Comics?', 'no'], ['¿Es de un anime?', 'no'], ['¿Es de Star Wars?', 'no'],
+  ['¿Es de Harry Potter?', 'no'], ['¿Es un hombre?', 'si'], ['¿Aparece en películas?', 'si'], ['¿Es de Marvel?', 'no'],
+  ['¿Es de la Edad Media?', 'psi'], ['¿Es del Renacimiento?', 'no'], ['¿Es de la Antigüedad?', 'psi'], ['¿Es un animal?', 'si']];
+const sx = C.nuevo(P); log2.forEach(([q, a]) => C.responder(sx, L, q, a));
+const m1 = C.mejor(sx); const txt1 = C.razonar(sx, L, m1, rnd0);
+C.rechazar(sx, m1.i); const m2 = C.mejor(sx); const txt2 = C.razonar(sx, L, m2, rnd0);
+t('el 1.er intento explica con hechos', /sé que/.test(txt1) && txt1.includes(m1.p.nombre));
+t('el 2.º intento NO repite la misma justificación', txt2 && !/sé que/.test(txt2) && txt2.includes(m1.p.nombre) && txt2.includes(m2.p.nombre));
+const sy = C.nuevo(P); log2.slice(0, 16).forEach(([q, a]) => C.responder(sy, L, q, a));
+t('con 7 empatados y sin pregunta útil, no inventa una pregunta', C.pregunta(sy, L) === null);
+t('"¿Es un animal?" no separa a esos líderes (datos desconocidos)', C.separaLideres(sy, L, '¿Es un animal?') === false);
+t('una pregunta que sí separa se reconoce', C.separaLideres(C.nuevo(P), L, '¿Es una persona real?') === true);
+const sn = C.nuevo(P); sn.n = 13; sn.notas = { e1: 1, h: 1, act1: 99 };
+sn.w = sn.w.map((w, i) => i < 7 ? 1 : 0);
+const nAchica = C.nota(sn, L, '¿Es un hombre?', rnd0);
+t('si la lista sí se achicó, lo dice', /achic|baj/.test(nAchica || ''));
+const sn2 = C.nuevo(P); sn2.n = 13; sn2.notas = { e1: 1, h: 1, act1: 7 };
+sn2.w = sn2.w.map((w, i) => i < 7 ? 1 : 0);
+const nIgual = C.nota(sn2, L, '¿Es un hombre?', rnd0);
+t('si la lista NO se achicó, no dice que se achicó', nIgual && !/achic|baj/.test(nIgual));
 
 // 2) 98 partidas simuladas: ninguna pregunta elegida es redundante; razonamiento y notas sanos.
 const rnd = (() => { let x = 11; return () => { x = (x * 16807) % 2147483647; return x / 2147483647; }; })();

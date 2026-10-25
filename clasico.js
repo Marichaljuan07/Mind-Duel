@@ -19,6 +19,10 @@ function pregunta(s,L){
       let si=0,no=0,coberturaPeso=0;
       s.ps.forEach((p,i)=>{const w=s.w[i]||0;if(w<=0)return;const v=Sugeridor.val(L,q,p);if(v===null)return;coberturaPeso+=w;if(v)si+=w;else no+=w});
       const cobertura=coberturaPeso/totalPeso;
+      if(minCob<.58){ // v3.13.78: en las pasadas relajadas, solo sirve si separa a los líderes
+        let lSi=0,lNo=0;s.ps.forEach((p,i)=>{if((s.w[i]||0)<.5)return;const v=Sugeridor.val(L,q,p);if(v===null)return;if(v)lSi++;else lNo++});
+        if(!lSi||!lNo)continue;
+      }
       // Una pregunta solo puede decidir el rumbo si hay evidencia suficiente
       // entre los candidatos que siguen vivos. Los desconocidos no cuentan como NO.
       if(cobertura<minCob||si<=1e-9||no<=1e-9)continue;
@@ -104,7 +108,7 @@ function nota(s,L,q,rnd){
   const m=mejor(s);if(!m)return null;
   const hechos=Object.entries(hechosFirmes(L,s.log));
   if(!s.notas.e1&&s.n>=7&&hechos.length>=3){
-    s.notas.e1=1;
+    s.notas.e1=1;s.notas.act1=activos(s);
     const claves=s.log.filter(r=>r&&(r.a==='si'||r.a==='no')).slice(0,3).map(r=>r.a==='si'?clausula(r.q):'no '+clausula(r.q));
     return elegir([
       `Voy armando el cuadro: ${unir(claves)}. Eso me deja unos ${activos(s)} sospechosos. Todavía tengo trabajo, pero avanzo.`,
@@ -119,10 +123,14 @@ function nota(s,L,q,rnd){
     ],rnd);
   }
   if(!s.notas.e2&&s.n>=13&&activos(s)<=8){
-    s.notas.e2=1;
+    s.notas.e2=1;const n=activos(s);
+    if(s.notas.act1&&n<s.notas.act1)return elegir([
+      `Mi lista se achicó: de ${s.notas.act1} sospechosos pasé a ${n}. La siguiente respuesta pesa mucho.`,
+      `Ya casi: bajé de ${s.notas.act1} a ${n} candidatos. Cuidado con lo que contestás.`
+    ],rnd);
     return elegir([
-      `Mi lista se achicó: quedan ${activos(s)} candidatos plausibles. La siguiente respuesta pesa mucho.`,
-      `Ya casi: ${activos(s)} candidatos siguen en pie. Cuidado con lo que contestás.`
+      `Sigo con ${n} candidatos en pie: tus últimas respuestas no desempataron nada. Necesito una pregunta que sí lo haga.`,
+      `Mi lista no se movió: ${n} candidatos siguen empatados. A ver si la próxima pregunta los separa.`
     ],rnd);
   }
   return null;
@@ -146,13 +154,27 @@ function razonar(s,L,m,rnd){
   if(!el.length)return null;
   const partes=el.map(h=>{const c=clausula(h.q);return h.a==='si'?c:h.a==='no'?'no '+c:h.a==='psi'?'probablemente '+c:'probablemente no '+c});
   const n=activos(s);
+  s.notas=s.notas||{};
+  const previo=s.notas.ultimo;s.notas.ultimo=m.p.nombre;
+  if(previo&&previo!==m.p.nombre){
+    return elegir([
+      `Sin ${previo} en la lista me quedan ${n} posibles, y ${m.p.nombre} sigue encajando con todo lo que dijiste. Admito que ya es más apuesta que deducción.`,
+      `${previo} cayó, pero no mi orgullo: con ${n} posibles, ${m.p.nombre} es lo que mejor encaja. Esto se parece más a un golpe de intuición que a una deducción.`
+    ],rnd);
+  }
   const cierre=n<=1
     ?`Solo ${m.p.nombre} encaja con todo eso.`
     :`Quedan ${n} posibles y ${m.p.nombre} es el que mejor encaja. Es una apuesta, pero no al azar.`;
   return `Así llegué hasta acá: sé que ${unir(partes)}. ${cierre}`;
 }
+// ¿Esta pregunta separa a los candidatos líderes (los que siguen con peso alto)? Si no, no sirve para desempatar.
+function separaLideres(s,L,q){
+  let a=0,b=0;
+  s.ps.forEach((p,i)=>{if((s.w[i]||0)<.5)return;const v=val(L,q,p);if(v===null)return;if(v)a++;else b++});
+  return a>0&&b>0;
+}
 function notaFallo(s,nombre){return `No era ${nombre}. Lo tacho de mi lista y rehago mis cuentas con todo lo que ya me dijiste.`}
 
-const C={nuevo,pregunta,responder,mejor,debeAdivinar,rechazar,frase,esRedundante,nota,razonar,notaFallo};
+const C={nuevo,pregunta,responder,mejor,debeAdivinar,rechazar,frase,esRedundante,separaLideres,nota,razonar,notaFallo};
 if(typeof module!=='undefined'&&module.exports)module.exports=C;else window.Clasico=C;
 })();

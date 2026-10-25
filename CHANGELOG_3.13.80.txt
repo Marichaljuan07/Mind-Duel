@@ -1,0 +1,53 @@
+MIND DUEL FUSION — v3.13.80 CEREBRO QUE RAZONA EN LOS DOS MODOS (Solo + Clásico)
+
+BASE
+- Parte de la estable v3.13.74 con la entrega v3.13.77 (geografía contextual) y los ajustes del Clásico de la v3.13.79.
+- Cambios: clasico.js (Clásico), solo.js (NUEVO, Solo), script.js (~27 líneas), index.html (1 línea: carga solo.js).
+- Idénticos a la v3.13.74/77: style.css, tema_synthwave.css, multijugador.js, motor_logico.js, conocimiento.js,
+  personajes.js, sugeridor.js, reconexión y multijugador.
+
+===== MODO SOLO (nuevo) =====
+El Cerebro actúa solo cuando la lógica existente NO sabe responder (antes decía "esa pregunta se me resiste").
+1) Deduce respuestas con datos que ya hay:
+   - Humano => no es un animal.
+   - Época: personajes reales (tabla EPOCAS, 30 reales), vivos => no son de épocas históricas; ficticios de universos
+     modernos (DC, Marvel, Star Wars, Pokémon, etc.) => "probablemente no".
+   - Continentes: según la región de la ficha ("espacio" => NO; ficticios => "probablemente").
+   - Hijos: tabla HIJOS (reales conocidos y unos pocos ficticios); lo dudoso sale "probablemente".
+   - Artista, combate y pacifista: a partir de las etiquetas de la ficha, con "probablemente".
+2) Cinco niveles de respuesta: SÍ., NO., PROBABLEMENTE SÍ., PROBABLEMENTE NO. (y el "no lo sé" de siempre en su estilo).
+   - Una respuesta "probablemente" cuenta como pregunta, pero NO entra como hecho firme: no alimenta sugerencias ni pistas.
+3) Pistas variadas: se generan a partir de lo que la ficha dice y el jugador todavía no descubrió (región, medio, época, rol,
+   rasgos). No dicen el nombre ni el universo. Recuerdan (localStorage) las últimas 14 para no repetirse; si ya salieron todas
+   vuelven a empezar. Si no hay pista nueva posible, se usa la pista de siempre.
+
+===== MODO CLÁSICO (de la 78/79, sin cambios nuevos) =====
+- No repite ni pregunta lo deducible; explica por qué arriesga con las respuestas reales; notas de rumbo (máx. 3);
+  no pregunta por preguntar cuando nada separa a los líderes.
+
+NO SE TOCÓ
+- Interfaz, multijugador, reconexión, pesos del Clásico, pop-up del personaje, límites de preguntas e intentos.
+
+PRUEBAS EJECUTADAS (98 fichas, con window.MindKnowledge como en el navegador)
+- SOLO, 10 personajes x 15 preguntas comunes: sin respuesta 60/150 (40%) -> 19/150 (13%).
+  De las deducidas: 19 firmes y 22 "probablemente".
+- SOLO, coherencia: 416 casos donde la lógica ya sabía; la deducción NO contradijo ninguno (0).
+- SOLO, pistas: 169 de 196 casos tienen pista nueva (el resto usa la de siempre); 0 filtran nombre o universo.
+- tester_solo_80.js (nuevo): 19 controles correctos, 0 fallidos.
+- tester_clasico_78.js: 454 controles correctos, 0 fallidos. Los 10 testers previos terminan con código 0.
+
+LIMITACIONES (importante)
+- NO se probó en navegador ni en teléfono. No se vieron en pantalla los textos nuevos del Solo ni del Clásico.
+- Las tablas EPOCAS y HIJOS (solo.js) son conocimiento general y están POR REVISAR por Juan. Un dato malo ahí es peor que un
+  "no lo sé". Dudosos que conviene mirar: hijos de Leonardo, Tesla, Washington, Bolívar, Cervantes, Keanu Reeves, Frodo y Gandalf.
+- La medición de 150 respuestas no certifica precisión; el navegador interpreta frases libres con un módulo que no se pudo
+  reproducir acá, así que el Solo real puede responder algo más (o distinto).
+- Hallazgo de datos (no se corrigió porque no se toca personajes.js): Garfield figura con humano=true.
+- El Solo sigue sin responder bien: "¿tiene hijos?" para casi todos los ficticios, "¿es un animal?" para no humanos sin dato,
+  "¿es hombre?" para personajes de género "otro". Falta completar fichas.
+- Sigue pendiente (del Clásico): el barrido de franquicias y un banco de preguntas más rico para ficticios.
+
+PRÓXIMOS PASOS SUGERIDOS
+1) Revisar EPOCAS y HIJOS en solo.js y corregir lo que no coincida con lo que sabés.
+2) Jugar 3 o 4 partidas Solo y 3 o 4 Clásico en el teléfono; pasar los registros.
+3) Completar en personajes.js: animal, hijos y época de los ficticios; corregir Garfield.
