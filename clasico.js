@@ -20,7 +20,7 @@ function pregunta(s,L){
       s.ps.forEach((p,i)=>{const w=s.w[i]||0;if(w<=0)return;const v=Sugeridor.val(L,q,p);if(v===null)return;coberturaPeso+=w;if(v)si+=w;else no+=w});
       const cobertura=coberturaPeso/totalPeso;
       if(minCob<.58){ // v3.13.78: en las pasadas relajadas, solo sirve si separa a los líderes
-        let lSi=0,lNo=0;s.ps.forEach((p,i)=>{if((s.w[i]||0)<.5)return;const v=Sugeridor.val(L,q,p);if(v===null)return;if(v)lSi++;else lNo++});
+        let lSi=0,lNo=0;const mxL=maxPeso(s);s.ps.forEach((p,i)=>{if((s.w[i]||0)<.5*mxL)return;const v=Sugeridor.val(L,q,p);if(v===null)return;if(v)lSi++;else lNo++});
         if(!lSi||!lNo)continue;
       }
       // Una pregunta solo puede decidir el rumbo si hay evidencia suficiente
@@ -101,7 +101,10 @@ function esRedundante(s,L,q){
 const unir=a=>a.length<=1?(a[0]||''):a.slice(0,-1).join(', ')+' y '+a[a.length-1];
 const clausula=q=>{const t=String(q).replace(/[¿?]/g,'').trim();return t.charAt(0).toLowerCase()+t.slice(1)};
 const elegir=(arr,rnd)=>arr[Math.floor((rnd||Math.random)()*arr.length)%arr.length];
-const activos=s=>s.w.filter(w=>w>.12).length;
+// Los pesos se normalizan distinto según el momento (por el máximo al responder, por la suma al rechazar),
+// así que los umbrales son SIEMPRE relativos al peso máximo actual.
+const maxPeso=s=>s.w.reduce((a,b)=>b>a?b:a,0);
+const activos=s=>{const mx=maxPeso(s);return mx>0?s.w.filter(w=>w>=.12*mx).length:0};
 // Frase corta sobre el rumbo del interrogatorio. Máx. 3 por partida; solo dice cosas ciertas del estado real.
 function nota(s,L,q,rnd){
   s.notas=s.notas||{};
@@ -170,7 +173,7 @@ function razonar(s,L,m,rnd){
 // ¿Esta pregunta separa a los candidatos líderes (los que siguen con peso alto)? Si no, no sirve para desempatar.
 function separaLideres(s,L,q){
   let a=0,b=0;
-  s.ps.forEach((p,i)=>{if((s.w[i]||0)<.5)return;const v=val(L,q,p);if(v===null)return;if(v)a++;else b++});
+  const mx=maxPeso(s);s.ps.forEach((p,i)=>{if((s.w[i]||0)<.5*mx)return;const v=val(L,q,p);if(v===null)return;if(v)a++;else b++});
   return a>0&&b>0;
 }
 function notaFallo(s,nombre){return `No era ${nombre}. Lo tacho de mi lista y rehago mis cuentas con todo lo que ya me dijiste.`}

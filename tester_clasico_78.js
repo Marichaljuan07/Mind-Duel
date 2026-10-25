@@ -49,6 +49,15 @@ const sy = C.nuevo(P); log2.slice(0, 16).forEach(([q, a]) => C.responder(sy, L, 
 t('con 7 empatados y sin pregunta útil, no inventa una pregunta', C.pregunta(sy, L) === null);
 t('"¿Es un animal?" no separa a esos líderes (datos desconocidos)', C.separaLideres(sy, L, '¿Es un animal?') === false);
 t('una pregunta que sí separa se reconoce', C.separaLideres(C.nuevo(P), L, '¿Es una persona real?') === true);
+// 1c) Partida real del 25/10 (Sonic y luego Shrek): el conteo de "posibles" no debe distorsionarse al rechazar.
+const log3 = [['¿Es una persona real?', 'no'], ['¿Tiene poderes?', 'no'], ['¿Es humano?', 'no'], ['¿Aparece en libros?', 'no'], ['¿Es de Asia?', 'pno'],
+  ['¿Aparece en cómics?', 'no'], ['¿Aparece en televisión o series?', 'si'], ['¿Es una mujer?', 'no'], ['¿Es de un anime?', 'no'], ['¿Es de DC Comics?', 'no'],
+  ['¿Está vivo en su historia?', 'si'], ['¿Es de Star Wars?', 'no'], ['¿Es de Harry Potter?', 'no'], ['¿Aparece en películas?', 'si'], ['¿Es de Marvel?', 'no'], ['¿Es un hombre?', 'si']];
+const sz = C.nuevo(P); log3.forEach(([q, a]) => C.responder(sz, L, q, a));
+const z1 = C.mejor(sz), ta = C.razonar(sz, L, z1, rnd0); C.rechazar(sz, z1.i);
+const tb = C.razonar(sz, L, C.mejor(sz), rnd0);
+const n1 = +(/Quedan (\d+) posibles/.exec(ta) || [])[1], n2 = +(/con (\d+) posibles|me quedan (\d+) posibles/.exec(tb) || [])[1] || +(/me quedan (\d+) posibles/.exec(tb) || [])[1];
+t('tras rechazar, los posibles bajan de a uno (' + n1 + ' -> ' + n2 + ')', n1 > 1 && n2 === n1 - 1);
 const sn = C.nuevo(P); sn.n = 13; sn.notas = { e1: 1, h: 1, act1: 99 };
 sn.w = sn.w.map((w, i) => i < 7 ? 1 : 0);
 const nAchica = C.nota(sn, L, '¿Es un hombre?', rnd0);
