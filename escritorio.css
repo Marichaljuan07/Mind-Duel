@@ -1,0 +1,59 @@
+/* MIND DUEL v3.13.82 - ESTÉTICA DE PC
+   Solo se activa en pantallas anchas (>= 900px). En celular y tablet vertical no cambia nada.
+   Se carga al final, después de tema_synthwave.css. No toca lógica ni JavaScript. */
+@media (min-width: 900px) and (min-height: 560px) {
+  /* Fondo del navegador: se ve el neón alrededor del "gabinete" de juego */
+  html, body {
+    background: radial-gradient(ellipse at 50% 0%, #1c0636 0%, #05020f 55%, #000 100%);
+  }
+
+  /* Pantalla de juego: columna central de lectura cómoda, no estirada de borde a borde */
+  .game-screen {
+    padding-left: max(14px, calc((100% - 1000px) / 2));
+    padding-right: max(14px, calc((100% - 1000px) / 2));
+  }
+  .game-screen .mind-console { min-height: 0; }
+  .game-screen .controls { width: 100%; }
+
+  /* Texto del chat más grande para leer desde la distancia de una PC */
+  .chat { font-size: 1.12rem; line-height: 1.45; }
+  .chat .msg, .chat p, .chat div { max-width: 100%; }
+  #questionInput { font-size: 1.2rem; padding-top: 12px; padding-bottom: 12px; }
+
+  /* Botones de respuesta del Clásico: una sola fila en vez de apilados */
+  #classicPanel:not(.hidden) {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+  }
+  #classicPanel .btn[data-ans] { grid-column: auto; grid-row: auto; min-height: 48px; }
+
+  /* Tarjeta del Cerebro y menús del escenario: un poco más grandes */
+  .stage-screen .oracle-card {
+    width: min(70vw, 760px) !important;
+    font-size: clamp(10px, 1.35vh, 13px) !important;
+  }
+  .stage-actions, #machineModeChoice { width: min(420px, 90%); margin-left: auto; margin-right: auto; }
+
+  /* Ventanas emergentes (adivinar, historial, partidas guardadas): centradas y con tope de ancho */
+  .modal-card, .classic-guess-card, .character-edit-card { max-width: 640px; }
+
+  /* El menú de partida (hamburguesa) con más aire */
+  .game-menu-dropdown { width: 280px; }
+
+  /* Cursor y foco para teclado/mouse */
+  .btn:not(:disabled), .send-btn, .header-btn, .menu-option { cursor: pointer; }
+  .btn:focus-visible, .send-btn:focus-visible, .header-btn:focus-visible, .menu-option:focus-visible, #questionInput:focus-visible {
+    outline: 2px solid var(--neon-cyan, #00d8ff);
+    outline-offset: 2px;
+  }
+}
+
+/* Pantallas muy grandes (monitores 2K/4K): limitar el ancho para que no se estire */
+@media (min-width: 1700px) {
+  .game-screen {
+    padding-left: max(14px, calc((100% - 1100px) / 2));
+    padding-right: max(14px, calc((100% - 1100px) / 2));
+  }
+  .chat { font-size: 1.25rem; }
+}

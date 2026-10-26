@@ -385,6 +385,13 @@ async function classicGuess(announce = false) {
     ];
     await addMessage(lines[Math.floor(Math.random() * lines.length)], 'mind');
     // v3.13.78: explicar el intento con las respuestas reales que más descartaron.
+    // v3.13.82: si ni el mejor candidato encaja del todo con lo que dijiste, lo admite.
+    const enc = Clasico.encaje ? Clasico.encaje(classic.s, MindLogic) : null;
+    classic.lastContra = enc ? enc.contra : 0;
+    if (enc && enc.contra >= 1) await addMessage(pickLine([
+      'Ninguno de mis expedientes encaja del todo con lo que dijiste. Voy con el que menos se contradice.',
+      'Mi archivo no tiene a nadie que encaje con todas tus respuestas. Apuesto por el menos malo.'
+    ]), 'mind');
     const porque = Clasico.razonar ? Clasico.razonar(classic.s, MindLogic, m) : null;
     if (porque) await addMessage(porque, 'mind');
   }
@@ -399,7 +406,11 @@ async function classicGuess(announce = false) {
 async function classicName() {
   classicBusy = true;
   classic.cur = null; classic.phase = 'name';
-  await addMessage(pickLine([
+  const fueraDeArchivo = (classic.lastContra || 0) >= 1;
+  await addMessage(fueraDeArchivo ? pickLine([
+    'Ninguno de mis expedientes encajaba con lo que dijiste: sospecho que tu personaje no está en mi archivo. Anotá su nombre en el chat y lo estudio.',
+    'Mi archivo no alcanzó. Creo que pensaste en alguien que todavía no conozco. Escribí su nombre en el chat y lo agrego a mi lista de pendientes.'
+  ]) : pickLine([
     '¡No puede ser! Se me acabaron las teorías, no el orgullo. Anotá en este chat quién era tu personaje; quiero estudiar este fracaso antes de que te agrandes.',
     'Esta vez se me escapó. Escribí el nombre de tu personaje acá mismo en el chat, detective. Después hablamos de tu supuesta victoria.',
     '¡Una laguna en mi brillante razonamiento! Anotá el nombre del personaje en el chat. Quiero saber qué caso me hizo perder el tiempo.'
@@ -504,7 +515,7 @@ function mostrarPreguntaAprendizaje(nombre) {
   const box = el('resultLearning');
   if (!box || !window.MindKnowledge || !nombre) return;
   const personaje = findKnownCharacter(nombre) || window.MindKnowledge.crearPlantilla(nombre);
-  const item = window.MindKnowledge.preguntaSiguiente(personaje);
+  const item = window.MindPacks ? window.MindPacks.preguntaAprendizaje(personaje) : window.MindKnowledge.preguntaSiguiente(personaje); // v3.13.82: sin preguntas absurdas (ej. futbolista para Goku)
   box.replaceChildren();
   if (!item) { box.classList.add('hidden'); return; }
   const title = document.createElement('h3'); title.textContent = 'EL CEREBRO QUIERE APRENDER';
@@ -718,7 +729,9 @@ async function askQuestion(text) {
   state.asked.add(MindLogic.normalizar(clean));
   lockInput(true);
 
-  let answer = MindLogic.evaluarPregunta(clean, window.MindKnowledge ? window.MindKnowledge.enriquecer(state.secret) : state.secret);
+  const secretEnriquecido = window.MindKnowledge ? window.MindKnowledge.enriquecer(state.secret) : state.secret;
+  // v3.13.82: paquetes (ej. Dragon Ball) y franquicias cerradas; si no aplican devuelven null y sigue la lógica de siempre.
+  let answer = (window.MindPacks ? window.MindPacks.responder(MindLogic, clean, secretEnriquecido) : null) ?? MindLogic.evaluarPregunta(clean, secretEnriquecido);
   let source = 'logic';
   let conceptoUsado = null;
 
@@ -1145,7 +1158,7 @@ window.addEventListener('mind:restore-machine-match',async e=>{
  window.MindDuelCleanupForMode?.(); machineStartedAt=Number(snap.startedAt)||Date.now(); classicSecretName=String(snap.classicCharacterName||''); resetGame(); classicSetMode(snap.mode==='CLASSIC');
  state.mode=snap.mode==='CLASSIC'?'classic':'solo';state.questionCount=Number(snap.questionCount)||0;state.guessesLeft=Number(snap.guessesLeft)||MAX_GUESSES;state.suggestionUses=Number(snap.suggestionUses??SUGGESTION_LIMIT);state.consecutiveNo=Number(snap.consecutiveNo)||0;state.hintsGiven=Number(snap.hintsGiven)||0;state.asked=new Set(snap.asked||[]);state.facts=Array.isArray(snap.facts)?snap.facts:[];state.seconds=Number(snap.seconds)||0;state.patience=Number(snap.patience)||0;state.suggestionSession=snap.suggestionSession||{options:[],rerolls:0,initialized:false};state.active=snap.status!=='completed';
  if(snap.mode==='SOLO'){state.secret=(PERSONAJES||[]).find(p=>MindLogic.normalizar(p.nombre)===MindLogic.normalizar(snap.secretName))||snap.secret;}
- if(snap.mode==='CLASSIC'&&snap.classic){const c=snap.classic;classic.s=Clasico.nuevo(PERSONAJES);classic.s.w=Array.isArray(c.weights)?c.weights:classic.s.w;classic.s.asked=new Set((c.asked||[]).map(q=>MindLogic.normalizar(q))); classic.s.log=c.log||[];classic.s.rech=new Set(c.rejected||[]);classic.s.n=Number(c.n)||0;classic.fails=Number(c.fails)||0;classic.phase=c.phase||'ask';classic.cur=null;if(c.cur){const p=(PERSONAJES||[]).find(x=>MindLogic.normalizar(x.nombre)===MindLogic.normalizar(c.cur.p||''));classic.cur={...c.cur,...(p?{p}: {})};}}
+ if(snap.mode==='CLASSIC'&&snap.classic){const c=snap.classic;classic.s=Clasico.nuevo(PERSONAJES);classic.s.w=Array.isArray(c.weights)?c.weights.concat(new Array(Math.max(0,PERSONAJES.length-c.weights.length)).fill(0)):classic.s.w;classic.s.asked=new Set((c.asked||[]).map(q=>MindLogic.normalizar(q))); classic.s.log=c.log||[];classic.s.rech=new Set(c.rejected||[]);classic.s.n=Number(c.n)||0;classic.fails=Number(c.fails)||0;classic.phase=c.phase||'ask';classic.cur=null;if(c.cur){const p=(PERSONAJES||[]).find(x=>MindLogic.normalizar(x.nombre)===MindLogic.normalizar(c.cur.p||''));classic.cur={...c.cur,...(p?{p}: {})};}}
  window.MatchHistory?.resume?.(snap.historyId, snap.mode==='CLASSIC'?'clásico':'solo');
  ui.chat.textContent='';for(const ev of (snap.transcript||[])){const kind=ev.kind||'system';const row=document.createElement('div');row.className='message message-'+kind;const av=document.createElement('div');av.className='avatar';const a=avatarFor(kind);av.textContent=a.txt;av.classList.add(a.cls);const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=ev.text||'';row.append(av,bubble);ui.chat.append(row);}
  classicBusy=false;

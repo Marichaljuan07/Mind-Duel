@@ -1,0 +1,29 @@
+MIND DUEL FUSION — v3.13.82 INTEGRADA (PAQUETES DRAGON BALL + ESTÉTICA PC)
+
+BASE DE LÓGICA: paquete PAQUETE_DRAGON_BALL v3.13.82.
+CAPA VISUAL PC: escritorio.css de VERSION_PC v3.13.82, enlazado en index.html.
+OBJETIVO: conservar los paquetes de personajes y mejoras de Clásico/Solo, añadiendo la presentación de escritorio sin sobrescribir las mejoras de lógica.
+
+INTEGRACIÓN
+- Se conserva el index.html del paquete Dragon Ball, incluyendo la carga de packs.js.
+- Se añade la carga de escritorio.css después de tema_synthwave.css.
+- Se conservan clasico.js y script.js del paquete Dragon Ball.
+- Se añade escritorio.css desde VERSION_PC.
+- No se combinan ni reescriben multijugador.js, style.css ni tema_synthwave.css.
+- Los demás archivos compartidos se conservan del paquete Dragon Ball; escritorio.css es el único archivo agregado desde VERSION_PC.
+
+PRUEBAS REALIZADAS EN ESTA INTEGRACIÓN
+- Ambos ZIP originales abren correctamente y no reportan corrupción.
+- Comparación de archivos: las únicas diferencias funcionales entre los paquetes originales eran index.html, script.js y clasico.js; VERSION_PC además aportaba escritorio.css y un changelog propio.
+- Verificación estructural de que index.html carga tanto escritorio.css como packs.js.
+- Se ejecutaron los testers JavaScript incluidos con Node.js (ver resultados de validación que acompañan esta entrega).
+
+NO VERIFICADO
+- No se ejecutó en navegador real ni en el teléfono.
+- No se verificó visualmente el diseño en escritorio, móvil o tablet.
+- No se jugó una partida real entre dos dispositivos ni se probó la reconexión.
+- Los datos de Dragon Ball siguen siendo datos por revisar, como advierte el changelog del paquete de origen.
+- No se ha probado exhaustivamente la interacción visual entre escritorio.css y todos los estados del juego.
+
+NOTA
+Esta integración no declara la versión estable ni garantiza ausencia de errores. Es una candidata integrada para probar; conservar la versión estable anterior como respaldo.

@@ -9,6 +9,11 @@ function pregunta(s,L){
   const contextual=Sugeridor.preguntasContextuales?Sugeridor.preguntasContextuales(L,facts,s.n):[];
   const pool=[...new Set([...contextual,...Sugeridor.POOL])];
   let c=[];
+  // v3.13.82: con un único sospechoso no se hacen preguntas de relleno: se lo pone a prueba.
+  if((s.verif||0)<2&&s.n>=4&&activos(s)<=1){
+    const v=preguntaVerificacion(s,L,pool);
+    if(v){s.verif=(s.verif||0)+1;(s.verifQs=s.verifQs||[]).push(v);return v}
+  }
   // v3.13.78: si ninguna pregunta cumple la cobertura habitual (.58), se relaja de a poco
   // antes de rendirse: preferible preguntar algo parcialmente informativo que adivinar a ciegas.
   for(const minCob of [.58,.3,.12]){
@@ -35,11 +40,17 @@ function pregunta(s,L){
   c.sort((a,b)=>b.score-a.score||a.orden-b.orden);
 
   // Elegir la mejor división real, no una de las tres primeras al azar.
-  return c[0]?.q||null;
+  if(c[0])return c[0].q;
+  // v3.13.82: sin ninguna pregunta que separe, antes de arriesgarse se verifica la hipótesis (máx. 2).
+  if((s.verif||0)<2&&activos(s)<=2){ // con varios empatados no se verifica a uno solo: eso sería adivinar por pregunta
+    const v=preguntaVerificacion(s,L,pool);
+    if(v){s.verif=(s.verif||0)+1;(s.verifQs=s.verifQs||[]).push(v);return v}
+  }
+  return null;
 }
-function responder(s,L,q,a){const nq=L.normalizar(q);s.asked.add(nq);s.n++;s.log.push({q,a});const[x,y]=PESO[a]||PESO.nose;s.ps.forEach((p,i)=>{const v=val(L,q,p);if(v===null||a==='nose'){s.w[i]*=1;return}if(a==='psi'){s.w[i]*=v?1:.35;return}if(a==='pno'){s.w[i]*=v?.35:1;return}s.w[i]*=v?x:y});const max=Math.max(0,...s.w);if(max>0&&Number.isFinite(max))s.w=s.w.map(w=>w/max)}
+function responderBase(s,L,q,a){const nq=L.normalizar(q);s.asked.add(nq);s.n++;s.log.push({q,a});const[x,y]=PESO[a]||PESO.nose;s.ps.forEach((p,i)=>{const v=val(L,q,p);if(v===null||a==='nose'){s.w[i]*=1;return}if(a==='psi'){s.w[i]*=v?1:.35;return}if(a==='pno'){s.w[i]*=v?.35:1;return}s.w[i]*=v?x:y});const max=Math.max(0,...s.w);if(max>0&&Number.isFinite(max))s.w=s.w.map(w=>w/max)}
 function mejor(s){let bi=-1,bw=0,tot=0;s.w.forEach((w,i)=>{tot+=w;if(w>bw){bw=w;bi=i}});return bi<0?null:{i:bi,p:s.ps[bi],conf:bw/tot}}
-function debeAdivinar(s){
+function debeAdivinarBase(s){
   const m=mejor(s);if(!m||s.n<12)return false;
   const orden=s.w.map((w,i)=>({w,i})).filter(x=>x.w>0).sort((a,b)=>b.w-a.w);
   const total=orden.reduce((a,x)=>a+x.w,0),confianza=total?m.conf:0;
@@ -104,18 +115,27 @@ const elegir=(arr,rnd)=>arr[Math.floor((rnd||Math.random)()*arr.length)%arr.leng
 // Los pesos se normalizan distinto según el momento (por el máximo al responder, por la suma al rechazar),
 // así que los umbrales son SIEMPRE relativos al peso máximo actual.
 const maxPeso=s=>s.w.reduce((a,b)=>b>a?b:a,0);
+const sospechosos=n=>n===1?'un solo sospechoso':'unos '+n+' sospechosos';
+const candidatosTxt=n=>n===1?'un solo candidato':n+' candidatos';
 const activos=s=>{const mx=maxPeso(s);return mx>0?s.w.filter(w=>w>=.12*mx).length:0};
 // Frase corta sobre el rumbo del interrogatorio. Máx. 3 por partida; solo dice cosas ciertas del estado real.
-function nota(s,L,q,rnd){
+function notaBase(s,L,q,rnd){
   s.notas=s.notas||{};
   const m=mejor(s);if(!m)return null;
+  if(s.verifQs&&s.verifQs.includes(q)&&!s.notas.v){
+    s.notas.v=1;
+    return elegir([
+      'Tengo un sospechoso. Esta pregunta es una prueba: si me equivoco, lo sabré enseguida.',
+      'Voy a verificar mi sospecha con una pregunta que solo respondería así el personaje correcto.'
+    ],rnd);
+  }
   const hechos=Object.entries(hechosFirmes(L,s.log));
   if(!s.notas.e1&&s.n>=7&&hechos.length>=3){
     s.notas.e1=1;s.notas.act1=activos(s);
     const claves=s.log.filter(r=>r&&(r.a==='si'||r.a==='no')).slice(0,3).map(r=>r.a==='si'?clausula(r.q):'no '+clausula(r.q));
     return elegir([
-      `Voy armando el cuadro: ${unir(claves)}. Eso me deja unos ${activos(s)} sospechosos. Todavía tengo trabajo, pero avanzo.`,
-      `Ya sé que ${unir(claves)}. Quedan unos ${activos(s)} sospechosos en mi lista. Mortal, empiezo a ver el patrón.`
+      `Voy armando el cuadro: ${unir(claves)}. Eso me deja ${sospechosos(activos(s))}. Todavía tengo trabajo, pero avanzo.`,
+      activos(s)===1?`Ya sé que ${unir(claves)}. Queda un solo sospechoso en mi lista. Mortal, empiezo a ver el patrón.`:`Ya sé que ${unir(claves)}. Quedan unos ${activos(s)} sospechosos en mi lista. Mortal, empiezo a ver el patrón.`
     ],rnd);
   }
   if(!s.notas.h&&s.n>=8&&m.conf>=.3&&val(L,q,m.p)===true){
@@ -127,16 +147,28 @@ function nota(s,L,q,rnd){
   }
   if(!s.notas.e2&&s.n>=13&&activos(s)<=8){
     s.notas.e2=1;const n=activos(s);
+    if(n===1)return elegir([
+      'Me queda un solo candidato en pie. Solo necesito confirmarlo.',
+      'Un único candidato resiste en mi lista. Veremos si aguanta mis preguntas.'
+    ],rnd);
     if(s.notas.act1&&n<s.notas.act1)return elegir([
       `Mi lista se achicó: de ${s.notas.act1} sospechosos pasé a ${n}. La siguiente respuesta pesa mucho.`,
       `Ya casi: bajé de ${s.notas.act1} a ${n} candidatos. Cuidado con lo que contestás.`
     ],rnd);
     return elegir([
-      `Sigo con ${n} candidatos en pie: tus últimas respuestas no desempataron nada. Necesito una pregunta que sí lo haga.`,
+      `Sigo con ${candidatosTxt(n)} en pie: tus últimas respuestas no desempataron nada. Necesito una pregunta que sí lo haga.`,
       `Mi lista no se movió: ${n} candidatos siguen empatados. A ver si la próxima pregunta los separa.`
     ],rnd);
   }
   return null;
+}
+// Máximo 3 comentarios de rumbo por partida (incluida la nota de verificación).
+function nota(s,L,q,rnd){
+  s.notas=s.notas||{};
+  if((s.notas.n||0)>=3)return null;
+  const r=notaBase(s,L,q,rnd);
+  if(r)s.notas.n=(s.notas.n||0)+1;
+  return r;
 }
 // Explica el intento con las respuestas reales que más descartaron y que el candidato cumple.
 function razonar(s,L,m,rnd){
@@ -160,6 +192,7 @@ function razonar(s,L,m,rnd){
   s.notas=s.notas||{};
   const previo=s.notas.ultimo;s.notas.ultimo=m.p.nombre;
   if(previo&&previo!==m.p.nombre){
+    if(n<=1)return `Sin ${previo} en la lista me queda un solo candidato, y es ${m.p.nombre}. Ya no es apuesta: es descarte.`;
     return elegir([
       `Sin ${previo} en la lista me quedan ${n} posibles, y ${m.p.nombre} sigue encajando con todo lo que dijiste. Admito que ya es más apuesta que deducción.`,
       `${previo} cayó, pero no mi orgullo: con ${n} posibles, ${m.p.nombre} es lo que mejor encaja. Esto se parece más a un golpe de intuición que a una deducción.`
@@ -178,6 +211,40 @@ function separaLideres(s,L,q){
 }
 function notaFallo(s,nombre){return `No era ${nombre}. Lo tacho de mi lista y rehago mis cuentas con todo lo que ya me dijiste.`}
 
-const C={nuevo,pregunta,responder,mejor,debeAdivinar,rechazar,frase,esRedundante,separaLideres,nota,razonar,notaFallo};
+// ---------- v3.13.82: verificar la hipótesis, admitir cuando nada encaja ----------
+// Pregunta que el sospechoso principal cumpliría (un SÍ lo confirma) y que sea lo más específica posible.
+function preguntaVerificacion(s,L,pool){
+  const m=mejor(s);if(!m)return null;
+  let mejorQ=null,mejorEsp=-1;
+  for(const q of pool){
+    const key=L.normalizar(q);if(s.asked.has(key)||esRedundante(s,L,q))continue;
+    if(val(L,q,m.p)!==true)continue;
+    let cumplen=0;for(const p of s.ps)if(val(L,q,p)===true)cumplen++;
+    const esp=1/(1+cumplen);
+    if(esp>mejorEsp){mejorEsp=esp;mejorQ=q}
+  }
+  return mejorQ;
+}
+// Registra si las preguntas de verificación confirmaron o contradijeron al sospechoso.
+function responder(s,L,q,a){
+  responderBase(s,L,q,a);
+  if(s.verifQs&&s.verifQs.includes(q)){
+    if(a==='si')s.verifOk=(s.verifOk||0)+1;else if(a==='no')s.verifFail=(s.verifFail||0)+1;
+  }
+}
+// Con un único sospechoso confirmado por 2 verificaciones, no hace falta esperar a la pregunta 12.
+function debeAdivinar(s){
+  if(debeAdivinarBase(s))return true;
+  return (s.verifOk||0)>=2&&!(s.verifFail)&&activos(s)<=1&&s.n>=8;
+}
+// Cuántas respuestas firmes (SÍ/NO) contradice un personaje.
+function contradicciones(s,L,p){
+  let n=0;
+  for(const r of s.log||[]){if(!r||(r.a!=='si'&&r.a!=='no'))continue;const v=val(L,r.q,p);if(v===null)continue;if(v!==(r.a==='si'))n++}
+  return n;
+}
+function encaje(s,L){const m=mejor(s);return m?{p:m.p,contra:contradicciones(s,L,m.p)}:null}
+
+const C={nuevo,pregunta,responder,mejor,debeAdivinar,rechazar,frase,esRedundante,separaLideres,nota,razonar,notaFallo,encaje,contradicciones,preguntaVerificacion};
 if(typeof module!=='undefined'&&module.exports)module.exports=C;else window.Clasico=C;
 })();

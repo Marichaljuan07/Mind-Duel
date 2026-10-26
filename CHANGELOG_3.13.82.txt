@@ -1,0 +1,59 @@
+MIND DUEL FUSION — v3.13.82 PAQUETES DE PERSONAJES + EL CEREBRO VERIFICA Y ADMITE LO QUE NO CONOCE
+
+BASE: v3.13.81 (Solo + Clásico razonan). Todo lo anterior se conserva.
+CAMBIOS: packs.js (NUEVO), clasico.js, script.js (+~30 líneas sobre la 81), index.html (+1 línea: carga packs.js).
+IDÉNTICOS: style.css, tema_synthwave.css, multijugador.js, motor_logico.js, conocimiento.js, personajes.js, sugeridor.js,
+reconexión y multijugador.
+
+===== 1) PAQUETES DE PERSONAJES (valen para los DOS modos) =====
+- Un paquete = personajes nuevos + sus propias preguntas. Se cargan solos al abrir el juego: no hace falta el Curador.
+- El catálogo es el mismo para el Solo (el Cerebro elige su personaje secreto de ahí) y para el Clásico (adivina entre ellos).
+- Paquete Dragon Ball: 28 personajes nuevos (Vegeta, Gohan, Piccolo, Freezer, Krillin, Bulma, Trunks, Goten, Cell, Majin Buu,
+  Nappa, Raditz, Dodoria, Zarbon, Capitán Ginyu, Maestro Roshi, Yamcha, Tenshinhan, Mr. Satán, Videl, Chi-Chi, Androide 18,
+  Androide 17, Beerus, Whis, Jiren, Broly, Shenlong). Goku (ya existía) recibe los atributos del paquete. Catálogo: 98 -> 126.
+- 13 preguntas propias: ¿Es de Dragon Ball?, ¿Es un saiyajin?, ¿Es un namekiano?, ¿Es un villano?, ¿Es el protagonista de su
+  serie?, ¿Es un androide?, ¿Es calvo?, ¿Es de color verde?, ¿Es de color rosa?, ¿Empezó como enemigo y luego fue aliado?,
+  ¿Es hijo de Goku?, ¿Es hijo de Vegeta?, ¿Participó en el Torneo del Poder?, ¿Es un dios de la destrucción?
+  Las preguntas propias solo separan DENTRO del paquete (fuera de él no se aplican). Lo dudoso se responde "no lo sé".
+- Los 29 personajes del paquete se distinguen entre sí (0 grupos con las mismas respuestas).
+- En el Solo, el Cerebro NO sugiere preguntas de paquetes (el jugador sí puede hacerlas con sus palabras).
+- Franquicias cerradas: "¿Es de anime / Marvel / DC / Star Wars / Harry Potter?" ahora responde NO a lo que no pertenece
+  (antes quedaba en "no sé"). Verificado con la lista exacta de miembros del catálogo base.
+- Datos corregidos del catálogo base (hechos claros): Garfield no es humano y sí animal; Totoro es de anime.
+
+===== 2) EL CEREBRO VERIFICA SU SOSPECHA (Clásico) =====
+- Con un único sospechoso, en vez de preguntas de relleno, hace hasta 2 preguntas de verificación: cosas que el sospechoso
+  cumpliría y que sean específicas (ej. "¿Es el protagonista de su serie?"). Una nota avisa que es una prueba.
+- Si las 2 se confirman y es el único candidato, se arriesga sin esperar a la pregunta 12 (mínimo 8).
+- Con varios empatados NO verifica a uno solo (sería adivinar por pregunta).
+
+===== 3) LO QUE NO CONOCE =====
+- Si ni el mejor candidato encaja del todo con las respuestas, lo dice antes de arriesgarse ("Ninguno de mis expedientes encaja...").
+- Si pierde los 2 intentos en ese estado, ya no dice "se me escapó": sospecha que el personaje no está en su archivo y pide el nombre.
+  (Al pedir el nombre, el juego ya lo guardaba como personaje nuevo con tus respuestas como datos tentativos.)
+- Pregunta de aprendizaje con sentido: no pregunta "¿Es futbolista?" por Goku. Evita preguntas absurdas para ficticios/reales.
+
+===== 4) ARREGLOS =====
+- "Quedan unos 1 sospechosos" -> "un solo sospechoso" (y variantes con 1 candidato).
+- Máximo 3 comentarios de rumbo por partida (incluida la nota de verificación).
+- Partidas guardadas con el catálogo viejo: los personajes nuevos quedan en 0 al restaurar (no se descuadran los pesos).
+
+PRUEBAS EJECUTADAS (con las capas cargadas como en el navegador; hechos desconocidos = "no lo sé")
+- Carga simulada en el orden de index.html: 126 personajes, paquetes instalados, Solo y Clásico disponibles.
+- Clásico, catálogo base de 98: adivina 72-73/98 (igual que antes), promedio 16.0 -> 12.4 preguntas, 0 redundantes.
+- Clásico, personajes de Dragon Ball: 29/29, promedio 11.2 preguntas.
+- Goku: adivinado en 9 preguntas verificando (¿protagonista? ¿saiyajin?).
+- Freezer sacado del catálogo (personaje desconocido): no lo acierta, hace verificaciones, y al final admite contradicciones (1).
+- Solo: preguntas de paquetes en texto libre (saiyajin a Vegeta = sí, a Piccolo = no; de Dragon Ball a Naruto = no; de anime a Shrek = no).
+- tester_packs_82.js (nuevo) 38 controles, tester_clasico_78.js 453, tester_solo_80.js 19; los otros 10 testers terminan con código 0.
+
+LIMITACIONES (importante)
+- NO se probó en navegador ni en teléfono (solo una simulación de la carga de scripts). No se vieron los textos en pantalla.
+- Los datos del paquete son conocimiento general: están POR REVISAR. Dudosos a mirar: villano (Vegeta, Buu, Broly, Jiren, Androides,
+  Beerus, Piccolo), calvo (Beerus, Broly, Shenlong), quién participó en el Torneo del Poder, hijos de los Androides.
+- Un personaje que no está en ningún paquete sigue sin poder adivinarse: hay que agregarlo (paquete o Curador). El Cerebro admite
+  que no lo conoce y guarda el nombre y las respuestas como datos tentativos.
+- El modo Solo elige SIEMPRE un personaje de su catálogo: un personaje inventado por el jugador solo se puede usar en el Clásico
+  (para que el Cerebro lo aprenda) o en el multijugador entre personas.
+- Pendiente: paquetes de Naruto y One Piece, diseño de PC, analíticas de Vercel, formulario de pedidos, revisar la cabecera en
+  distintos tamaños y el barrido de franquicias para ficticios fuera de los paquetes.
