@@ -1,0 +1,19 @@
+MIND DUEL FUSION - v3.13.83 UNIFICADA (PAQUETE DRAGON BALL + VERSION PC)
+
+ES LA UNION DE DOS VERSIONES QUE SE LLAMABAN 3.13.82
+- Base: 3.13.82 PAQUETE DRAGON BALL (packs.js, Cerebro que verifica su sospecha y admite lo que no conoce, 28 personajes nuevos mas Goku).
+- Sumado: 3.13.82 VERSION PC (escritorio.css, estética de escritorio en pantallas de 900 px o más).
+
+QUE SE CAMBIO PARA UNIRLAS
+- Se agregó escritorio.css a la carpeta.
+- index.html: una línea nueva que enlaza escritorio.css después de tema_synthwave.css.
+- Nada más. style.css y tema_synthwave.css eran idénticos en las dos versiones, y escritorio.css no toca JavaScript.
+
+PRUEBAS
+- tester_packs_82.js: 38 controles correctos, 0 fallidos. tester_solo_80.js: 19 correctos, 0 fallidos.
+- Capturas automáticas en 1440x900 y 390x844 con el juego unificado: sin errores de JavaScript; en PC los botones del Clásico van en una fila, en celular quedan como antes.
+
+PENDIENTE (viene del paquete Dragon Ball)
+- Revisar a mano los datos dudosos del paquete: quién es villano, quién es calvo y quién participó en el Torneo del Poder.
+- Faltan los paquetes de Naruto y One Piece.
+- No se probó en un navegador real de escritorio ni con el multijugador abierto en PC.
