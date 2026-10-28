@@ -363,9 +363,7 @@ async function nextClassic() {
   classic.cur = { tipo: 'q', q };
   const sparringCandidates=(classic.s?.ps||[]).map((p,i)=>({weight:classic.s?.w?.[i]||0,value:Sugeridor.val(MindLogic,q,p)}));
   window.MindSparring?.question('clásico',q,{candidates:sparringCandidates});
-  // v3.13.78: a veces el Cerebro comenta su rumbo (máx. 3 por partida), siempre con datos reales de la partida.
-  const notaRumbo = Clasico.nota ? Clasico.nota(s, MindLogic, q) : null;
-  if (notaRumbo) await addMessage(notaRumbo, 'mind');
+  // v3.13.87: el razonamiento interno se conserva, pero no se narra al jugador.
   await addMessage(Clasico.frase(q), 'mind');
   classicBusy = false;
 }
@@ -384,16 +382,9 @@ async function classicGuess(announce = false) {
       'Voy a jugármela: creo que sé qué personaje elegiste.'
     ];
     await addMessage(lines[Math.floor(Math.random() * lines.length)], 'mind');
-    // v3.13.78: explicar el intento con las respuestas reales que más descartaron.
-    // v3.13.82: si ni el mejor candidato encaja del todo con lo que dijiste, lo admite.
+    // v3.13.87: no mostrar resúmenes de pistas, candidatos ni explicaciones de la deducción.
     const enc = Clasico.encaje ? Clasico.encaje(classic.s, MindLogic) : null;
     classic.lastContra = enc ? enc.contra : 0;
-    if (enc && enc.contra >= 1) await addMessage(pickLine([
-      'Ninguno de mis expedientes encaja del todo con lo que dijiste. Voy con el que menos se contradice.',
-      'Mi archivo no tiene a nadie que encaje con todas tus respuestas. Apuesto por el menos malo.'
-    ]), 'mind');
-    const porque = Clasico.razonar ? Clasico.razonar(classic.s, MindLogic, m) : null;
-    if (porque) await addMessage(porque, 'mind');
   }
   el('classicGuessCharacter').textContent = m.p.nombre;
   const knownDescription = getCharacterDescription(m.p.nombre, m.p.descripcion || '');
@@ -406,14 +397,10 @@ async function classicGuess(announce = false) {
 async function classicName() {
   classicBusy = true;
   classic.cur = null; classic.phase = 'name';
-  const fueraDeArchivo = (classic.lastContra || 0) >= 1;
-  await addMessage(fueraDeArchivo ? pickLine([
-    'Ninguno de mis expedientes encajaba con lo que dijiste: sospecho que tu personaje no está en mi archivo. Anotá su nombre en el chat y lo estudio.',
-    'Mi archivo no alcanzó. Creo que pensaste en alguien que todavía no conozco. Escribí su nombre en el chat y lo agrego a mi lista de pendientes.'
-  ]) : pickLine([
-    '¡No puede ser! Se me acabaron las teorías, no el orgullo. Anotá en este chat quién era tu personaje; quiero estudiar este fracaso antes de que te agrandes.',
-    'Esta vez se me escapó. Escribí el nombre de tu personaje acá mismo en el chat, detective. Después hablamos de tu supuesta victoria.',
-    '¡Una laguna en mi brillante razonamiento! Anotá el nombre del personaje en el chat. Quiero saber qué caso me hizo perder el tiempo.'
+  await addMessage(pickLine([
+    '¡Se me escapó esta vez, detective! Decime quién era y no te agrandes.',
+    'Punto para vos, mortal. Revelá el nombre; mi orgullo sobrevivirá.',
+    'Esta ronda es tuya. ¿Quién era el personaje que me complicó la vida?'
   ]), 'mind');
   document.body.classList.add('name-phase');
   $cl('classicPanel').classList.add('hidden');
@@ -451,9 +438,9 @@ async function classicSaveName(text) {
     localStorage.setItem(k, JSON.stringify(l));
   } catch (e) {}
   await addMessage(pickLine([
-    `Anotado: ${nombre}. ¡Qué humillación! Disfrutá la victoria, detective; voy a revisar cada una de tus respuestas.`,
-    `${nombre}… ya veo dónde se me escapó. Esta ronda es tuya, pero no te acostumbres.`,
-    `Queda registrado: ${nombre}. Ganaste esta vez. Mi orgullo está herido; mi curiosidad, no.`
+    `Anotado: ${nombre}. Disfrutá la victoria, detective; no te acostumbres.`,
+    `${nombre}… esta ronda es tuya. Mi orgullo está herido, no vencido.`,
+    `Queda registrado: ${nombre}. Ganaste esta vez, mortal.`
   ]), 'mind');
   const saved=localStorage.getItem('mind_character_description_'+nombreCanonico)||localStorage.getItem('mind_character_description_'+nombre)||'';
   if(window.MindKnowledge){window.MindKnowledge.plantilla(nombreCanonico,{descripcion:(known&&known.descripcion)||saved||'',origen:'clasico',datosPendientes:!known});window.MindKnowledge.registrarRespuestasPartida(nombreCanonico,classic.s?.log||[],known||null);}
@@ -549,6 +536,7 @@ async function classicEnd(result = {}) {
   ui.resultCharacter.textContent = result.nombre ? `Tu personaje era: ${result.nombre}` : 'Personaje no identificado';
   const characterDescription = getCharacterDescription(result.nombre, result.descripcion);
   if (window.MindKnowledge && result.nombre) { const knownForLearning=findKnownCharacter(result.nombre); if(!knownForLearning) window.MindKnowledge.plantilla(result.nombre,{descripcion:result.descripcion||'',origen:'clasico'}); window.MindKnowledge.registrarRespuestasPartida(result.nombre,classic.s?.log||[],knownForLearning||null); }
+  window.CerebroAprendizaje?.registrarPartida({modo:'clásico',resultado:result.wonBy||'finalizada',personaje:result.nombre||classicSecretName||'',preguntas:classic.s?.log||[],intentos:classic.s?.rech?.size||0});
   const tauntPool = wonByBrain ? CLASSIC_BRAIN_WIN_LINES : CLASSIC_PLAYER_WIN_LINES;
   const classicTaunt = pickLine(tauntPool)(result.nombre || classicSecretName || 'tu personaje');
   ui.resultDescription.textContent = [characterDescription, classicTaunt].filter(Boolean).join(' ');
@@ -584,7 +572,7 @@ async function classicAnswer(ans) {
   }
   classic.fails++; window.MindSparring?.guess('clásico',c.p?.nombre,false); Clasico.rechazar(classic.s, c.i);
   if (classic.fails >= MAX_GUESSES || !Clasico.mejor(classic.s)) return classicName();
-  await addMessage((Clasico.notaFallo && c.p?.nombre) ? Clasico.notaFallo(classic.s, c.p.nombre) : 'Esa no era. No importa: reajusto mis deducciones y continúo.', 'mind');
+  await addMessage(pickLine(['¡Fallé! No te emociones, todavía sigo en el duelo.', 'Bien jugado, mortal. Sigo buscando.', 'Ese no era… mi próximo intento será mejor.']), 'mind');
   classicBusy = false;
   await nextClassic();
 }
@@ -736,6 +724,14 @@ async function askQuestion(text) {
   let conceptoUsado = null;
 
   if (answer === null) {
+    const learnedConcept = window.CerebroAprendizaje?.resolverPregunta?.(clean);
+    if (learnedConcept) {
+      answer = MindLogic.resolverConcepto(learnedConcept, secretEnriquecido);
+      if (answer !== null) { source = 'aprendizaje-persistente'; conceptoUsado = learnedConcept; }
+    }
+  }
+
+  if (answer === null) {
     const interpreted = await interpretWithOraculo(clean);
     if (interpreted?.concepto) {
       answer = MindLogic.resolverConcepto(interpreted.concepto, window.MindKnowledge ? window.MindKnowledge.enriquecer(state.secret) : state.secret);
@@ -754,6 +750,7 @@ async function askQuestion(text) {
 
   if (answer === null) {
     window.MindSparring?.answer('solo',clean,'unknown',{source:'knowledge_gap'});
+    window.CerebroAprendizaje?.registrarLaguna(clean,state.secret?.nombre||'');
     addMessage(pickLine(['Esa pregunta todavía se me resiste, detective. No voy a inventar un SÍ o un NO; probá con otra pista.', 'Mmm… esa pieza no la tengo. No confundas una laguna con una respuesta: preguntá de otra manera.', 'No tengo evidencia suficiente para responderte eso. Mi orgullo no me obliga a mentir; seguí interrogándome.', 'Esa no la puedo resolver con lo que sé. Guardaré la pregunta para mejorar, pero por ahora no pienso chamuyarte.']), 'mind');
     lockInput(false);
     ui.input.focus();
@@ -1019,6 +1016,7 @@ function finish(win, reason) {
   el('playAgainSwapRolesBtn')?.classList.add('hidden');
   window.MatchHistory?.record('SISTEMA', reason, 'result');
   const sparringReport=window.MindSparring?.finish('solo',{result:win?'win':'loss'}); window.MatchHistory?.finish(win ? 'Victoria' : 'Derrota', {personaje: state.secret?.nombre || '', sparring:sparringReport||null});
+  window.CerebroAprendizaje?.registrarPartida({modo:'solo',resultado:win?'victoria':'derrota',personaje:state.secret?.nombre||'',preguntas:state.facts||[],preguntasTotales:state.questionCount||0});
   state.active = false;
   lockInput(true);
   clearInterval(state.timerId);

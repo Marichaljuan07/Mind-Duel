@@ -1,0 +1,21 @@
+MIND DUEL FUSION — VERSIÓN 3.13.87
+Base oficial: Mind_Duel_Fusion_v3_13_86_OBSERVADOR_CEREBRO.zip
+
+CAMBIOS
+- Modo Clásico: deja de mostrar comentarios que resumen pistas, enumeran candidatos o explican cómo llegó el Cerebro a su deducción. Se conservan el cálculo, los pesos, las preguntas, las verificaciones y las decisiones internas.
+- Modo Clásico: los fallos y el pedido de revelar el personaje usan frases breves de personalidad en lugar de narrar el razonamiento.
+- Aprendizaje persistente local: agrega un registro de partidas Solo/Clásico, personajes, preguntas y resultados.
+- Registra las preguntas que el modo Solo no puede responder y cuenta cuáles se repiten para que las lagunas sean identificables y exportables.
+- Permite revisar una laguna y vincularla manualmente con un concepto existente; el mapeo queda guardado localmente y se reutiliza en futuras partidas después de reiniciar.
+- Agrega el panel “APRENDIZAJE PERSISTENTE” al registro de partidas, con métricas, lagunas, partidas recientes y exportación JSON.
+- El registro no convierte respuestas de jugadores en verdades automáticamente. La evidencia de conocimiento continúa sujeta a las reglas existentes de MindKnowledge.
+- No se modificó la lógica de conexión, salas, reconexión ni el flujo del multijugador.
+
+VALIDACIONES REALIZADAS
+- Se ejecutó `node --check` sobre todos los archivos JavaScript incluidos.
+- Se comprobó que las APIs públicas de los módulos Clásico y Solo siguen presentes.
+- Se probó el registro persistente en un entorno Node simulado: guarda una partida, agrupa preguntas repetidas y actualiza contadores.
+
+LIMITACIONES
+- No se ejecutó una prueba visual en navegador ni una partida real entre dos dispositivos.
+- El ciclo automático de descubrimiento de hechos y ajuste de estrategia todavía no está completo: los mapeos de preguntas requieren aprobación humana y solo reutilizan conceptos ya existentes. No afirma que el sistema descubra automáticamente hechos verdaderos ni que todas las estrategias ya mejoren sin pruebas posteriores.

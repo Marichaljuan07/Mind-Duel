@@ -209,7 +209,7 @@ function separaLideres(s,L,q){
   const mx=maxPeso(s);s.ps.forEach((p,i)=>{if((s.w[i]||0)<.5*mx)return;const v=val(L,q,p);if(v===null)return;if(v)a++;else b++});
   return a>0&&b>0;
 }
-function notaFallo(s,nombre){return `No era ${nombre}. Lo tacho de mi lista y rehago mis cuentas con todo lo que ya me dijiste.`}
+function notaFallo(s,nombre){return 'Ese no era… sigo buscando.'}
 
 // ---------- v3.13.82: verificar la hipótesis, admitir cuando nada encaja ----------
 // Pregunta que el sospechoso principal cumpliría (un SÍ lo confirma) y que sea lo más específica posible.
