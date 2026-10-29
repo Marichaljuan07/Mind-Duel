@@ -821,3 +821,16 @@ body.duel-online .message,
 body.duel-online .bubble { min-width: 0 !important; max-width: 100% !important; box-sizing: border-box !important; }
 body.duel-online .bubble { overflow-wrap: anywhere !important; }
 body.duel-online.duel-brain #onlineReadingStatus { display: block !important; }
+
+
+/* 3.13.90 — misma referencia de cabecera para ambos roles online. */
+body.duel-online .game-screen{padding-left:5px!important;padding-right:5px!important}
+body.duel-online .game-header{
+  box-sizing:border-box!important;display:grid!important;width:100%!important;min-width:0!important;max-width:100%!important;
+  grid-template-columns:32px minmax(0,1fr) minmax(0,2fr)!important;gap:5px!important;
+  padding-left:5px!important;padding-right:5px!important;
+}
+body.duel-online.duel-brain .game-header,
+body.duel-online.duel-guess .game-header{min-height:0!important}
+body.duel-online .game-header .hud{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:3px!important;width:100%!important;min-width:0!important}
+body.duel-online .game-header .hud-item{min-width:0!important;width:100%!important;padding-left:1px!important;padding-right:1px!important}

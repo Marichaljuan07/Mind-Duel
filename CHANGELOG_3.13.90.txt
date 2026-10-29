@@ -1,0 +1,13 @@
+MIND DUEL FUSION — VERSIÓN 3.13.90 (PREVIA DE PRUEBA)
+Base: 3.13.89 CABECERA_ESTADOS. La estable 3.13.86 permanece intacta.
+
+CAMBIOS
+- El indicador de escritura se activa desde el primer carácter introducido, sin enviar el texto escrito al rival.
+- El Descubridor ve «El Cerebro está pensando su respuesta…» durante una breve pausa previa al envío. Luego recibe la respuesta y el estado vuelve a «Respuesta recibida…».
+- Las respuestas escritas y las respuestas con botones pasan por el mismo flujo, con bloqueo temporal para evitar envíos duplicados.
+- Se mantiene la secuencia y las frases originales del juego; los estados son avisos temporales, no sustituyen el contenido de las respuestas.
+- Se unifica la referencia de ancho, columnas y márgenes de la cabecera online para Cerebro y Descubridor. «MIND DUEL» se conserva en una sola línea.
+
+VALIDACIÓN
+- `node --check` ejecutado en los JavaScript del proyecto.
+- Pendiente prueba real entre dos dispositivos; no se declara verificado visualmente en navegador.
