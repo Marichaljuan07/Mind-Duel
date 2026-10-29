@@ -1,0 +1,18 @@
+MIND DUEL FUSION — VERSIÓN 3.13.88 (PREVIA DE PRUEBA)
+Base: 3.13.87 APRENDIZAJE PERSISTENTE. No sustituye la estable 3.13.86.
+
+CAMBIOS
+- Multijugador: se agrega señal de estado de escritura entre jugadores sin transmitir el texto que se está escribiendo.
+- El Descubridor puede ver «El Cerebro está escribiendo su respuesta…» cuando el Cerebro empieza a escribir.
+- El Cerebro puede ver «El Descubridor está escribiendo…» mientras el otro jugador redacta la pregunta.
+- Los estados se apagan al dejar de escribir, perder foco o enviar el mensaje; no se guardan como estado permanente de la partida.
+- Se conserva el flujo actual de envío de preguntas y respuestas, las sugerencias del Cerebro y el registro de aprendizaje.
+
+PENDIENTE DE VALIDACIÓN MANUAL
+- Probar dos dispositivos conectados y confirmar que los indicadores se encienden/apagan correctamente.
+- Revisar visualmente la cabecera en el rol Cerebro en móvil y escritorio: no se cambió a ciegas el diseño porque requiere confirmar el fallo visual concreto.
+- El modo Clásico todavía necesita una corrección lógica específica. Esta versión no declara resuelto el problema de preguntas repetidas ni de inferencias sobre personajes reales; se evita una reescritura amplia sin pruebas de regresión.
+
+VALIDACIÓN AUTOMÁTICA
+- Se ejecutó node --check sobre los archivos JavaScript de la versión.
+- Esto valida sintaxis, no sustituye una prueba de juego en navegador ni una partida online real.
