@@ -780,3 +780,44 @@ body.duel-online .online-secret-prefix{flex:0 0 auto}
 body.duel-online .online-secret-value{min-width:0;overflow-wrap:anywhere;flex:0 1 auto}
 body.duel-online .secret-privacy-toggle{flex-shrink:0;min-height:30px;margin-left:auto;padding:4px 8px;border:1px solid currentColor;border-radius:7px;background:rgba(3,8,25,.8);color:inherit;font:inherit;font-size:.78em;cursor:pointer;touch-action:manipulation}
 body.duel-online .secret-privacy-toggle:focus-visible{outline:2px solid #fff;outline-offset:2px}
+
+
+/* 3.13.89 — estabilizar el ancho del rol Cerebro y mantener estados legibles. */
+html, body, .arcade, #gameScreen, body.duel-online #gameScreen {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+body.duel-online #gameScreen { width: 100%; overflow-x: clip; }
+body.duel-online .game-header {
+  box-sizing: border-box !important;
+  display: grid !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  flex: 0 0 auto !important;
+  grid-template-columns: 32px minmax(0, 1fr) minmax(0, 2fr) !important;
+  gap: 5px !important;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
+  overflow: visible !important;
+}
+body.duel-online .game-header > *,
+body.duel-online .game-header .header-menu-wrap,
+body.duel-online .game-header .mind-sign,
+body.duel-online .game-header .hud,
+body.duel-online .game-header .hud-item {
+  box-sizing: border-box !important; min-width: 0 !important; max-width: 100% !important;
+}
+body.duel-online .game-header .mind-sign {
+  width: 100% !important; white-space: nowrap !important; overflow: hidden !important;
+  overflow-wrap: normal !important; text-overflow: clip; letter-spacing: 0 !important;
+}
+body.duel-online .mind-console,
+body.duel-online #chat,
+body.duel-online .controls,
+body.duel-online .online-brain-panel,
+body.duel-online .message,
+body.duel-online .bubble { min-width: 0 !important; max-width: 100% !important; box-sizing: border-box !important; }
+body.duel-online .bubble { overflow-wrap: anywhere !important; }
+body.duel-online.duel-brain #onlineReadingStatus { display: block !important; }
