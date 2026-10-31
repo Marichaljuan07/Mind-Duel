@@ -1,0 +1,9 @@
+Mind Duel Fusion v3.14.00 — Catálogo y búsqueda corregidos
+
+- Se reconstruyó la búsqueda dinámica como lista desplegable superpuesta al formulario; muestra dos opciones aproximadamente a la vez y permite deslizar la lista completa.
+- El aviso de personaje no registrado ahora es un pop-up independiente, fuera del formulario de selección.
+- Se restauró el catálogo como ventana propia con búsqueda, resultados seleccionables y filtros Todos / Reales / Ficticios.
+- La opción PROPONER / CREAR FICHA abre un formulario precargado pero NO guarda automáticamente; el usuario debe confirmar el envío.
+- El registro sigue siendo candidato pendiente de verificación.
+- No se modificó multijugador.js ni la lógica de reconexión.
+- La fuente de imágenes y los enlaces de referencia aún no se persisten en Supabase con el esquema actual.

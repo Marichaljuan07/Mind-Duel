@@ -706,26 +706,19 @@ button, input {
 #createUnknownCharacterCardBtn{width:100%;margin:0 0 12px;white-space:normal}
 @media(max-width:420px){.unknown-character-prompt>div{grid-template-columns:minmax(0,1fr)}}
 
-/* v3.13.98: sugerencias desplegables sin romper el formulario y aviso modal */
-.classic-character-search-wrap{position:relative;width:100%;min-width:0;z-index:30}
-.classic-character-search-wrap #classicSecretNameInput{display:block;width:100%;box-sizing:border-box}
-.classic-character-suggestions{position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:80;display:grid;gap:5px;max-height:min(42vh,280px);overflow-y:auto;overscroll-behavior:contain;padding:7px;border:1px solid rgba(25,240,255,.8);border-radius:10px;background:rgba(5,7,22,.99);box-shadow:0 12px 28px rgba(0,0,0,.72),0 0 16px rgba(0,216,255,.22)}
+/* v3.14.00 — selector dinámico compacto y catálogo restaurado */
+#classicSecretNameForm{position:relative;overflow:visible}
+.classic-character-suggestions{position:absolute;left:0;right:0;top:78px;z-index:1500;display:flex;flex-direction:column;gap:5px;max-height:112px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:5px;border:1px solid rgba(25,240,255,.75);border-radius:10px;background:rgba(5,7,22,.99);box-shadow:0 10px 28px rgba(0,0,0,.8)}
 .classic-character-suggestions.hidden{display:none!important}
-.classic-character-suggestions .character-catalog-item{display:flex;width:100%;min-height:44px;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere}
-.classic-character-suggestions .character-catalog-item strong{font-size:15px;line-height:1.25}
-.classic-character-suggestions .character-catalog-item small{font-size:12px;line-height:1.25}
-.unknown-character-card{box-sizing:border-box;width:min(92vw,430px);text-align:center;padding:22px;max-height:calc(100dvh - 28px);overflow-y:auto}
-.unknown-character-card h2{margin:0 0 14px;color:#ffcf70;font-size:clamp(19px,5vw,25px);line-height:1.2}
-.unknown-character-card p{font-size:15px;line-height:1.5;overflow-wrap:anywhere}
-.unknown-character-actions{display:grid;grid-template-columns:1fr;gap:9px;margin-top:18px}
-.unknown-character-actions .btn{width:100%;box-sizing:border-box;white-space:normal}
-@media(max-width:420px){.classic-character-suggestions{max-height:34vh;padding:5px}.unknown-character-card{padding:18px}}
-
-/* v3.13.99: catálogo original y sugerencias compactas con desplazamiento propio */
-.classic-character-search-wrap{position:relative;overflow:visible;isolation:isolate}
-.classic-character-suggestions{display:block;max-height:104px;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior-y:contain;scrollbar-width:thin;padding:6px;box-sizing:border-box}
-.classic-character-suggestions.hidden{display:none!important}
-.classic-character-suggestions .character-catalog-item{display:flex;width:100%;min-height:44px;max-height:none;box-sizing:border-box;margin:0 0 5px;flex-shrink:0}
-.classic-character-suggestions .character-catalog-item:last-child{margin-bottom:0}
-.classic-character-suggestions .character-catalog-item strong{display:block;white-space:normal;overflow-wrap:anywhere}
-.classic-character-suggestions .character-catalog-item small{display:block;white-space:normal;overflow-wrap:anywhere}
+.classic-character-suggestions .character-catalog-item{flex:0 0 auto;min-height:43px;width:100%;padding:7px 10px;box-sizing:border-box}
+.classic-character-suggestions .character-catalog-item small{display:none}
+.catalog-type-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:5px 0 12px}
+.catalog-type-filters .btn{min-width:0;padding:9px 5px;font-size:12px}
+.catalog-type-filters .btn.active{border-color:var(--neon-cyan);box-shadow:0 0 10px rgba(25,240,255,.35);color:var(--neon-cyan)}
+#openCreateCharacterForm{width:100%;margin:5px 0 12px;white-space:normal}
+.new-character-form.hidden{display:none!important}
+.unknown-character-modal-card{width:min(92vw,430px);border:1px solid rgba(255,190,70,.8);background:linear-gradient(160deg,#201606,#08091a);color:#fff;line-height:1.5}
+.unknown-character-modal-card h2{color:#ffcf70}
+.unknown-character-modal-card .modal-actions{display:grid;grid-template-columns:1fr;gap:8px}
+.unknown-character-modal-card .btn{width:100%;white-space:normal}
+@media(max-width:420px){.character-catalog-card{max-height:calc(100dvh - 16px);padding:14px}.character-catalog-results{grid-template-columns:minmax(0,1fr);max-height:30vh}.catalog-type-filters .btn{font-size:11px}.classic-character-suggestions{top:78px;max-height:100px}}
