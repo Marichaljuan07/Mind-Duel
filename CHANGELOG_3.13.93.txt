@@ -1,0 +1,33 @@
+MIND DUEL FUSION — v3.13.93 PULIDO DEL CEREBRO Y CATÁLOGO
+
+CAMBIOS
+1. Se incorpora un selector visual de personajes reutilizable desde el modo clásico y el multijugador, con búsqueda por nombre o alias y filtros de personajes reales/ficticios.
+2. El catálogo evita repetir nombres canónicos en los resultados y permite seleccionar una ficha existente mediante uno de sus alias. Al confirmar la selección se usa el nombre canónico.
+3. La sincronización con Supabase reconoce una ficha existente por nombre canónico o por alias directo, evitando fusionar dos fichas solo porque compartan algún alias secundario.
+4. Se ajusta la puntuación estratégica de preguntas del modo clásico: después de la apertura, las preguntas amplias y las preguntas de medios pierden prioridad, y se penalizan preguntas con baja cobertura de datos conocidos.
+5. Se mejora la selección de último recurso para puntuar preguntas que separen a los candidatos líderes, en vez de elegir la primera pregunta genérica disponible.
+6. El motor distingue mejor héroes/superhéroes de villanos/antagonistas cuando la ficha tiene etiquetas explícitas. Por ejemplo, Spider-Man no se considera villano por defecto si está etiquetado como héroe o superhéroe.
+7. Se acorta la secuencia de apertura del modo clásico para reducir la espera inicial sin quitar la presentación.
+
+BASE Y COMPATIBILIDAD
+- Base de desarrollo: Mind Duel Fusion v3.13.92 APRENDIZAJE ORGÁNICO.
+- No se cambia el esquema de Supabase; no requiere una migración SQL nueva.
+- Se mantienen las APIs existentes y el aprendizaje compartido.
+- El selector usa el catálogo local y los personajes activos sincronizados desde Supabase. Las fichas candidatas incompletas no se muestran como personajes jugables.
+
+PRUEBAS REALIZADAS
+- node --check sobre todos los archivos JavaScript del proyecto y de /api.
+- Comprobación de los elementos HTML del selector.
+- Pruebas locales de normalización, alias y deducción héroe/villano.
+- Integridad del ZIP.
+
+PRUEBAS PENDIENTES EN EL SITIO PUBLICADO
+- Elegir personajes por nombre y alias en móvil, tanto en clásico como en multijugador.
+- Confirmar que una partida online sigue conectando y sincronizando con dos dispositivos reales.
+- Revisar una partida con pistas contradictorias y comparar las preguntas antes/después.
+- Medir la demora real del inicio en el teléfono; las animaciones se redujeron, pero debe verificarse el tiempo total en producción.
+
+LIMITACIONES CONOCIDAS
+- La búsqueda externa de personajes y la carga persistente de imágenes todavía no están integradas en esta versión.
+- La estrategia depende de la calidad de atributos y etiquetas disponibles; no puede deducir de forma fiable un atributo ausente.
+- La clasificación de héroe/villano es contextual en algunas historias; la regla usa datos explícitos de la ficha y no pretende resolver todas las versiones narrativas.
