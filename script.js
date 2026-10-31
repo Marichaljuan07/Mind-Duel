@@ -562,7 +562,7 @@ async function classicEnd(result = {}) {
   const classicTaunt = pickLine(tauntPool)(result.nombre || classicSecretName || 'tu personaje');
   ui.resultDescription.textContent = [characterDescription, classicTaunt].filter(Boolean).join(' ');
   el('playAgainBtn')?.classList.remove('hidden'); el('playAgainBtn').textContent='JUGAR DE NUEVO';
-  const editBtn=el('editCharacterBtn'); if(editBtn) editBtn.classList.toggle('hidden', !result.nombre); const createCardBtn=el('createUnknownCharacterCardBtn'); if(createCardBtn){const unknown=!!(classicSecretName&&!findKnownCharacter(classicSecretName)&&!window.MindCharacterCatalog?.isKnown?.(classicSecretName));createCardBtn.classList.toggle('hidden',!unknown);createCardBtn.onclick=()=>{window.MindCharacterCatalog?.openForNew?.(classicSecretName);};}
+  const editBtn=el('editCharacterBtn'); if(editBtn) editBtn.classList.toggle('hidden', !result.nombre); const createCardBtn=el('createUnknownCharacterCardBtn'); if(createCardBtn){let known=!!(classicSecretName&&findKnownCharacter(classicSecretName));try{if(!known&&classicSecretName&&window.MindCharacterCatalog?.isKnownAsync)known=await window.MindCharacterCatalog.isKnownAsync(classicSecretName);else if(!known&&classicSecretName)known=!!window.MindCharacterCatalog?.isKnown?.(classicSecretName);}catch{}const unknown=!!classicSecretName&&!known;createCardBtn.classList.toggle('hidden',!unknown);createCardBtn.onclick=()=>{if(unknown)window.MindCharacterCatalog?.openForNew?.(classicSecretName);};}
   show(ui.result);
   mostrarPreguntaAprendizaje(result.nombre || classicSecretName);
   ui.input.placeholder = 'Pregunta de sí/no...';

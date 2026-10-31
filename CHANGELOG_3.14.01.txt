@@ -1,0 +1,8 @@
+Mind Duel Fusion v3.14.01 — Visibilidad de crear ficha
+
+- En el resultado del modo clásico, «CREAR FICHA DE ESTE PERSONAJE» solo aparece cuando el personaje no está registrado en el catálogo local ni en el catálogo compartido que devuelve /api/shared-data.
+- La comprobación espera a que termine la carga del catálogo compartido para evitar mostrar la opción por una carrera de carga.
+- Si el personaje ya existe, se mantienen las opciones normales de resultado: VER PARTIDA, AÑADIR / EDITAR DESCRIPCIÓN, JUGAR DE NUEVO, MENÚ PRINCIPAL y SALIR.
+- No se modificó multijugador.js ni la lógica de reconexión.
+
+Verificación realizada: sintaxis de script.js y catalogo_personajes.js; integridad del ZIP. No se probó contra Supabase/Vercel en vivo.
