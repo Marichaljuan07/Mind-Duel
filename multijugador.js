@@ -515,7 +515,24 @@ on('confirmGuessBtn','click',e=>{if(!document.body.classList.contains('duel-onli
 on('guessInput','keydown',e=>{if(!document.body.classList.contains('duel-online')||e.key!=='Enter')return;e.preventDefault();e.stopImmediatePropagation();const button=$('confirmGuessBtn');if(button)button.click();},true);
 function submitGuess(character){const clean=String(character||'').trim();if(!connected){status('No estás conectado con el Cerebro. La teoría no se envió; volvé a intentar cuando se reconecte.');return false;}if(myRole!=='guess'||waitingForGuess||onlineGuessesLeft<=0){status('No se pudo enviar la teoría en este momento.');return false;}if(!clean){status('Escribí el nombre del personaje antes de confirmar.');return false;}pendingOnlineGuess=clean;if(!send({type:'guess',character:pendingOnlineGuess,name:saveName()})){pendingOnlineGuess='';status('No se pudo enviar la teoría. La conexión no está disponible; el intento no se descontó.');return false;}onlineGuessesLeft=Math.max(0,onlineGuessesLeft-1);$('guessesHud').textContent=String(onlineGuessesLeft);waitingForGuess=true;setDiscovererControlsDisabled(true);gameMessage('Intentaste adivinar: '+clean,'player');persistSession();status('Teoría enviada. Esperando la confirmación del Cerebro…');return true;}
 function incrementCount(){onlineQuestionCount=Math.min(20,onlineQuestionCount+1);updateOnlineHud();send({type:'progress',questionsSeen:onlineQuestionCount,answersSeen:onlineAnswerCount,startedAt:onlineStartedAt,guessesLeft:onlineGuessesLeft});return onlineQuestionCount;}
-function storeLearning(question,answer){try{rememberCustomCharacter(secret);const key='mind_duel_human_training';const rows=readTraining();rows.push({character:secret,question,answer,at:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(rows.slice(-500)));}catch{}}
+function storeLearning(question,answer){
+ try {
+  rememberCustomCharacter(secret);
+  const key='mind_duel_human_training', rows=readTraining();
+  rows.push({character:secret,question,answer,at:new Date().toISOString()});
+  localStorage.setItem(key,JSON.stringify(rows.slice(-500)));
+ } catch {}
+ // Solo se envían respuestas inequívocas a preguntas reconocidas. Quedan propuestas,
+ // nunca pasan automáticamente a la base como conocimiento verificado.
+ try {
+  const normalized=String(answer||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+  const match=normalized.match(/^(si|no)\b/);
+  const attribute=window.MindKnowledge?.conceptoDePregunta?.(question);
+  if(match && attribute && window.MindDuelSupabase?.submitClaim){
+   window.MindDuelSupabase.submitClaim({character:secret,attribute_key:attribute,value:match[1]==='si',source_note:'Pregunta: '+String(question||'').slice(0,220)+' | Respuesta: '+String(answer||'').slice(0,220)});
+  }
+ } catch {}
+}
 function sendChat(input){const text=input.value.trim();if(!text)return;if(!conn||!conn.open){status('Todavía no hay conexión.');return;}const n=saveName();addMessage(n,text,'local');window.MatchHistory?.record(n,text,'chat');persistSession();send({type:'chat',name:n,text});input.value='';phoneUnreadCount=0;updatePhoneUnreadBadge();}
 on('floatingChatForm','submit',e=>{e.preventDefault();sendChat($('floatingChatInput'));});// El chat del duelo se abre desde la burbuja flotante; no existe un formulario de chat fijo en el HTML.
 const chatButton=$('chatBubbleBtn');if(chatButton)chatButton.innerHTML='☎<span id="chatUnread" class="chat-unread hidden" aria-label="Mensajes sin leer">0</span>';
