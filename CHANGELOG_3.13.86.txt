@@ -1,0 +1,14 @@
+MIND DUEL FUSION — VERSIÓN 3.13.86
+Base: Mind_Duel_Fusion_v3_13_82_INTEGRADA_PC_DRAGON_BALL.zip
+
+CAMBIO PRINCIPAL
+- Añade el Observador del Cerebro para registrar localmente eventos de partidas multijugador jugadas desde este navegador.
+- Registra eventos de preguntas, respuestas, intentos y resultados que ya aparecen en el historial de la partida.
+- Añade «OBSERVADOR DEL CEREBRO» al registro de partidas para revisar las observaciones y exportarlas como JSON.
+- Excluye el chat privado del observador.
+- Las respuestas de jugadores se etiquetan como observaciones no verificadas: no se incorporan automáticamente al conocimiento ni se modifican las reglas del Cerebro.
+- Conserva el menú, la presentación, los estilos y la lógica multijugador de la base 3.13.82; no introduce emparejamiento global ni base de datos compartida.
+
+LÍMITES CONOCIDOS
+- El registro es local a cada navegador/dispositivo. La arquitectura PeerJS de esta base no ofrece un registro global de salas ni un Cerebro central que observe partidas de otros dispositivos sin una infraestructura compartida adicional.
+- No se afirma que la versión haya sido probada en navegador real ni en una partida de dos dispositivos.

@@ -1,0 +1,254 @@
+{
+ "preguntas": {
+  "tipo_real": [
+   "¿Es una persona de carne y hueso?",
+   "¿Existe en la realidad?"
+  ],
+  "tipo_ficticio": [
+   "¿Es un personaje de ficción?",
+   "¿Salió de la imaginación de alguien?"
+  ],
+  "genero_mujer": [
+   "¿Es una señora?",
+   "¿Es de sexo femenino?",
+   "¿Es una dama?"
+  ],
+  "genero_hombre": [
+   "¿Es un señor?",
+   "¿Es de sexo masculino?",
+   "¿Es un tipo?"
+  ],
+  "vivo": [
+   "¿Todavía vive?",
+   "¿Está con vida?",
+   "¿Vive hoy?"
+  ],
+  "muerto": [
+   "¿Ya no está entre nosotros?",
+   "¿Está fallecido?",
+   "¿Murió?"
+  ],
+  "humano": [
+   "¿Es una persona?",
+   "¿Es de la raza humana?"
+  ],
+  "famoso": [
+   "¿Es una celebridad?",
+   "¿Todos lo conocen?"
+  ],
+  "region_europa": [
+   "¿Es del viejo continente?",
+   "¿Vivió en Europa?"
+  ],
+  "nac_usa": [
+   "¿Es gringo?",
+   "¿Nació en Estados Unidos?"
+  ],
+  "nac_britanico": [
+   "¿Es británico?",
+   "¿Es del Reino Unido?"
+  ],
+  "nac_frances": [
+   "¿Nació en Francia?"
+  ],
+  "nac_italiano": [
+   "¿Es de Italia?"
+  ],
+  "cientifico": [
+   "¿Hacía investigación científica?",
+   "¿Era un hombre de ciencia?"
+  ],
+  "escritor": [
+   "¿Escribía novelas?",
+   "¿Es un autor de libros?"
+  ],
+  "pintor": [
+   "¿Era pintor?"
+  ],
+  "inventor": [
+   "¿Creó algún invento famoso?"
+  ],
+  "poderes": [
+   "¿Tiene habilidades especiales?",
+   "¿Tiene poderes sobrenaturales?"
+  ],
+  "magia": [
+   "¿Lanza hechizos?"
+  ],
+  "mago": [
+   "¿Es mago o hechicero?"
+  ],
+  "superheroe": [
+   "¿Es un súper héroe?"
+  ],
+  "villano": [
+   "¿Es un malvado?",
+   "¿Es antagonista?"
+  ],
+  "heroe": [
+   "¿Es el bueno de la historia?"
+  ],
+  "guerrero": [
+   "¿Pelea en batallas?",
+   "¿Es un luchador?"
+  ],
+  "militar": [
+   "¿Fue un general?",
+   "¿Estuvo en el ejército?"
+  ],
+  "politico": [
+   "¿Se dedicó a la política?"
+  ],
+  "presidente": [
+   "¿Fue presidente?"
+  ],
+  "gobernante": [
+   "¿Gobernó alguna vez?",
+   "¿Fue líder de un país?"
+  ],
+  "rey": [
+   "¿Fue rey?",
+   "¿Tenía una corona?"
+  ],
+  "reina": [
+   "¿Era una reina?"
+  ],
+  "dios": [
+   "¿Es una deidad?"
+  ],
+  "rico": [
+   "¿Es adinerado?",
+   "¿Tiene mucho dinero?"
+  ],
+  "pobre": [
+   "¿Era pobre?"
+  ],
+  "vuela": [
+   "¿Sabe volar?",
+   "¿Vuela?"
+  ],
+  "filosofo": [
+   "¿Fue un pensador?",
+   "¿Se dedicaba a la filosofía?"
+  ],
+  "poeta": [
+   "¿Escribe poesía?"
+  ],
+  "musico": [
+   "¿Toca algún instrumento?",
+   "¿Es cantante?"
+  ],
+  "futbolista": [
+   "¿Juega al fútbol?"
+  ],
+  "deportista": [
+   "¿Hace deporte?"
+  ],
+  "medio_pelicula": [
+   "¿Tiene película?",
+   "¿Lo vimos en el cine?"
+  ],
+  "medio_comic": [
+   "¿Es de historietas?"
+  ],
+  "medio_serie": [
+   "¿Tiene una serie de televisión?"
+  ],
+  "universo_marvel": [
+   "¿Pertenece a Marvel?"
+  ],
+  "universo_dc": [
+   "¿Es del universo DC?"
+  ],
+  "universo_star_wars": [
+   "¿Es de La Guerra de las Galaxias?"
+  ],
+  "universo_harry_potter": [
+   "¿Va a Hogwarts?"
+  ],
+  "premio_nobel": [
+   "¿Recibió un Nobel?"
+  ],
+  "pacifista": [
+   "¿Era de la no violencia?"
+  ],
+  "lucho_libertad": [
+   "¿Fue un libertador?"
+  ],
+  "capa": [
+   "¿Usa una capa?"
+  ],
+  "gafas": [
+   "¿Usa lentes?",
+   "¿Usa anteojos?"
+  ],
+  "bigote": [
+   "¿Tiene bigotes?"
+  ],
+  "usa_espada": [
+   "¿Pelea con una espada?"
+  ],
+  "tiene_arco": [
+   "¿Dispara con arco y flecha?"
+  ],
+  "antiguedad": [
+   "¿Es de la época antigua?"
+  ],
+  "medieval": [
+   "¿Vivió en la Edad Media?"
+  ],
+  "bajo": [
+   "¿Es bajito?"
+  ],
+  "alto": [
+   "¿Es muy alto?"
+  ],
+  "conquistador": [
+   "¿Conquistó territorios?"
+  ],
+  "tecnologia": [
+   "¿Usa tecnología avanzada?"
+  ],
+  "empresario": [
+   "¿Es un empresario?",
+   "¿Fundó una empresa?"
+  ],
+  "estudiante": [
+   "¿Es estudiante?"
+  ],
+  "periodista": [
+   "¿Es periodista?"
+  ],
+  "profesor": [
+   "¿Es maestro?"
+  ],
+  "elfo": [
+   "¿Es un elfo?"
+  ],
+  "hobbit": [
+   "¿Es un hobbit?"
+  ],
+  "jedi": [
+   "¿Es un caballero Jedi?"
+  ],
+  "detective": [
+   "¿Resuelve casos?"
+  ],
+  "region_asia": [
+   "¿Era de Asía?",
+   "¿Es asiático?",
+   "¿Nació en Asia?"
+  ],
+  "premios": [
+   "¿Ganó algún premio importante?",
+   "¿Recibió premios?",
+   "¿Fue condecorado?"
+  ]
+ },
+ "fuera": [
+  "¿Es bueno con los animales?",
+  "¿Está casado?",
+  "¿Habla mucho?",
+  "¿Es de izquierda?"
+ ]
+}

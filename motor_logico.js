@@ -1,0 +1,733 @@
+// MIND DUEL REMASTER - motor_logico.js
+// Base determinista: derivada de la v0.2.2 que pasó Nivel 3.
+// OperaAria nunca decide hechos: solo puede mapear lenguaje -> uno de estos conceptos.
+
+// Modismos que el motor malinterpretaba por una palabra suelta ("hombre", "famoso", "persona"...)
+const EQUIVALENCIAS = [
+    ["de carne y hueso", "real"],
+    ["hombre de ciencia", "cientifico"],
+    ["mujer de ciencia", "cientifico"],
+    ["invento famoso", "invento"],
+    ["inventos famosos", "invento"],
+    ["super heroe", "superheroe"],
+    ["super heroina", "superheroina"]
+];
+function aplicarEquivalencias(texto) {
+    for (const [a, b] of EQUIVALENCIAS) texto = texto.split(a).join(b);
+    return texto;
+}
+
+// La geografía terrestre solo aplica a personajes reales o a mundos ficticios
+// que declaren explícitamente que usan la geografía real de la Tierra.
+function geografiaRealAplicable(personaje) {
+    if (!personaje || typeof personaje !== "object") return false;
+    if (personaje.tipo === "real") return true;
+    return personaje.geografia_real === true || personaje.mundo_real === true ||
+        personaje.ambientacion_terrestre === true || personaje.geografia === "tierra_real";
+}
+
+function evaluarPregunta(pregunta, personaje) {
+    const texto = aplicarEquivalencias(normalizar(pregunta));
+
+    // ==================================================
+    // TIPO: REAL / FICTICIO
+    // ==================================================
+
+    if (contiene(texto, ["ficticio", "ficcion", "inventado", "imaginario"])) {
+        if (typeof personaje.ficticio === "boolean") return personaje.ficticio;
+        return personaje.tipo === "ficticio" ? true : (personaje.tipo === "real" ? false : null);
+    }
+
+    if (contiene(texto, ["es real", "persona real", "existio de verdad", "existio realmente", "existio"])) {
+        if (typeof personaje.real === "boolean") return personaje.real;
+        return personaje.tipo === "real" ? true : (personaje.tipo === "ficticio" ? false : null);
+    }
+
+    // ==================================================
+    // GÉNERO
+    // Acepta frases como "¿tu personaje es una mujer?"
+    // ==================================================
+
+    if (contiene(texto, ["mujer", "femenin", "chica", "dama"])) {
+        if (typeof personaje.mujer === "boolean") return personaje.mujer;
+        return personaje.genero === "mujer" ? true : (personaje.genero === "hombre" ? false : null);
+    }
+
+    if (contiene(texto, ["hombre", "masculin", "varon", "chico"])) {
+        if (typeof personaje.hombre === "boolean") return personaje.hombre;
+        return personaje.genero === "hombre" ? true : (personaje.genero === "mujer" ? false : null);
+    }
+
+    // ==================================================
+    // VIDA
+    // ==================================================
+
+    if (contiene(texto, [
+        "esta viva", "esta vivo", "sigue viva", "sigue vivo",
+        "vive actualmente", "aun vive", "todavia vive",
+        "con vida", "sigue con vida"
+    ])) {
+        return typeof personaje.vivo === "boolean" ? personaje.vivo : null;
+    }
+
+    if (contiene(texto, ["esta muerta", "esta muerto", "murio", "fallecio", "fallecido", "fallecida"])) {
+        return typeof personaje.vivo === "boolean" ? !personaje.vivo : null;
+    }
+
+    if (contiene(texto, ["es un animal", "es animal", "es una mascota", "es una bestia"])) {
+        if (typeof personaje.animal === "boolean") return personaje.animal;
+        if (Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ["animal", "perro", "gato", "canino", "felino"].includes(normalizar(t)))) return true;
+        return null;
+    }
+
+    // ==================================================
+    // HUMANO / PERSONA
+    // ==================================================
+
+    if (contiene(texto, [
+        "es humano", "es humana", "es una persona", "es persona",
+        "ser humano", "persona humana", "alguien humano", "alguien humana"
+    ])) {
+        return typeof personaje.humano === "boolean" ? personaje.humano : null;
+    }
+
+    // ==================================================
+    // IDIOMA
+    // Se evalúa antes que nacionalidad para que
+    // "¿habla inglés?" no se interprete como "¿es inglés?"
+    // ==================================================
+
+    const preguntaIdioma = contiene(texto, ["habla", "idioma", "lengua"]);
+
+    if (preguntaIdioma) {
+        const idiomas = [
+            ["ingles", "ingles"],
+            ["aleman", "aleman"],
+            ["frances", "frances"],
+            ["italian", "italiano"],
+            ["espanol", "espanol"],
+            ["castellano", "espanol"],
+            ["polac", "polaco"],
+            ["serbi", "serbio"]
+        ];
+
+        for (const [palabra, idioma] of idiomas) {
+            if (contiene(texto, [palabra])) {
+                if (!Array.isArray(personaje.idiomas) || personaje.idiomas.length === 0) return null;
+                return personaje.idiomas.includes(idioma);
+            }
+        }
+    }
+
+    // ==================================================
+    // REGIÓN: no trasladar continentes terrestres a mundos ficticios
+    // salvo que la ficha declare explícitamente geografía real.
+    // ==================================================
+
+    const preguntaGeografica = contiene(texto, ["europa", "europe", "africa", "african", "america", "american", "asia", "asiatic", "pais", "nacionalidad", "francia", "frances", "alemania", "aleman", "inglaterra", "ingles", "espana", "espanol", "italia", "italiano", "egipto", "egipcio"]);
+    if (preguntaGeografica && !geografiaRealAplicable(personaje)) return null;
+
+    const regiones = [
+        ["europa", "europa"],
+        ["europe", "europa"],
+        ["africa", "africa"],
+        ["african", "africa"],
+        ["america", "america"],
+        ["american", "america"],
+        ["espacio", "espacio"],
+        ["otro planeta", "espacio"],
+        ["fuera de la tierra", "espacio"],
+        ["tierra media", "tierra media"]
+    ];
+
+    for (const [palabra, region] of regiones) {
+        if (contiene(texto, [palabra]) && region === 'europa' && typeof personaje.region_europa === 'boolean') return personaje.region_europa;
+        if (contiene(texto, [palabra]) && region === 'america' && typeof personaje.region_america === 'boolean') return personaje.region_america;
+        if (
+            contiene(texto, [palabra]) &&
+            !contiene(texto, ["estadounid", "norteamerican"])
+        ) {
+            return typeof personaje.region === "string" && personaje.region ? personaje.region === region : null;
+        }
+    }
+
+    // ==================================================
+    // NACIONALIDAD
+    // ==================================================
+
+    const nacionalidades = [
+        ["aleman", "aleman"],
+        ["alemania", "aleman"],
+        ["frances", "frances"],
+        ["francia", "frances"],
+        ["italian", "italiano"],
+        ["italia", "italiano"],
+        ["egipci", "egipcio"],
+        ["egipto", "egipcio"],
+        ["britanic", "britanico"],
+        ["reino unido", "britanico"],
+        ["ingles", "ingles"],
+        ["inglaterra", "ingles"],
+        ["polac", "polaco"],
+        ["polonia", "polaco"],
+        ["serbi", "serbio"],
+        ["serbia", "serbio"],
+        ["estadounid", "estadounidense"],
+        ["estados unidos", "estadounidense"],
+        ["norteamerican", "estadounidense"],
+        ["mexican", "mexicano"],
+        ["mexico", "mexicano"],
+        ["argentin", "argentino"],
+        ["argentina", "argentino"],
+        ["amazon", "amazona"]
+    ];
+
+    for (const [palabra, nacionalidad] of nacionalidades) {
+        if (contiene(texto, [palabra])) {
+            return Array.isArray(personaje.nacionalidades) && personaje.nacionalidades.length ? personaje.nacionalidades.includes(nacionalidad) : null;
+        }
+    }
+
+    // ==================================================
+    // PROFESIÓN / ROL
+    // Usamos raíces para aceptar masculino/femenino y
+    // pequeñas variaciones: matemática/matemático, etc.
+    // ==================================================
+
+    // Si el usuario claramente intenta decir "superhéroe" dentro de una frase
+    // de cómic pero escribe mal esa palabra, no dejamos que la raíz genérica
+    // "héroe" convierta la consulta en otra cosa. Mejor NO LO SÉ.
+    if (
+        contiene(texto, ["heroe de comic tipo"]) &&
+        !contiene(texto, ["superheroe", "superheroina"])
+    ) {
+        return null;
+    }
+
+    const etiquetas = [
+        ["cientific", "cientifico"],
+        ["dedico a la ciencia", "cientifico"],
+        ["dedica a la ciencia", "cientifico"],
+        ["profesion fue cientifica", "cientifico"],
+        ["persona cientifica", "cientifico"],
+        ["fisic", "fisico"],
+        ["quimic", "quimico"],
+        ["matematic", "matematico"],
+        ["programador", "programador"],
+        ["programadora", "programador"],
+        ["programacion", "programador"],
+        ["inventor", "inventor"],
+        ["inventora", "inventor"],
+        ["creaba inventos", "inventor"],
+        ["crea inventos", "inventor"],
+        ["ingenier", "ingeniero"],
+        ["artist", "artista"],
+        ["dedico al arte", "artista"],
+        ["dedica al arte", "artista"],
+        ["pintor", "pintor"],
+        ["pintora", "pintor"],
+        ["pintura", "pintor"],
+        ["pintar", "pintor"],
+        ["escritor", "escritor"],
+        ["escritora", "escritor"],
+        ["escritura", "escritor"],
+        ["dedico a escribir", "escritor"],
+        ["dedica a escribir", "escritor"],
+        ["profesion era escribir", "escritor"],
+        ["autor", "autor"],
+        ["poeta", "poeta"],
+        ["poesia", "poeta"],
+        ["dramaturg", "dramaturgo"],
+        ["reina", "reina"],
+        ["princes", "princesa"],
+        ["emperador", "emperador"],
+        ["gobernante", "gobernante"],
+        ["politic", "politico"],
+        ["militar", "militar"],
+        ["ejercito", "militar"],
+        ["detective", "detective"],
+        ["resolver crimen", "detective"],
+        ["resolver crimenes", "detective"],
+        ["resuelve crimen", "detective"],
+        ["superheroe", "superheroe"],
+        ["superheroina", "superheroe"],
+        ["identidad de superheroe", "superheroe"],
+        ["heroina", "heroina"],
+        ["heroe", "heroe"],
+        ["villano", "villano"],
+        ["villana", "villano"],
+        ["malo", "villano"],
+        ["malvado", "villano"],
+        ["malvada", "villano"],
+        ["guerrer", "guerrero"],
+        ["bruja", "bruja"],
+        ["mago", "mago"],
+        ["deportista", "deportista"],
+        ["futbol", "futbolista"],
+        ["estudiante", "estudiante"],
+        ["estudiando", "estudiante"],
+        ["personaje que estudia", "estudiante"],
+        ["periodista", "periodista"],
+        ["profesor", "profesor"],
+        ["millonario", "millonario"],
+        ["jedi", "jedi"]
+    ];
+
+    for (const [palabra, etiqueta] of etiquetas) {
+        if (contiene(texto, [palabra])) {
+            if (typeof personaje[etiqueta] === 'boolean') return personaje[etiqueta];
+            if (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes(etiqueta)) return true;
+            return null;
+        }
+    }
+
+    // ==================================================
+    // PODERES / MAGIA / OBJETOS
+    // ==================================================
+
+    // Las reglas más específicas van primero para evitar colisiones.
+    // Ej.: "poderes mágicos" pregunta por magia, no por poderes genéricos.
+
+    // Si aparece "poder/poderes" junto a una palabra que claramente empieza
+    // como "mag..." pero quedó mal escrita, no caemos en PODERES genéricos.
+    // Es más seguro responder NO LO SÉ.
+    {
+        const tokensMagia = texto.split(/\s+/).filter(Boolean);
+        const hayPoder = contiene(texto, ["poder", "poderes"]);
+        const formasMagia = ["magia", "magico", "magica", "magicos", "magicas"];
+
+        const distanciaEdicion = (a, b) => {
+            const fila = Array.from({ length: b.length + 1 }, (_, i) => i);
+
+            for (let i = 1; i <= a.length; i++) {
+                let anterior = fila[0];
+                fila[0] = i;
+
+                for (let j = 1; j <= b.length; j++) {
+                    const temporal = fila[j];
+                    const costo = a[i - 1] === b[j - 1] ? 0 : 1;
+
+                    fila[j] = Math.min(
+                        fila[j] + 1,
+                        fila[j - 1] + 1,
+                        anterior + costo
+                    );
+
+                    anterior = temporal;
+                }
+            }
+
+            return fila[b.length];
+        };
+
+        const hayMagiaDudosa = tokensMagia.some((token) => {
+            if (formasMagia.includes(token)) return false;
+
+            return formasMagia.some((forma) =>
+                Math.abs(token.length - forma.length) <= 2 &&
+                distanciaEdicion(token, forma) <= 2
+            );
+        });
+
+        if (hayPoder && hayMagiaDudosa) {
+            return null;
+        }
+    }
+    if (contiene(texto, [
+        "usa magia", "utiliza magia", "tiene magia", "puede hacer magia",
+        "tipo de magia", "es magico", "es magica", "poderes magicos"
+    ])) {
+        return personaje.magia;
+    }
+
+    if (contiene(texto, [
+        "tiene poderes", "posee poderes", "posee algun tipo de poder",
+        "tipo de poder", "superpoder", "poderes especiales",
+        "habilidades sobrenaturales"
+    ])) {
+        return personaje.poderes;
+    }
+
+    if (contiene(texto, [
+        "usa mascara", "lleva mascara", "tiene mascara", "lleva una mascara",
+        "suele llevar mascara", "mascara como parte de su aspecto",
+        "mascara para ocultar su identidad"
+    ])) {
+        return personaje.mascara;
+    }
+
+    if (contiene(texto, [
+        "usa capa", "lleva capa", "tiene capa", "lleva una capa",
+        "vestir una capa", "capa como parte de su apariencia"
+    ])) {
+        return personaje.capa;
+    }
+
+    // "DC Comics" con un typo suave en Comics sigue siendo una consulta
+    // de universo, no una consulta genérica sobre aparecer en cómics.
+    {
+        const tokensDC = texto.split(/\s+/).filter(Boolean);
+        if (
+            tokensDC.includes("dc") &&
+            tokensDC.some((token) => token.startsWith("comic"))
+        ) {
+            return personaje.universo === "dc";
+        }
+    }
+
+    // ==================================================
+    // CONCEPTOS AMPLIADOS: ANIME, COMBATE, PODER Y ORIGEN TERRESTRE
+    // ==================================================
+    if (contiene(texto, ["anime", "manga japones", "animacion japonesa"])) {
+        if (typeof personaje.anime === "boolean") return personaje.anime;
+        return Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes("anime") ? true : null;
+    }
+    if (contiene(texto, ["poderoso", "poderosa", "es muy fuerte", "fuerza extraordinaria"])) {
+        if (typeof personaje.poderoso === "boolean") return personaje.poderoso;
+        return null;
+    }
+    if (contiene(texto, ["combate", "combates", "pelea", "pelear", "lucha", "luchar", "participa en batallas"])) {
+        if (typeof personaje.combate === "boolean") return personaje.combate;
+        if (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes("combate")) return true;
+        return null;
+    }
+    if (contiene(texto, ["tiene hijos", "tuvo hijos", "hija", "hijo", "descendencia"])) {
+        return typeof personaje.hijos === "boolean" ? personaje.hijos : null;
+    }
+    if (contiene(texto, ["terrestre", "nacio en la tierra", "es de la tierra", "proviene de la tierra"])) {
+        return typeof personaje.origen_terrestre === "boolean" ? personaje.origen_terrestre : null;
+    }
+
+    // ==================================================
+    // MEDIO DE ORIGEN / APARICIÓN
+    // ==================================================
+
+    const medios = [
+        [["comic", "comics", "historieta"], "comic"],
+        [["libro", "novela", "literatura", "literario"], "libro"],
+        [["pelicula", "cine"], "pelicula"],
+        [["serie", "television", "tv"], "serie"],
+        [["animacion", "animado", "animada", "dibujos animados", "dibujito", "obra animada"], "animacion"]
+    ];
+
+    const habla_de_escribir = /\bescrib|\bpublic[oa]/.test(texto);
+    for (const [palabras, medio] of medios) {
+        if (habla_de_escribir) break;
+        if (contiene(texto, palabras)) {
+            if (medio === "comic" && contiene(texto, ["dc comics"])) {
+                continue;
+            }
+            const learnedField = ({pelicula:'peliculas', libro:'libros', comic:'comics', serie:'television', animacion:'animacion'})[medio];
+            if (learnedField && typeof personaje[learnedField] === 'boolean') return personaje[learnedField];
+            if (!Array.isArray(personaje.medios) || !personaje.medios.length) return null;
+            const aliasesMedio = medio === 'serie' ? ['serie','television','tv'] : medio === 'pelicula' ? ['pelicula','peliculas','cine'] : medio === 'comic' ? ['comic','comics','historieta'] : medio === 'libro' ? ['libro','libros','novela','literatura'] : medio === 'animacion' ? ['animacion','anime','manga'] : [medio];
+            return personaje.medios.some(m => aliasesMedio.includes(normalizar(m)));
+        }
+    }
+
+    // ==================================================
+    // UNIVERSO / FRANQUICIA
+    // ==================================================
+
+    const universos = [
+        [["marvel"], "marvel"],
+        [["dc comics", "universo dc", "es de dc", "personaje de dc", "franquicia es dc"], "dc"],
+        [["star wars"], "star wars"],
+        [["harry potter", "hogwarts"], "harry potter"],
+        [["tolkien", "senor de los anillos", "tierra media"], "tolkien"],
+        [["disney", "frozen"], "disney"],
+        [["sherlock holmes"], "sherlock holmes"]
+    ];
+
+    for (const [palabras, universo] of universos) {
+        if (contiene(texto, palabras)) {
+            if (universo === 'marvel' && typeof personaje.marvel === 'boolean') return personaje.marvel;
+            if (universo === 'dc' && typeof personaje.dc === 'boolean') return personaje.dc;
+            if (universo === 'star wars' && typeof personaje.star_wars === 'boolean') return personaje.star_wars;
+            const etiquetas = Array.isArray(personaje.etiquetas) ? personaje.etiquetas.map(normalizar) : [];
+            const alias = { marvel:['marvel'], dc:['dc','dc comics','dc_comics'], 'star wars':['jedi','sith'], 'harry potter':['harry potter'], tolkien:['tolkien'], disney:['disney'], 'sherlock holmes':['sherlock holmes'] }[universo] || [];
+            if (personaje.universo === universo || alias.some(t => etiquetas.includes(normalizar(t)))) return true;
+            if (!personaje.universo || ['ficcion','ficticio','fiction'].includes(normalizar(personaje.universo))) return null;
+            return false;
+        }
+    }
+
+    // ==================================================
+    // FAMA / RECONOCIMIENTO
+    // Regla general deliberadamente al final: expresiones
+    // como "conocido como científico" deben resolverse antes
+    // como profesión y no quedar atrapadas por "conocido".
+    // ==================================================
+
+    // Si aparece una construcción del tipo "conocido por X" o "conocido como X"
+    // y X no fue reconocido por ninguna regla específica anterior, NO inferimos fama.
+    // Preferimos NO LO SÉ antes que contestar algo falso por una palabra genérica.
+    if (contiene(texto, [
+        "conocido por", "conocida por", "conocido como", "conocida como",
+        "se lo considera", "se la considera", "su profesion", "su actividad",
+        "su trabajo", "se dedica", "se dedico"
+    ])) {
+        return null;
+    }
+
+    if (contiene(texto, [
+        "famos", "conocid", "celebre", "popular", "reconocido publicamente",
+        "todo el mundo lo conoce", "todo el mundo la conoce"
+    ])) {
+        return personaje.famoso === true;
+    }
+
+    // ==================================================
+    // NO RECONOCIDA
+    // ==================================================
+
+    return null;
+}
+
+function contiene(texto, opciones) {
+    const tokens = texto.split(/\s+/).filter(Boolean);
+
+    return opciones.some((opcion) => {
+        const patron = normalizar(opcion);
+
+        // Frases de varias palabras: exigimos la secuencia completa con límites
+        // de palabra para evitar coincidencias accidentales.
+        if (patron.includes(" ")) {
+            return (` ${texto} `).includes(` ${patron} `);
+        }
+
+        // Palabras/raíces: solo coinciden al principio de un token.
+        // Ejemplo: "cientific" reconoce "cientifico", pero "heroe"
+        // ya no reconoce accidentalmente "supeheroe".
+        return tokens.some((token) => {
+            if (token === patron) return true;
+            if (patron.length >= 5 && token.startsWith(patron)) return true;
+            return false;
+        });
+    });
+}
+
+function normalizar(texto) {
+    return texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[¿?¡!.,;:]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+const CONCEPTOS_PERMITIDOS = [
+    "tipo_real",
+    "tipo_ficticio",
+    "genero_mujer",
+    "genero_hombre",
+    "vivo",
+    "muerto",
+    "humano",
+    "famoso",
+    "region_europa",
+    "region_africa",
+    "region_america",
+    "region_espacio",
+    "region_tierra_media",
+    "nac_aleman",
+    "nac_frances",
+    "nac_italiano",
+    "nac_egipcio",
+    "nac_britanico",
+    "nac_ingles",
+    "nac_espanol",
+    "animal",
+    "nac_polaco",
+    "nac_serbio",
+    "nac_usa",
+    "nac_mexico",
+    "nac_argentina",
+    "nac_amazona",
+    "idioma_ingles",
+    "idioma_aleman",
+    "idioma_frances",
+    "idioma_italiano",
+    "idioma_espanol",
+    "idioma_polaco",
+    "idioma_serbio",
+    "cientifico",
+    "fisico",
+    "quimico",
+    "matematico",
+    "programador",
+    "inventor",
+    "ingeniero",
+    "artista",
+    "pintor",
+    "artista_pintor",
+    "escritor",
+    "autor",
+    "poeta",
+    "dramaturgo",
+    "reina",
+    "princesa",
+    "emperador",
+    "gobernante",
+    "politico",
+    "militar",
+    "detective",
+    "superheroe",
+    "heroe",
+    "heroina",
+    "villano",
+    "guerrero",
+    "bruja",
+    "mago",
+    "deportista",
+    "futbolista",
+    "estudiante",
+    "periodista",
+    "profesor",
+    "millonario",
+    "jedi",
+    "poderes",
+    "anime",
+    "combate",
+    "hijos",
+    "terrestre",
+    "magia",
+    "mascara",
+    "capa",
+    "medio_comic",
+    "medio_libro",
+    "medio_pelicula",
+    "medio_serie",
+    "medio_animacion",
+    "universo_marvel",
+    "universo_dc",
+    "universo_star_wars",
+    "universo_harry_potter",
+    "universo_tolkien",
+    "universo_disney",
+    "universo_sherlock_holmes",
+    "filosofo",
+    "arquero",
+    "tiene_arco",
+    "rey",
+    "dios",
+    "espia",
+    "empresario",
+    "lider",
+    "presidente",
+    "rico",
+    "pobre",
+    "usa_espada",
+    "usa_armas",
+    "vuela",
+    "inmortal",
+    "fuerza_sobrehumana",
+    "antiguedad",
+    "renacimiento",
+    "medieval",
+    "lucho_libertad",
+    "pacifista",
+    "conquistador",
+    "premio_nobel",
+    "bajo",
+    "alto",
+    "gafas",
+    "bigote",
+    "tecnologia",
+    "elfo",
+    "hobbit",
+    "genio",
+    "musico",
+    "region_asia",
+    "premios"
+];
+
+function resolverConcepto(concepto, personaje) {
+    if (!CONCEPTOS_PERMITIDOS.includes(concepto) || !personaje || typeof personaje !== 'object') return null;
+    // El oráculo histórico usa artista_pintor; el banco de personajes guarda la etiqueta pintor.
+    if (concepto === 'artista_pintor') concepto = 'pintor';
+
+    const directos = {
+        tipo_real: () => personaje.tipo === 'real' ? true : (personaje.tipo === 'ficticio' ? false : null),
+        tipo_ficticio: () => personaje.tipo === 'ficticio' ? true : (personaje.tipo === 'real' ? false : null),
+        genero_mujer: () => typeof personaje.mujer === 'boolean' ? personaje.mujer : (personaje.genero === 'mujer' ? true : (personaje.genero === 'hombre' ? false : null)),
+        genero_hombre: () => typeof personaje.hombre === 'boolean' ? personaje.hombre : (personaje.genero === 'hombre' ? true : (personaje.genero === 'mujer' ? false : null)),
+        vivo: () => typeof personaje.vivo === 'boolean' ? personaje.vivo : null,
+        muerto: () => typeof personaje.vivo === 'boolean' ? !personaje.vivo : null,
+        humano: () => typeof personaje.humano === 'boolean' ? personaje.humano : null,
+        animal: () => typeof personaje.animal === 'boolean' ? personaje.animal : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['animal','perro','gato','canino','felino'].includes(normalizar(t))) ? true : null),
+        artista: () => typeof personaje.artista === 'boolean' ? personaje.artista : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['artista','pintor','musico','autor','escritor','dramaturgo','poeta'].includes(normalizar(t))) ? true : null),
+        pacifista: () => typeof personaje.pacifista === 'boolean' ? personaje.pacifista : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('pacifista') ? true : null),
+        antiguedad: () => typeof personaje.antiguedad === 'boolean' ? personaje.antiguedad : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('antiguedad') ? true : null),
+        medieval: () => typeof personaje.medieval === 'boolean' ? personaje.medieval : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('medieval') ? true : null),
+        renacimiento: () => typeof personaje.renacimiento === 'boolean' ? personaje.renacimiento : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('renacimiento') ? true : null),
+        famoso: () => typeof personaje.famoso === 'boolean' ? personaje.famoso : null,
+        poderes: () => typeof personaje.poderes === 'boolean' ? personaje.poderes : null,
+        poderoso: () => typeof personaje.poderoso === 'boolean' ? personaje.poderoso : null,
+        anime: () => typeof personaje.anime === 'boolean' ? personaje.anime : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes('anime') ? true : (['dragon ball','naruto','one piece','yu-gi-oh','yu gi oh','pokemon'].includes(normalizar(personaje.universo||'')) ? true : (Array.isArray(personaje.medios) && personaje.medios.some(m => ['anime','manga'].includes(normalizar(m))) ? true : null))),
+        marvel: () => typeof personaje.marvel === 'boolean' ? personaje.marvel : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['marvel','universo_marvel'].includes(normalizar(t))) ? true : (normalizar(personaje.universo||'').includes('marvel') ? true : (personaje.tipo === 'ficticio' && personaje.universo && !['ficcion','ficticio','fiction'].includes(normalizar(personaje.universo)) ? false : null))),
+        dc: () => typeof personaje.dc === 'boolean' ? personaje.dc : (Array.isArray(personaje.etiquetas) && (personaje.etiquetas.includes('dc') || personaje.etiquetas.includes('dc_comics')) ? true : (normalizar(personaje.universo||'').includes('dc comics') || normalizar(personaje.universo||'') === 'dc' ? true : (personaje.tipo === 'ficticio' && personaje.universo && !['ficcion','ficticio','fiction'].includes(normalizar(personaje.universo)) ? false : null))),
+        star_wars: () => typeof personaje.star_wars === 'boolean' ? personaje.star_wars : (personaje.universo === 'star wars' || (Array.isArray(personaje.etiquetas) && (personaje.etiquetas.includes('jedi') || personaje.etiquetas.includes('sith'))) ? true : null),
+        combate: () => typeof personaje.combate === 'boolean' ? personaje.combate : (Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['combate','guerrero','soldado','militar','luchador','peleador','ninja','jedi','sith','superheroe','superheroina','usa_espada','usa_armas'].includes(normalizar(t))) ? true : null),
+        hijos: () => typeof personaje.hijos === 'boolean' ? personaje.hijos : null,
+        terrestre: () => typeof personaje.origen_terrestre === 'boolean' ? personaje.origen_terrestre : null,
+        magia: () => typeof personaje.magia === 'boolean' ? personaje.magia : null,
+        mascara: () => typeof personaje.mascara === 'boolean' ? personaje.mascara : null,
+        capa: () => typeof personaje.capa === 'boolean' ? personaje.capa : null,
+    };
+    if (directos[concepto]) return directos[concepto]();
+
+    if (concepto === 'deportista' || concepto === 'futbolista' || concepto === 'cientifico' || concepto === 'escritor' || concepto === 'musico') { if (typeof personaje[concepto] === 'boolean') return personaje[concepto]; return Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes(concepto) ? true : null; }
+
+    if (concepto.startsWith('region_')) {
+        if (!geografiaRealAplicable(personaje)) return null;
+        if (concepto === 'region_europa' && typeof personaje.region_europa === 'boolean') return personaje.region_europa;
+        if (concepto === 'region_america' && typeof personaje.region_america === 'boolean') return personaje.region_america;
+        const mapa = { region_europa:'europa', region_africa:'africa', region_america:'america', region_espacio:'espacio', region_tierra_media:'tierra media', region_asia:'asia' };
+        return typeof personaje.region === 'string' && personaje.region ? personaje.region === mapa[concepto] : null;
+    }
+    if (concepto === 'deportista' && Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['futbolista','deportista','tenista','basquetbolista','boxeador','atleta'].includes(normalizar(t)))) return true;
+    if (concepto === 'musico' && Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['cantante','musico','musica','compositor','guitarrista','bajista'].includes(normalizar(t)))) return true;
+    if (concepto === 'escritor' && Array.isArray(personaje.etiquetas) && personaje.etiquetas.some(t => ['escritor','escritora','novelista','autor','poeta','dramaturgo'].includes(normalizar(t)))) return true;
+    if (concepto.startsWith('nac_')) {
+        if (!geografiaRealAplicable(personaje)) return null;
+        const mapa = {
+            nac_aleman:'aleman', nac_frances:'frances', nac_italiano:'italiano', nac_egipcio:'egipcio', nac_britanico:'britanico', nac_ingles:'ingles',
+            nac_polaco:'polaco', nac_serbio:'serbio', nac_usa:'estadounidense', nac_mexico:'mexicano', nac_argentina:'argentino', nac_amazona:'amazona', nac_espanol:'espanol'
+        };
+        if (!Array.isArray(personaje.nacionalidades) || !personaje.nacionalidades.length) return null;
+        const ns=personaje.nacionalidades.map(normalizar);
+        if (ns.includes(normalizar(mapa[concepto]))) return true;
+        if (concepto==='nac_ingles' && (ns.includes('espanol')||ns.includes('españa'))) return false;
+        if (concepto==='nac_espanol' && (ns.includes('ingles')||ns.includes('britanico')||ns.includes('britanica'))) return false;
+        const nacionalesConocidas=['aleman','argentina','argentino','belga','brasileno','britanica','britanico','canadiense','chino','colombiana','egipcio','espanol','estadounidense','frances','galo','griego','hongkones','indio','ingles','italiano','jamaicano','latinoamericana','macedonio','mexicano','polinesia','portugues','polaco','romano','rumano','ruso','serbio','sudafricano','suizo','venezolano'];
+        return ns.some(n=>nacionalesConocidas.includes(n))?false:null;
+    }
+    if (concepto.startsWith('idioma_')) {
+        const idioma = concepto.replace('idioma_', '');
+        return Array.isArray(personaje.idiomas) && personaje.idiomas.includes(idioma);
+    }
+    if (concepto.startsWith('medio_')) {
+        const medio = concepto.replace('medio_', '');
+        const learnedField = ({pelicula:'peliculas',libro:'libros',comic:'comics',serie:'television'})[medio];
+        if (learnedField && typeof personaje[learnedField] === 'boolean') return personaje[learnedField];
+        if (!Array.isArray(personaje.medios) || !personaje.medios.length) return null; const aliasesMedio = medio==='serie'?['serie','television','tv']:medio==='pelicula'?['pelicula','peliculas','cine']:medio==='comic'?['comic','comics','historieta']:medio==='libro'?['libro','libros','novela','literatura']:medio==='animacion'?['animacion','anime','manga']:[medio]; return personaje.medios.some(m=>aliasesMedio.includes(normalizar(m)));
+    }
+    if (concepto.startsWith('universo_')) {
+        if (concepto === 'universo_marvel' && typeof personaje.marvel === 'boolean') return personaje.marvel;
+        if (concepto === 'universo_dc' && typeof personaje.dc === 'boolean') return personaje.dc;
+        if (concepto === 'universo_star_wars' && typeof personaje.star_wars === 'boolean') return personaje.star_wars;
+        const mapa = {
+            universo_marvel:'marvel', universo_dc:'dc', universo_star_wars:'star wars', universo_harry_potter:'harry potter',
+            universo_tolkien:'tolkien', universo_disney:'disney', universo_sherlock_holmes:'sherlock holmes'
+        };
+        const u=mapa[concepto], tags=Array.isArray(personaje.etiquetas)?personaje.etiquetas.map(normalizar):[]; const tagsU={universo_marvel:['marvel'],universo_dc:['dc','dc_comics'],universo_star_wars:['jedi','sith'],universo_harry_potter:['harry potter'],universo_tolkien:['tolkien'],universo_disney:['disney'],universo_sherlock_holmes:['sherlock holmes']}[concepto]||[]; if(personaje.universo===u||tagsU.some(t=>tags.includes(normalizar(t))))return true; return !personaje.universo||['ficcion','ficticio','fiction'].includes(normalizar(personaje.universo))?null:false;
+    }
+
+    return Array.isArray(personaje.etiquetas) && personaje.etiquetas.includes(concepto) ? true : null;
+}
+
+const MindLogic = { evaluarPregunta, resolverConcepto, normalizar, contiene, CONCEPTOS_PERMITIDOS };
+if (typeof window !== 'undefined') window.MindLogic = MindLogic;
+if (typeof module !== 'undefined' && module.exports) module.exports = MindLogic;

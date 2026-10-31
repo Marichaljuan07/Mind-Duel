@@ -1,0 +1,134 @@
+{
+ "genio": [
+  "¿era un capo total?",
+  "¿fue un tipo brillante?",
+  "¿tenía una mente privilegiada?",
+  "¿era un iluminado?"
+ ],
+ "humano": [
+  "¿es de carne y hueso?",
+  "¿es un ser humano?",
+  "¿es una persona normal?"
+ ],
+ "vivo": [
+  "¿todavía está entre nosotros?",
+  "¿sigue en este mundo?",
+  "¿vive hoy en día?"
+ ],
+ "muerto": [
+  "¿ya falleció?",
+  "¿ya no está vivo?",
+  "¿se murió hace tiempo?"
+ ],
+ "filosofo": [
+  "¿se dedicaba a la filosofía?",
+  "¿era un pensador?"
+ ],
+ "rey": [
+  "¿gobernaba como rey?",
+  "¿tenía un reino?"
+ ],
+ "tiene_arco": [
+  "¿pelea con arco?",
+  "¿dispara flechas?",
+  "¿lleva un arco?"
+ ],
+ "rico": [
+  "¿tiene mucha plata?",
+  "¿es millonario?",
+  "¿tiene una fortuna?"
+ ],
+ "pobre": [
+  "¿no tenía plata?",
+  "¿vivía humildemente?"
+ ],
+ "vuela": [
+  "¿puede volar?",
+  "¿se la pasa volando?"
+ ],
+ "inmortal": [
+  "¿no puede morir?",
+  "¿vive para siempre?"
+ ],
+ "usa_espada": [
+  "¿pelea con espada?",
+  "¿lleva una espada?"
+ ],
+ "antiguedad": [
+  "¿vivió en la antigüedad?",
+  "¿es de la época antigua?"
+ ],
+ "medieval": [
+  "¿es de la edad media?",
+  "¿vivió en tiempos medievales?"
+ ],
+ "lucho_libertad": [
+  "¿luchó por la libertad?",
+  "¿fue un libertador?"
+ ],
+ "pacifista": [
+  "¿era pacifista?",
+  "¿predicaba la no violencia?"
+ ],
+ "premio_nobel": [
+  "¿ganó un nobel?",
+  "¿le dieron el premio nobel?"
+ ],
+ "gafas": [
+  "¿usa anteojos?",
+  "¿lleva lentes?"
+ ],
+ "bigote": [
+  "¿tiene bigote?",
+  "¿usa bigote?"
+ ],
+ "detective": [
+  "¿resuelve crímenes?",
+  "¿es investigador?"
+ ],
+ "politico": [
+  "¿se dedicaba a la política?",
+  "¿es político?"
+ ],
+ "militar": [
+  "¿fue soldado?",
+  "¿era del ejército?"
+ ],
+ "mago": [
+  "¿hace hechizos?",
+  "¿es hechicero?"
+ ],
+ "pintor": [
+  "¿pintaba cuadros?",
+  "¿era pintor?"
+ ],
+ "poeta": [
+  "¿escribía poemas?",
+  "¿era poeta?"
+ ],
+ "region_europa": [
+  "¿es europeo?",
+  "¿es de Europa?",
+  "¿nació en Europa?"
+ ],
+ "region_america": [
+  "¿es americano?",
+  "¿nació en América?"
+ ],
+ "medio_animacion": [
+  "¿sale en dibujitos animados?",
+  "¿es un dibujo animado?"
+ ],
+ "universo_harry_potter": [
+  "¿va a Hogwarts?",
+  "¿es del mundo de Harry Potter?"
+ ],
+ "jedi": [
+  "¿maneja un sable de luz?",
+  "¿es un jedi?"
+ ],
+ "superheroe": [
+  "¿es un superhéroe?",
+  "¿es un súper héroe?"
+ ]
+}

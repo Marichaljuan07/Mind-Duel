@@ -1,0 +1,14 @@
+MIND DUEL FUSION — VERSIÓN 3.13.89 (PREVIA DE PRUEBA)
+Base: 3.13.88 PREVIA DE INDICADORES. No sustituye la estable 3.13.86.
+
+CAMBIOS
+- Cabecera online: ancho y columnas acotados, elementos con min-width: 0 y control de desbordamiento para evitar que mensajes largos fuercen un estiramiento horizontal.
+- Rol Cerebro: el estado inferior ya no se oculta durante la partida; muestra espera de pregunta, pregunta recibida o Descubridor escribiendo.
+- Rol Descubridor: el estado muestra cuándo el Cerebro escribe y vuelve al estado de espera o respuesta recibida cuando termina.
+- La sugerencia del Cerebro conserva su propio renglón mientras se responde; al terminar, se oculta la sugerencia anterior y queda visible el estado de espera.
+- Se preserva el flujo de envío de preguntas/respuestas y la mecánica de aprendizaje existente.
+
+VALIDACIÓN
+- Pendiente: probar en dos dispositivos, especialmente el ancho de la cabecera del Cerebro después de cada mensaje.
+- La comprobación de sintaxis JavaScript no sustituye la prueba real en navegador.
+- No se declara corregida la lógica de preguntas repetidas del modo Clásico; este cambio se concentra en la interfaz y los estados del multijugador.
