@@ -6,7 +6,11 @@ function nuevo(ps){return{ps,w:ps.map(()=>1),asked:new Set(),log:[],rech:new Set
 function pregunta(s,L){
   const totalPeso=s.w.reduce((a,b)=>a+b,0);if(!totalPeso)return null;
   const facts=s.log.filter(r=>r&&['si','no'].includes(r.a)).map(r=>({texto:r.q,answer:r.a==='si'}));
-  const contextual=Sugeridor.preguntasContextuales?Sugeridor.preguntasContextuales(L,facts,s.n):[];
+  // El selector contextual recibe los candidatos que aún pesan en esta partida;
+  // así puede adaptar las preguntas al conjunto real y no solo al turno.
+  const maxActual=maxPeso(s);
+  const candidatosActivos=s.ps.filter((p,i)=>(s.w[i]||0)>=Math.max(0.000001,maxActual*0.12));
+  const contextual=Sugeridor.preguntasContextuales?Sugeridor.preguntasContextuales(L,facts,s.n,candidatosActivos):[];
   const pool=[...new Set([...contextual,...Sugeridor.POOL])];
   let c=[];
   // v3.13.82: con un único sospechoso no se hacen preguntas de relleno: se lo pone a prueba.

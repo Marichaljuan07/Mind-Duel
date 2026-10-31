@@ -1,0 +1,10 @@
+Mind Duel Fusion v3.14.02 — Cerebro adaptativo (experimento)
+
+- El modo clásico espera hasta 1,6 segundos a que termine la carga de la base compartida antes de fijar la lista inicial de candidatos. Si la conexión tarda o falla, continúa con los datos locales.
+- El selector de preguntas contextuales recibe los candidatos que aún tienen peso en la partida, para que pueda adaptar la selección al conjunto actual.
+- Corregida la pregunta mal escrita «¿Tiene poderez?» a «¿Tiene poderes?», evitando que el error ortográfico evite la detección de preguntas equivalentes.
+- No se modificó multijugador.js ni la lógica de reconexión.
+
+Limitaciones de esta versión:
+- Es una mejora acotada de la lógica existente, no una reescritura completa del motor de deducción.
+- No se probó contra Supabase/Vercel en vivo ni mediante partidas reales automatizadas.

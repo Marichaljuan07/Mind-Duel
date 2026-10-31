@@ -326,6 +326,11 @@ async function chooseClassic() {
 async function startClassic() {
   machineStartedAt = Date.now();
   window.MindDuelCleanupForMode?.();
+  // Dar a la base compartida una oportunidad breve de incorporarse antes de
+  // fijar los candidatos. Si falla o tarda, el modo clásico sigue con los datos locales.
+  if (window.MindDuelSupabaseReady && typeof window.MindDuelSupabaseReady.then === 'function') {
+    await Promise.race([window.MindDuelSupabaseReady.catch(() => null), new Promise(resolve => setTimeout(resolve, 1600))]);
+  }
   resetGame();
   classicSetMode(true);
   window.MatchHistory?.begin('clásico'); window.MindSparring?.start('clásico');
