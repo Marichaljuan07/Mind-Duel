@@ -511,10 +511,34 @@ function mostrarPreguntaAprendizaje(nombre) {
   const actions = document.createElement('div'); actions.className = 'learning-actions';
   [['si','SÍ'],['no','NO'],['ns','NO LO SÉ']].forEach(([answer,label])=>{
     const btn=document.createElement('button'); btn.type='button'; btn.className='btn '+(answer==='si'?'btn-green':answer==='no'?'btn-red':'btn-purple'); btn.textContent=label;
-    btn.addEventListener('click',()=>{
-      if(answer!=='ns') window.MindKnowledge.registrarVoto(nombre,item.concepto,answer==='si',personaje);
+    btn.addEventListener('click', async ()=>{
+      if(answer==='ns'){
+        box.replaceChildren();
+        const done=document.createElement('p'); done.textContent='No se agregó ningún dato. El Cerebro no va a inventar la respuesta.';
+        box.append(done);
+        return;
+      }
+      // El voto local se conserva, pero no se presenta como compartido hasta que la API confirme el guardado.
+      window.MindKnowledge.registrarVoto(nombre,item.concepto,answer==='si',personaje);
+      actions.querySelectorAll('button').forEach(button=>button.disabled=true);
+      const waiting=document.createElement('p'); waiting.textContent='Guardando el aporte en la base compartida…';
+      box.replaceChildren(title,prompt,waiting);
+      let sharedResult={ok:false,message:'La conexión compartida no está disponible.'};
+      if(window.MindDuelSupabase && typeof window.MindDuelSupabase.submitClaim==='function'){
+        sharedResult=await window.MindDuelSupabase.submitClaim({
+          character:nombre,
+          attribute_key:item.concepto,
+          value:answer==='si',
+          source_note:`Respuesta de jugador a la pregunta de aprendizaje: ${item.pregunta}`
+        });
+      }
       box.replaceChildren();
-      const done=document.createElement('p'); done.textContent=answer==='ns'?'No se agregó ningún dato. El Cerebro no va a inventar la respuesta.':'Respuesta registrada como tentativa. Podrá ganar confianza cuando coincida con otras aportaciones.';
+      const done=document.createElement('p');
+      if(sharedResult && sharedResult.ok===true){
+        done.textContent='Aporte guardado en Supabase como propuesta. No se considerará un hecho verificado hasta superar la validación.';
+      } else {
+        done.textContent=`Respuesta guardada solo en este dispositivo. No se pudo compartir con Supabase: ${sharedResult?.message || 'error desconocido'}`;
+      }
       box.append(done);
     },{once:true}); actions.append(btn);
   });
