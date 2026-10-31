@@ -1,0 +1,14 @@
+MIND DUEL FUSION — VERSIÓN 3.13.91 (INTEGRACIÓN DE CONOCIMIENTO COMPARTIDO)
+Base: 3.13.90 SUPABASE_COMPARTIDA_CORREGIDA.
+
+CAMBIOS DE ESTA VERSIÓN
+- Los mensajes visibles al jugador ya no mencionan Supabase, bases de datos ni detalles de infraestructura.
+- El resultado de la respuesta de aprendizaje usa texto propio del juego; los fallos técnicos se expresan de forma genérica.
+- Se corrige la interpretación de las preguntas sobre hombre y mujer en el sistema de sugerencias, para que no compartan el mismo concepto por error.
+- Se conserva la lectura de personajes, preguntas y afirmaciones verificadas desde el servicio compartido.
+- En Solo, el Cerebro sigue usando el personaje enriquecido con conocimiento disponible para responder; las sugerencias siguen evaluándose contra candidatos coherentes con las respuestas que el jugador ya dio.
+
+ALCANCE Y PENDIENTES
+- Los aportes nuevos continúan siendo propuestas. Esta versión no los convierte automáticamente en hechos verificados: hace falta definir e implementar las reglas de validación independiente en servidor.
+- El motor puede aprovechar afirmaciones compartidas que ya estén marcadas como verified.
+- Esta versión debe probarse en Vercel y en partidas reales antes de considerarse estable.

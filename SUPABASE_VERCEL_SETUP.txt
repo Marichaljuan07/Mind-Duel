@@ -1,4 +1,4 @@
-MIND DUEL FUSION 3.13.90 — CONEXIÓN CON SUPABASE
+MIND DUEL FUSION 3.13.91 — CONOCIMIENTO COMPARTIDO
 
 Este paquete conserva los datos locales y añade una conexión compartida opcional.
 Si Supabase no responde, el juego sigue funcionando con sus datos locales.

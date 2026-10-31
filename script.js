@@ -521,7 +521,7 @@ function mostrarPreguntaAprendizaje(nombre) {
       // El voto local se conserva, pero no se presenta como compartido hasta que la API confirme el guardado.
       window.MindKnowledge.registrarVoto(nombre,item.concepto,answer==='si',personaje);
       actions.querySelectorAll('button').forEach(button=>button.disabled=true);
-      const waiting=document.createElement('p'); waiting.textContent='Guardando el aporte en la base compartida…';
+      const waiting=document.createElement('p'); waiting.textContent='Un momento… el Cerebro está procesando tu respuesta.';
       box.replaceChildren(title,prompt,waiting);
       let sharedResult={ok:false,message:'La conexión compartida no está disponible.'};
       if(window.MindDuelSupabase && typeof window.MindDuelSupabase.submitClaim==='function'){
@@ -535,9 +535,9 @@ function mostrarPreguntaAprendizaje(nombre) {
       box.replaceChildren();
       const done=document.createElement('p');
       if(sharedResult && sharedResult.ok===true){
-        done.textContent='Aporte guardado en Supabase como propuesta. No se considerará un hecho verificado hasta superar la validación.';
+        done.textContent='Respuesta recibida. El Cerebro seguirá afinando sus deducciones.';
       } else {
-        done.textContent=`Respuesta guardada solo en este dispositivo. No se pudo compartir con Supabase: ${sharedResult?.message || 'error desconocido'}`;
+        done.textContent='No pude guardar esta respuesta ahora. Podés seguir jugando; intentá nuevamente en otra partida.';
       }
       box.append(done);
     },{once:true}); actions.append(btn);
