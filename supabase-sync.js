@@ -7,8 +7,16 @@
     'real','ficticio','hombre','mujer','humano','animal','vivo','region_europa','region_america',
     'peliculas','libros','comics','television','anime','combate','poderoso','marvel','dc','star_wars',
     'hijos','terrestre','magia','deportista','futbolista','cientifico','escritor','musico','artista',
-    'pacifista','antiguedad','medieval','renacimiento','nac_ingles','nac_espanol','region_asia'
+    'pacifista','antiguedad','medieval','renacimiento','nac_ingles','nac_espanol','region_asia','filosofo','politico','militar','rico'
   ]);
+  const QUEUE_KEY='mind_duel_knowledge_queue_v1', DEVICE_KEY='mind_duel_device_id_v1';
+  function getDeviceId(){let id='';try{id=localStorage.getItem(DEVICE_KEY)||'';if(!/^(md-)?[a-f0-9-]{32,80}$/i.test(id)){id='md-'+Array.from(crypto.getRandomValues(new Uint8Array(24)),b=>b.toString(16).padStart(2,'0')).join('');localStorage.setItem(DEVICE_KEY,id)}}catch{}return id||('md-'+Math.random().toString(36).slice(2)+Date.now().toString(36));}
+  function getQueue(){try{const q=JSON.parse(localStorage.getItem(QUEUE_KEY)||'[]');return Array.isArray(q)?q:[]}catch{return[]}}
+  function saveQueue(q){try{localStorage.setItem(QUEUE_KEY,JSON.stringify(q.slice(-500)));return true}catch{return false}}
+  let flushing=null;
+  function enqueueClaim({character,attribute_key,value,source_note}={}){if(!character||!ATTRIBUTE_KEYS.has(attribute_key)||typeof value!=='boolean')return{ok:false,skipped:true};const q=getQueue(),key=normalize(character)+'|'+attribute_key,item={character:String(character).trim().slice(0,120),attribute_key,value,source_note:String(source_note||'').slice(0,500)};const i=q.findIndex(x=>normalize(x.character)+'|'+x.attribute_key===key);if(i>=0)q[i]=item;else q.push(item);return saveQueue(q)?{ok:true,queued:true,pending:q.length}:{ok:false,message:'No se pudo guardar temporalmente.'}}
+  async function flushClaims(keepalive=false){if(flushing)return flushing;let q=getQueue();if(!q.length)return{ok:true,pending:0};flushing=(async()=>{while(q.length){const batch=q.slice(0,50);try{const r=await fetch('/api/knowledge',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({device_id:getDeviceId(),votes:batch}),keepalive:!!keepalive});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)break;q=q.slice(batch.length);saveQueue(q)}catch{break}}return{ok:q.length===0,pending:q.length}})().finally(()=>{flushing=null});return flushing}
+  window.addEventListener('pagehide',()=>{flushClaims(true)});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushClaims(true)});window.addEventListener('online',()=>flushClaims(false));if(getQueue().length)flushClaims(false);
 
   async function sync() {
     const response = await fetch('/api/shared-data', { headers: { Accept: 'application/json' }, cache: 'no-store' });
@@ -20,7 +28,7 @@
     if (Array.isArray(people)) {
       const byName = new Map(people.map(person => [normalize(person.nombre), person]));
       for (const row of data.characters) {
-        if (!row || !row.name || row.status === 'archived') continue;
+        if (!row || !row.name || row.status === 'archived' || row.status === 'candidate') continue;
         const attributes = row.attributes && typeof row.attributes === 'object' && !Array.isArray(row.attributes) ? row.attributes : {};
         const merged = { ...attributes, nombre: row.name, alias: Array.isArray(row.aliases) ? row.aliases : (attributes.alias || []), descripcion: row.description || attributes.descripcion || '' };
         const existing = byName.get(normalize(row.name));
@@ -68,23 +76,7 @@
     return window.MindDuelSupabaseStatus;
   }
 
-  window.MindDuelSupabase = {
-    status: () => window.MindDuelSupabaseStatus || { connected: false },
-    submitClaim: async ({ character, attribute_key, value, source_note } = {}) => {
-      if (typeof value !== 'boolean' || !ATTRIBUTE_KEYS.has(attribute_key)) return { ok: false, skipped: true };
-      try {
-        const response = await fetch('/api/knowledge', {
-          method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ character, attribute_key, value, source_note })
-        });
-        const result = await response.json().catch(() => ({}));
-        if (!response.ok) return { ok: false, status: response.status, message: result.error || 'Aporte no guardado.' };
-        return result;
-      } catch (error) {
-        return { ok: false, message: 'Sin conexión con la base compartida.' };
-      }
-    }
-  };
+  window.MindDuelSupabase = { status: () => window.MindDuelSupabaseStatus || { connected: false }, submitClaim: enqueueClaim, queueClaim: enqueueClaim, flushClaims, pendingClaims: () => getQueue().length };
 
   // Se ejecuta en segundo plano; la versión local sigue funcionando si Supabase falla.
   window.MindDuelSupabaseReady = sync().catch(error => {

@@ -525,19 +525,15 @@ function mostrarPreguntaAprendizaje(nombre) {
       box.replaceChildren(title,prompt,waiting);
       let sharedResult={ok:false,message:'La conexión compartida no está disponible.'};
       if(window.MindDuelSupabase && typeof window.MindDuelSupabase.submitClaim==='function'){
-        sharedResult=await window.MindDuelSupabase.submitClaim({
-          character:nombre,
-          attribute_key:item.concepto,
-          value:answer==='si',
-          source_note:`Respuesta de jugador a la pregunta de aprendizaje: ${item.pregunta}`
-        });
+        sharedResult=await window.MindDuelSupabase.submitClaim({character:nombre,attribute_key:item.concepto,value:answer==='si',source_note:`Respuesta de jugador a la pregunta de aprendizaje: ${item.pregunta}`});
+        if(sharedResult.ok && typeof window.MindDuelSupabase.flushClaims==='function') { const sent=await window.MindDuelSupabase.flushClaims(false); sharedResult={ok:!!sent.ok,pending:sent.pending||0}; }
       }
       box.replaceChildren();
       const done=document.createElement('p');
       if(sharedResult && sharedResult.ok===true){
-        done.textContent='Respuesta recibida. El Cerebro seguirá afinando sus deducciones.';
+        done.textContent=sharedResult.pending ? 'La respuesta quedó guardada y se enviará cuando vuelva la conexión.' : 'Respuesta recibida. El Cerebro seguirá afinando sus deducciones.';
       } else {
-        done.textContent='No pude guardar esta respuesta ahora. Podés seguir jugando; intentá nuevamente en otra partida.';
+        done.textContent='La respuesta quedó pendiente. Podés seguir jugando; el Cerebro intentará procesarla más adelante.';
       }
       box.append(done);
     },{once:true}); actions.append(btn);
@@ -560,6 +556,7 @@ async function classicEnd(result = {}) {
   ui.resultCharacter.textContent = result.nombre ? `Tu personaje era: ${result.nombre}` : 'Personaje no identificado';
   const characterDescription = getCharacterDescription(result.nombre, result.descripcion);
   if (window.MindKnowledge && result.nombre) { const knownForLearning=findKnownCharacter(result.nombre); if(!knownForLearning) window.MindKnowledge.plantilla(result.nombre,{descripcion:result.descripcion||'',origen:'clasico'}); window.MindKnowledge.registrarRespuestasPartida(result.nombre,classic.s?.log||[],knownForLearning||null); }
+  try { for (const row of (classic.s?.log||[])) { if (!row || !['psi','pno'].includes(row.a)) continue; const key=window.MindKnowledge?.conceptoDePregunta?.(row.q); if(key) window.MindDuelSupabase?.submitClaim?.({character:result.nombre||classicSecretName,attribute_key:key,value:row.a==='psi',source_note:'Respuesta de una partida clásica'}); } if(window.MindDuelSupabase?.flushClaims) window.MindDuelSupabase.flushClaims(false); } catch {}
   window.CerebroAprendizaje?.registrarPartida({modo:'clásico',resultado:result.wonBy||'finalizada',personaje:result.nombre||classicSecretName||'',preguntas:classic.s?.log||[],intentos:classic.s?.rech?.size||0});
   const tauntPool = wonByBrain ? CLASSIC_BRAIN_WIN_LINES : CLASSIC_PLAYER_WIN_LINES;
   const classicTaunt = pickLine(tauntPool)(result.nombre || classicSecretName || 'tu personaje');

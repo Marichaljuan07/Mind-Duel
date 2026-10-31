@@ -1,0 +1,21 @@
+MIND DUEL FUSION — v3.13.92 APRENDIZAJE ORGÁNICO
+
+CAMBIOS
+1. Los aportes se guardan en una cola localStorage y se envían por lotes de hasta 50. Se intenta vaciar la cola al terminar la partida, al cambiar de pestaña, al cerrar y al recuperar conexión. Si el envío falla, los datos quedan pendientes para reintentar.
+2. La API acepta lotes y no hace un POST por cada aporte. El identificador aleatorio del dispositivo se convierte a SHA-256 en el servidor; el identificador original no se envía a Supabase. Se usa una fila por personaje/atributo/hash y cambiar de respuesta actualiza el voto.
+3. Se agrega SUPABASE_MIGRATION_3.13.92.sql. La función de servidor consolida los votos: 3 o más coincidencias sin oposición = verified; si hay respuestas opuestas = disputed; por debajo de 3 = proposed. Los disputados no se usan como hechos.
+4. Se crean personajes desconocidos como candidate con una plantilla mínima y se promueven a active tras aportes de tres hashes de dispositivo. Los candidatos no se mezclan con el elenco jugable antes de esa promoción.
+5. /api/shared-data pagina tablas en bloques de 1000 y habilita caché breve.
+6. Se añaden inferencias explícitas para anime/cómics y futbolistas, sin reemplazar valores ya explícitos. La pregunta final de aprendizaje prioriza atributos que dividen mejor a personajes parecidos.
+7. Se mantiene la respuesta graduada de Solo: ante deducciones débiles puede responder probablemente sí/no, y ante falta de evidencia responde que no sabe.
+8. Se amplía el aprendizaje local de Clásico para reconocer los códigos reales de respuesta psi/pno del historial.
+
+CONFIGURACIÓN REQUERIDA
+Ejecutar SUPABASE_MIGRATION_3.13.92.sql una sola vez en Supabase SQL Editor antes de desplegar. Mantener SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY exclusivamente en las variables de entorno de Vercel.
+
+NO SE DEBE CONSIDERAR CERTIFICADO AÚN
+- La migración no se ejecutó contra el proyecto Supabase real desde este entorno.
+- No se probaron en teléfonos reales el cierre forzado, suspensión del navegador, cola sin conexión ni reconexión.
+- El identificador aleatorio con hash evita duplicados normales por dispositivo, pero no prueba que sean personas distintas: un usuario puede borrar localStorage o generar otro identificador.
+- La promoción de candidatos usa diversidad de dispositivos, no una verificación independiente de partidas o personas.
+- Las reglas de implicancia son reglas de juego, no verdades universales: revisar especialmente anime/cómic y futbolista si el elenco incluye personas reales vinculadas a esas obras.

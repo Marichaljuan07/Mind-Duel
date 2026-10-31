@@ -1,4 +1,4 @@
-MIND DUEL FUSION 3.13.91 — CONOCIMIENTO COMPARTIDO
+MIND DUEL FUSION 3.13.92 — APRENDIZAJE ORGÁNICO
 
 Este paquete conserva los datos locales y añade una conexión compartida opcional.
 Si Supabase no responde, el juego sigue funcionando con sus datos locales.
@@ -15,15 +15,20 @@ IMPORTANTE SOBRE LA CLAVE
 - No me la envíes por el chat.
 - Después de guardar las variables, hacé un nuevo deployment (Redeploy) para que se apliquen.
 
-QUÉ HACE ESTA INTEGRACIÓN
-- Consulta personajes, preguntas y afirmaciones verificadas desde Supabase a través de funciones de servidor de Vercel.
-- Usa los personajes y las preguntas compartidas como ampliación de los datos locales.
-- Cuando en el modo multijugador el Cerebro da una respuesta clara de sí/no a una pregunta reconocida sobre un personaje existente en la base, envía una propuesta a knowledge_claims.
-- Las propuestas quedan con status=proposed. No se convierten automáticamente en hechos ni se usan como hechos verificados.
-- Hay límites básicos de frecuencia para reducir abuso.
+PASO NUEVO OBLIGATORIO: MIGRACIÓN SQL
+Antes de desplegar esta versión, abrí Supabase > SQL Editor, pegá el contenido completo de SUPABASE_MIGRATION_3.13.92.sql y ejecutalo una sola vez. La migración crea el registro de votos por dispositivo y la función que consolida los lotes. No borres las tablas existentes.
 
-IMPORTANTE
-La función de escritura usa las tablas existentes knowledge_claims y match_events. No hace falta volver a ejecutar schema.sql ni repetir la importación. Si la clave Secret/service_role se regeneró desde que se hizo la importación, usá la clave vigente de Supabase en Vercel.
+QUÉ HACE ESTA INTEGRACIÓN
+- Consulta personajes, preguntas y afirmaciones verificadas a través de funciones de servidor de Vercel. La lectura pagina los resultados y permite caché breve.
+- Las respuestas se acumulan en una cola local y se mandan por lotes de hasta 50; se intenta enviar al terminar, al cambiar de pestaña, al cerrar y al recuperar conexión. Si falla, la cola permanece en el dispositivo para reintentar.
+- La API calcula SHA-256 del identificador aleatorio del dispositivo y solo envía/guarda el hash. Un dispositivo tiene un voto por personaje y atributo; si cambia su respuesta, se actualiza.
+- Tres dispositivos coincidentes sin votos contrarios producen status=verified. Cualquier contradicción produce status=disputed y no se importa como conocimiento verificado.
+- Los personajes desconocidos se crean como candidate; pasan a active tras aportes de al menos tres hashes de dispositivo. Los candidatos no se añaden al elenco jugable antes de esa promoción.
+- Si el servicio no responde, el juego conserva sus datos locales y las respuestas pendientes.
+- No se guarda ninguna clave en el navegador ni en los archivos del juego.
+
+LÍMITE IMPORTANTE
+Un hash de identificador aleatorio no demuestra que sean tres personas distintas: alguien puede borrar el almacenamiento o generar IDs nuevos. Es una barrera contra votos repetidos accidentales, no un sistema antifraude fuerte. Tampoco se guarda una identidad personal ni se usa la IP para contar votos.
 
 COMPROBACIÓN
 Una vez desplegado, abrí tu web y agregá /api/shared-data al final de la dirección. Si está configurado, debe devolver JSON con "ok": true y las listas de personajes y preguntas. No compartas públicamente ese resultado si contiene datos que no quieras divulgar (la respuesta no incluye claves secretas).
