@@ -72,10 +72,13 @@
           <button id="machineHistoryBtn" class="btn btn-purple">HISTORIAL</button>
           <button id="machineChoiceBackBtn" class="btn btn-red">VOLVER</button>
         </div>
-        <button id="openCharacterCatalogClassic" type="button" class="btn btn-purple catalog-open-btn">VER CATÁLOGO / AGREGAR PERSONAJE</button>
         <form id="classicSecretNameForm" class="classic-name-form hidden">
           <label for="classicSecretNameInput">¿QUÉ PERSONAJE ELEGISTE? (NO SE LO MOSTRAREMOS AL CEREBRO)</label>
-          <input id="classicSecretNameInput" maxlength="80" autocomplete="off" placeholder="Nombre del personaje" required>
+          <input id="classicSecretNameInput" maxlength="80" autocomplete="off" placeholder="Escribí un nombre; te mostraremos coincidencias" aria-describedby="classicCharacterSearchHelp" required>
+          <p id="classicCharacterSearchHelp" class="character-search-help">Escribí para ver sugerencias o explorá el catálogo completo.</p>
+          <div id="classicCharacterSuggestions" class="classic-character-suggestions hidden" role="listbox" aria-label="Personajes coincidentes"></div>
+          <button id="openCharacterCatalogClassic" type="button" class="btn btn-purple catalog-open-btn">VER TODO EL CATÁLOGO</button>
+          <section id="unknownCharacterPrompt" class="unknown-character-prompt hidden" aria-live="polite"><strong>PERSONAJE NO REGISTRADO</strong><p id="unknownCharacterPromptText">Este personaje todavía no figura en el catálogo.</p><p>Podés elegir otro o jugar igualmente.</p><div><button id="unknownCharacterChooseOther" type="button" class="btn btn-purple">ELEGIR OTRO</button><button id="unknownCharacterPlayAnyway" type="button" class="btn btn-green">JUGAR IGUAL</button></div></section>
           <button class="btn btn-green" type="submit">EMPEZAR PARTIDA</button>
           <button id="classicSecretNameBackBtn" class="btn btn-red" type="button">VOLVER</button>
         </form>
@@ -150,6 +153,7 @@
         <h3 id="resultCharacter"></h3>
         <p id="resultDescription"></p>
         <section id="resultLearning" class="result-learning hidden" aria-live="polite"></section>
+        <button id="createUnknownCharacterCardBtn" type="button" class="btn btn-purple hidden">CREAR FICHA DE ESTE PERSONAJE</button>
         <form id="classicCharacterNameForm" class="classic-name-form hidden"><label for="classicCharacterNameInput">¿EN QUÉ PERSONAJE ESTABAS PENSANDO?</label><input id="classicCharacterNameInput" maxlength="80" autocomplete="off" placeholder="Nombre del personaje"><button class="btn btn-green" type="submit">CONFIRMAR PERSONAJE</button></form>
         <div id="resultActions" class="stack compact">
           <button id="viewMatchHistoryBtn" class="btn btn-green">VER PARTIDA</button>

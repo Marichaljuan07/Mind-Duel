@@ -562,7 +562,7 @@ async function classicEnd(result = {}) {
   const classicTaunt = pickLine(tauntPool)(result.nombre || classicSecretName || 'tu personaje');
   ui.resultDescription.textContent = [characterDescription, classicTaunt].filter(Boolean).join(' ');
   el('playAgainBtn')?.classList.remove('hidden'); el('playAgainBtn').textContent='JUGAR DE NUEVO';
-  const editBtn=el('editCharacterBtn'); if(editBtn) editBtn.classList.toggle('hidden', !result.nombre);
+  const editBtn=el('editCharacterBtn'); if(editBtn) editBtn.classList.toggle('hidden', !result.nombre); const createCardBtn=el('createUnknownCharacterCardBtn'); if(createCardBtn){const unknown=!!(classicSecretName&&!findKnownCharacter(classicSecretName)&&!window.MindCharacterCatalog?.isKnown?.(classicSecretName));createCardBtn.classList.toggle('hidden',!unknown);createCardBtn.onclick=()=>{window.MindCharacterCatalog?.openForNew?.(classicSecretName);};}
   show(ui.result);
   mostrarPreguntaAprendizaje(result.nombre || classicSecretName);
   ui.input.placeholder = 'Pregunta de sí/no...';
@@ -1124,7 +1124,9 @@ el('classicSecretNameBackBtn').onclick = () => {
   ui.stageDialog.innerHTML = `<strong>CEREBRO:</strong> ${nextStageDialogue('classicReturn', [ORACULO.classicReturn, '¿Todavía no vas a elegir personaje? No hay apuro, mortal. Podés volver a intentarlo o elegir otro camino.', 'Volviste antes de empezar. El duelo clásico queda esperando tu decisión.'])}`;
   ui.stage.classList.add('stage-ready');
 };
-el('classicSecretNameForm').onsubmit = async e => { e.preventDefault(); const name=el('classicSecretNameInput').value.trim(); if(!name)return; classicSecretName=name; try { if(!findKnownCharacter(name)){ const k='mind_personajes_nuevos'; const rows=JSON.parse(localStorage.getItem(k)||'[]'); const norm=MindLogic.normalizar(name); const existing=rows.find(x=>MindLogic.normalizar(x.nombre||'')===norm); if(!existing) rows.push({nombre:name,fecha:new Date().toISOString(),respuestas:[],origen:'clásico'}); localStorage.setItem(k,JSON.stringify(rows)); } } catch {} el('classicSecretNameForm').classList.add('hidden'); await startClassic(); };
+el('classicSecretNameForm').onsubmit = async e => { e.preventDefault(); const name=el('classicSecretNameInput').value.trim(); if(!name)return; if(!findKnownCharacter(name) && !window.MindCharacterCatalog?.isKnown?.(name) && el('classicSecretNameForm').dataset.allowUnknown!=='yes'){ const prompt=el('unknownCharacterPrompt'); if(prompt){el('unknownCharacterPromptText').textContent=`${name} todavía no figura en mi catálogo de personajes.`;prompt.classList.remove('hidden');} return; } el('classicSecretNameForm').dataset.allowUnknown='';el('unknownCharacterPrompt')?.classList.add('hidden');classicSecretName=name; try { if(!findKnownCharacter(name)){ const k='mind_personajes_nuevos'; const rows=JSON.parse(localStorage.getItem(k)||'[]'); const norm=MindLogic.normalizar(name); const existing=rows.find(x=>MindLogic.normalizar(x.nombre||'')===norm); if(!existing) rows.push({nombre:name,fecha:new Date().toISOString(),respuestas:[],origen:'clásico'}); localStorage.setItem(k,JSON.stringify(rows)); } } catch {} el('classicSecretNameForm').classList.add('hidden'); await startClassic(); };
+el('unknownCharacterPlayAnyway')?.addEventListener('click',()=>{el('classicSecretNameForm').dataset.allowUnknown='yes';el('classicSecretNameForm').requestSubmit();});
+el('unknownCharacterChooseOther')?.addEventListener('click',()=>{el('unknownCharacterPrompt')?.classList.add('hidden');el('classicSecretNameForm').dataset.allowUnknown='';el('classicSecretNameInput').focus();el('classicSecretNameInput').select();});
 
 ui.backTitleBtn.onclick = cancelStageAndReturn;
 ui.menuBackBtn.onclick = cancelStageAndReturn;

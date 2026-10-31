@@ -1,0 +1,12 @@
+Mind Duel Fusion v3.13.97 — Búsqueda dinámica y personajes no registrados
+
+- Se recupera la selección de personajes mediante una barra de búsqueda dinámica en el modo clásico.
+- Al escribir, aparecen coincidencias por nombre y alias; al elegir una, se completa el campo.
+- Se conserva la opción de explorar el catálogo completo mediante “VER TODO EL CATÁLOGO”.
+- Si el nombre no figura en el catálogo, el juego muestra un aviso con “ELEGIR OTRO” y “JUGAR IGUAL”.
+- Los personajes nuevos siguen pudiendo jugarse sin bloquear la partida.
+- Después de la partida, si el personaje no está registrado, aparece la opción de crear su ficha.
+- Las fichas nuevas se guardan como candidatas pendientes de verificación, sin presentarlas como conocimiento confirmado.
+- Se mantiene el registro existente en Supabase y no se modifica multijugador.js ni la lógica de reconexión.
+
+Notas: el comportamiento real de la API y la escritura en Supabase requieren prueba en el despliegue de Vercel. Las fichas candidatas todavía no se promocionan automáticamente a activas.
