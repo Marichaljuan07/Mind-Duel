@@ -27,13 +27,12 @@
     const people = (typeof PERSONAJES !== 'undefined' && Array.isArray(PERSONAJES)) ? PERSONAJES : window.PERSONAJES;
     if (Array.isArray(people)) {
       const byName = new Map(people.map(person => [normalize(person.nombre), person]));
-      const findExisting = (name, aliases=[]) => { const nameKey=normalize(name), aliasKeys=(Array.isArray(aliases)?aliases:[]).map(normalize).filter(Boolean); return people.find(person => { const canonical=normalize(person.nombre), knownAliases=(Array.isArray(person.alias)?person.alias:[]).map(normalize); return canonical===nameKey || knownAliases.includes(nameKey) || aliasKeys.includes(canonical); }) || null; };
       for (const row of data.characters) {
         if (!row || !row.name || row.status === 'archived' || row.status === 'candidate') continue;
         const attributes = row.attributes && typeof row.attributes === 'object' && !Array.isArray(row.attributes) ? row.attributes : {};
         const merged = { ...attributes, nombre: row.name, alias: Array.isArray(row.aliases) ? row.aliases : (attributes.alias || []), descripcion: row.description || attributes.descripcion || '' };
-        const existing = findExisting(row.name, merged.alias);
-        if (existing) { Object.assign(existing, merged); byName.set(normalize(row.name), existing); }
+        const existing = byName.get(normalize(row.name));
+        if (existing) Object.assign(existing, merged);
         else { people.push(merged); byName.set(normalize(row.name), merged); }
       }
 

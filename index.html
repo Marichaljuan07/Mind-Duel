@@ -72,9 +72,10 @@
           <button id="machineHistoryBtn" class="btn btn-purple">HISTORIAL</button>
           <button id="machineChoiceBackBtn" class="btn btn-red">VOLVER</button>
         </div>
+        <button id="openCharacterCatalogClassic" type="button" class="btn btn-purple catalog-open-btn">VER CATÁLOGO / AGREGAR PERSONAJE</button>
         <form id="classicSecretNameForm" class="classic-name-form hidden">
           <label for="classicSecretNameInput">¿QUÉ PERSONAJE ELEGISTE? (NO SE LO MOSTRAREMOS AL CEREBRO)</label>
-          <div class="character-entry-row"><input id="classicSecretNameInput" maxlength="80" autocomplete="off" placeholder="Nombre del personaje" required><button id="openClassicCatalogBtn" class="btn btn-purple catalog-open-btn" type="button">BUSCAR</button></div>
+          <input id="classicSecretNameInput" maxlength="80" autocomplete="off" placeholder="Nombre del personaje" required>
           <button class="btn btn-green" type="submit">EMPEZAR PARTIDA</button>
           <button id="classicSecretNameBackBtn" class="btn btn-red" type="button">VOLVER</button>
         </form>
@@ -225,7 +226,7 @@
       <div id="duelConnected" class="hidden">
         <div class="duel-presence"><span class="presence-dot"></span><span id="peerStatus">CONEXIÓN ESTABLECIDA</span></div>
         <section id="roleChooser" class="role-panel"><p class="duel-label">¿QUÉ PAPEL QUERÉS JUGAR?</p><div class="duel-actions"><button id="roleBrainBtn" class="btn btn-purple"><span class="neon-brain brain-xs" aria-hidden="true"></span>SER EL CEREBRO</button><button id="roleGuessBtn" class="btn btn-green">DESCUBRIR</button></div><p id="roleStatus" class="duel-status">Elegí tu papel. Tu amigo debe elegir el otro.</p></section>
-        <section id="brainRolePanel" class="role-panel hidden"><h3 class="role-title">PAPEL: <span class="neon-brain brain-xs" aria-hidden="true"></span> EL CEREBRO</h3><p>Elegí un personaje de la lista o escribí uno propio. La elección queda oculta para tu rival.</p><label class="duel-label" for="secretCharacter">PERSONAJE PARA ESTA PARTIDA</label><div class="character-entry-row"><input id="secretCharacter" list="characterOptions" placeholder="Buscar o escribir personaje…" autocomplete="off"><button id="openOnlineCatalogBtn" class="btn btn-purple catalog-open-btn" type="button">BUSCAR</button></div><button id="startDuelBtn" class="btn btn-green duel-start">ENTRAR AL DUELO</button><p id="brainSetupStatus" class="duel-status">Elegí un personaje para continuar.</p></section>
+        <section id="brainRolePanel" class="role-panel hidden"><h3 class="role-title">PAPEL: <span class="neon-brain brain-xs" aria-hidden="true"></span> EL CEREBRO</h3><p>Elegí un personaje de la lista o escribí uno propio. La elección queda oculta para tu rival.</p><label class="duel-label" for="secretCharacter">PERSONAJE PARA ESTA PARTIDA</label><input id="secretCharacter" list="characterOptions" placeholder="Buscar o escribir personaje…" autocomplete="off"><button id="openCharacterCatalogOnline" type="button" class="btn btn-purple catalog-open-btn">VER CATÁLOGO / AGREGAR PERSONAJE</button><button id="startDuelBtn" class="btn btn-green duel-start">ENTRAR AL DUELO</button><p id="brainSetupStatus" class="duel-status">Elegí un personaje para continuar.</p></section>
         <section id="guessRolePanel" class="role-panel hidden"><h3 class="role-title">PAPEL: DESCUBRIR</h3><p>Usá los controles de la consola del juego para preguntar y el botón ADIVINAR para intentar descubrir el personaje.</p><p id="guessRoleStatus" class="duel-status"></p></section>
         <div class="duel-actions result-actions"><button id="duelWinBtn" class="btn btn-green">🏆 VICTORIA</button><button id="duelLoseBtn" class="btn btn-red">❌ DERROTA</button></div>
       </div>
@@ -233,7 +234,6 @@
     </div>
   </div>
 
-  <div id="characterCatalogModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="characterCatalogTitle"><div class="modal-card character-catalog-card"><header class="catalog-head"><div><h2 id="characterCatalogTitle">CATÁLOGO DE PERSONAJES</h2><p id="characterCatalogCount">Buscá entre los personajes disponibles.</p></div><button id="closeCharacterCatalogBtn" class="catalog-close" type="button" aria-label="Cerrar catálogo">×</button></header><label class="duel-label" for="characterCatalogSearch">BUSCAR POR NOMBRE O ALIAS</label><input id="characterCatalogSearch" class="catalog-search" maxlength="100" autocomplete="off" placeholder="Ej.: Leo, Messi, Naruto…"><div class="catalog-filters"><button type="button" data-catalog-filter="all" class="active">TODOS</button><button type="button" data-catalog-filter="real">REALES</button><button type="button" data-catalog-filter="ficticio">FICTICIOS</button></div><div id="characterCatalogResults" class="character-catalog-results" role="listbox" aria-label="Resultados de personajes"></div><div class="modal-actions"><button id="closeCharacterCatalogFooterBtn" class="btn btn-purple" type="button">CERRAR</button></div></div></div>
   <datalist id="characterOptions"></datalist>
   <button id="chatBubbleBtn" class="chat-bubble hidden" aria-label="Abrir chat con tu rival">💬<span id="chatUnread" class="chat-unread hidden">•</span></button>
   <aside id="floatingChat" class="floating-chat hidden" aria-label="Chat con tu rival"><header class="floating-chat-head"><span>CHAT DEL DUELO</span><button id="floatingChatClose" aria-label="Cerrar chat">×</button></header><div id="floatingMessages" class="duel-messages" aria-live="polite"></div><form id="floatingChatForm" class="duel-chat-form"><input id="floatingChatInput" maxlength="300" placeholder="Escribile a tu amigo…" autocomplete="off"><button class="btn btn-green" type="submit">➤</button></form></aside>
@@ -241,6 +241,9 @@
   <div id="savedMatchesModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="savedMatchesTitle"><div class="modal-card saved-library-card"><header class="saved-library-header"><div class="saved-library-heading"><h2 id="savedMatchesTitle">TUS PARTIDAS</h2><div class="saved-library-counter" aria-live="polite"><span aria-hidden="true">▣</span> <b id="savedMatchesCount">0</b> partidas guardadas</div><p class="saved-library-intro">Tu biblioteca conserva tus partidas online. Podés restaurar las que siguen en curso, revisar las terminadas e importar o exportar copias. Las partidas que mandás a la papelera se pueden recuperar durante 30 días.</p></div><div class="saved-library-header-actions"><button id="importSavedMatchBtn" type="button" class="btn btn-purple" title="Importar una copia JSON">⇧ IMPORTAR</button><button id="savedMatchesTrashTab" type="button" class="btn saved-trash-button" title="Ver partidas eliminadas">▤ PAPELERA</button><input id="importSavedMatchFile" type="file" accept="application/json,.json" hidden></div></header><div id="savedMatchesNotice" class="saved-library-notice" role="status" aria-live="polite"></div><div id="savedMatchesList" class="saved-matches-list"></div><div class="modal-actions"><button id="closeSavedMatchesBtn" class="btn btn-purple">VOLVER</button></div></div></div>
 
   <div id="matchHistoryModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="matchHistoryTitle"><div class="modal-card history-card"><h2 id="matchHistoryTitle">REGISTRO DE PARTIDAS</h2><label class="duel-label" for="historyMatchSelect">ELEGÍ UNA PARTIDA DEL HISTORIAL</label><select id="historyMatchSelect" class="history-select"></select><div id="matchHistoryBody" class="match-history-body"></div><div class="modal-actions"><button id="openCerebroObserverBtn" class="btn btn-green">OBSERVADOR DEL CEREBRO</button><button id="openCerebroLearningBtn" class="btn btn-green">APRENDIZAJE PERSISTENTE</button><button id="clearMatchHistoryBtn" class="btn btn-red">BORRAR HISTORIAL</button><button id="closeMatchHistoryBtn" class="btn btn-purple">CERRAR</button></div></div></div>
+
+
+  <div id="characterCatalogModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="characterCatalogTitle"><div class="modal-card character-catalog-card"><h2 id="characterCatalogTitle">CATÁLOGO DE PERSONAJES</h2><p>Buscá personajes disponibles o registrá uno nuevo para conservar su ficha.</p><input id="characterCatalogSearch" class="character-catalog-search" type="search" placeholder="Buscar por nombre o alias…" autocomplete="off"><div id="characterCatalogResults" class="character-catalog-results"></div><h3>¿No encontraste el personaje?</h3><form id="newCharacterForm" class="new-character-form"><label>Nombre<input id="newCharacterName" maxlength="120" required placeholder="Ej.: Kratos"></label><label>Alias (separados por coma)<input id="newCharacterAliases" maxlength="300" placeholder="Ej.: Fantasma de Esparta"></label><label>Descripción<textarea id="newCharacterDescription" maxlength="1000" placeholder="Datos básicos que conozcas"></textarea></label><label>Enlace de referencia<input id="newCharacterSource" type="url" maxlength="500" placeholder="https://…"></label><label>Enlace de imagen (opcional)<input id="newCharacterImage" type="url" maxlength="500" placeholder="https://…"></label><p id="newCharacterStatus" role="status" aria-live="polite"></p><button class="btn btn-green" type="submit">GUARDAR FICHA CANDIDATA</button></form><div class="modal-actions"><button id="closeCharacterCatalog" class="btn btn-purple" type="button">CERRAR</button></div></div></div>
 
   <div id="shutdownScreen" class="shutdown-screen hidden">
     <div class="shutdown-line"></div>
@@ -264,9 +267,9 @@
   <script src="cerebro_observador.js"></script>
   <script src="cerebro_aprendizaje.js"></script>
   <script src="saved_matches.js"></script>
-  <script src="catalogo_personajes.js"></script>
   <script src="sparring.js"></script>
   <script src="script.js"></script>
   <script src="multijugador.js"></script>
+  <script src="catalogo_personajes.js"></script>
 </body>
 </html>

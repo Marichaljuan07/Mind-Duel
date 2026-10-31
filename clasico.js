@@ -33,23 +33,7 @@ function pregunta(s,L){
       if(cobertura<minCob||si<=1e-9||no<=1e-9)continue;
       const equilibrio=1-Math.abs(si-no)/coberturaPeso;
       const contextualBonus=orden<contextual.length?.025:0;
-      const texto=L.normalizar(q);
-      // Después de la apertura, las preguntas genéricas pierden prioridad si no
-      // aportan información nueva. La puntuación premia separar candidatos vivos,
-      // no solo cubrir muchos personajes con un dato amplio.
-      const amplia=/persona real|es ficticio|es humano|es un animal|es una mujer|es un hombre|sigue con vida/.test(texto);
-      const medioAmplio=/aparece en peliculas|aparece en libros|aparece en television|aparece en comics/.test(texto);
-      let penalizacion=0;
-      if(s.n>=3&&amplia)penalizacion+=.16;
-      if(s.n>=5&&medioAmplio)penalizacion+=.10;
-      // Si el atributo es desconocido para muchos candidatos, baja su valor real:
-      // no queremos preguntas que parezcan estratégicas pero solo produzcan "no sé".
-      const desconocidos=Math.max(0,s.ps.reduce((n,p,i)=>n+((s.w[i]||0)>0&&val(L,q,p)===null?1:0),0));
-      const coberturaCandidatos=Math.max(1,s.ps.filter((p,i)=>(s.w[i]||0)>0).length);
-      const datoUtil=coberturaPeso/Math.max(1,totalPeso);
-      const precisionDatos=1-(desconocidos/coberturaCandidatos);
-      const score=cobertura*(equilibrio*.9+.10)*(.65+.35*precisionDatos)-penalizacion+contextualBonus;
-      c.push({q,score,orden,datoUtil,precisionDatos});
+      c.push({q,score:cobertura*(equilibrio*.86+.14)+contextualBonus,orden});
     }
     if(c.length)break;
   }
@@ -62,20 +46,6 @@ function pregunta(s,L){
     const v=preguntaVerificacion(s,L,pool);
     if(v){s.verif=(s.verif||0)+1;(s.verifQs=s.verifQs||[]).push(v);return v}
   }
-  // Último recurso: ordenar las preguntas que sí separan candidatos por valor
-  // informativo, no tomar simplemente la primera del banco genérico.
-  const fallback=[];const max=maxPeso(s);
-  for(const q of pool){const key=L.normalizar(q);if(s.asked.has(key)||esRedundante(s,L,q))continue;let yes=0,no=0,known=0,leadersYes=0,leadersNo=0;
-    s.ps.forEach((p,i)=>{const w=s.w[i]||0;if(w<=0)return;const v=val(L,q,p);if(v===null)return;known+=w;if(v)yes+=w;else no+=w;if(w>=.5*max){if(v)leadersYes++;else leadersNo++;}});
-    if(!known||!yes||!no||!leadersYes||!leadersNo)continue;
-    const balance=1-Math.abs(yes-no)/known,coverage=known/Math.max(1,totalPeso),txt=L.normalizar(q);
-    const broad=/persona real|es ficticio|es humano|es un animal|es una mujer|es un hombre|sigue con vida/.test(txt);
-    const media=/aparece en peliculas|aparece en libros|aparece en television|aparece en comics/.test(txt);
-    const penalty=(s.n>=3&&broad?.18:0)+(s.n>=5&&media?.12:0);
-    fallback.push({q,score:coverage*(balance*.9+.1)-penalty});
-  }
-  fallback.sort((a,b)=>b.score-a.score);
-  if(fallback[0])return fallback[0].q;
   return null;
 }
 function responderBase(s,L,q,a){const nq=L.normalizar(q);s.asked.add(nq);s.n++;s.log.push({q,a});const[x,y]=PESO[a]||PESO.nose;s.ps.forEach((p,i)=>{const v=val(L,q,p);if(v===null||a==='nose'){s.w[i]*=1;return}if(a==='psi'){s.w[i]*=v?1:.35;return}if(a==='pno'){s.w[i]*=v?.35:1;return}s.w[i]*=v?x:y});const max=Math.max(0,...s.w);if(max>0&&Number.isFinite(max))s.w=s.w.map(w=>w/max)}

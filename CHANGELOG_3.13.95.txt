@@ -1,0 +1,13 @@
+Mind Duel Fusion v3.13.95 — Catálogo y fichas candidatas
+
+Cambios:
+- Se agregó un catálogo con búsqueda por nombre y alias, disponible desde la preparación del modo clásico y el panel de personaje del multijugador.
+- Se agregó un formulario para proponer personajes nuevos con nombre, alias, descripción y referencias opcionales a una fuente y una imagen.
+- Se agregó POST /api/characters: busca nombre/alias coincidentes antes de insertar y crea la ficha como candidate en Supabase; nunca marca automáticamente sus atributos como verificados.
+- Se agregó diseño adaptable para teléfonos.
+
+Limitaciones conocidas:
+- Las URL de fuente e imagen se guardan como referencias de la respuesta, pero no se persisten como columnas de la tabla characters porque el esquema actual no declara esas columnas. La interfaz informa que la ficha es candidata; no hay subida de archivos a Storage ni importación automática de Internet en esta versión.
+- El endpoint comprueba coincidencias exactas normalizadas de nombre y alias; no hace deduplicación semántica ni identifica entidades por universo.
+- El catálogo compartido muestra fichas activas/verificadas; las candidatas quedan guardadas en Supabase pero no se incorporan automáticamente al catálogo jugable.
+- No se modificó multijugador.js ni se ejecutó una prueba contra el Supabase/Vercel real. Hace falta probar el endpoint en producción y comprobar permisos/esquema.
