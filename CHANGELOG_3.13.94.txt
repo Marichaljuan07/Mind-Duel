@@ -1,0 +1,11 @@
+Mind Duel Fusion v3.13.94 — Corrección del selector móvil
+
+- Corrige la distribución del campo de texto y el botón BUSCAR en la selección de personajes para evitar que el campo quede comprimido en pantallas pequeñas.
+- Ajusta el selector y el formulario clásico para anchos móviles y altura disponible.
+- Si la búsqueda no encuentra coincidencias, ofrece usar el nombre escrito en la partida sin obligar a elegir un personaje ya catalogado.
+- Se mantiene la selección de fichas existentes y la detección básica de alias.
+
+Importante:
+- Usar un nombre no catalogado permite jugar con él, pero esta versión no incorpora todavía una ficha persistente completa con búsqueda externa e imagen en Supabase.
+- La búsqueda externa, carga/almacenamiento de imágenes y alta validada en base de datos quedan pendientes para una etapa posterior.
+- Versión de prueba; conservar el ZIP anterior como respaldo.
