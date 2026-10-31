@@ -720,3 +720,12 @@ button, input {
 .unknown-character-actions{display:grid;grid-template-columns:1fr;gap:9px;margin-top:18px}
 .unknown-character-actions .btn{width:100%;box-sizing:border-box;white-space:normal}
 @media(max-width:420px){.classic-character-suggestions{max-height:34vh;padding:5px}.unknown-character-card{padding:18px}}
+
+/* v3.13.99: catálogo original y sugerencias compactas con desplazamiento propio */
+.classic-character-search-wrap{position:relative;overflow:visible;isolation:isolate}
+.classic-character-suggestions{display:block;max-height:104px;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior-y:contain;scrollbar-width:thin;padding:6px;box-sizing:border-box}
+.classic-character-suggestions.hidden{display:none!important}
+.classic-character-suggestions .character-catalog-item{display:flex;width:100%;min-height:44px;max-height:none;box-sizing:border-box;margin:0 0 5px;flex-shrink:0}
+.classic-character-suggestions .character-catalog-item:last-child{margin-bottom:0}
+.classic-character-suggestions .character-catalog-item strong{display:block;white-space:normal;overflow-wrap:anywhere}
+.classic-character-suggestions .character-catalog-item small{display:block;white-space:normal;overflow-wrap:anywhere}

@@ -1,0 +1,9 @@
+Mind Duel Fusion v3.13.99 — Catálogo restaurado y sugerencias compactas
+
+- Se recupera el comportamiento del catálogo de la v3.13.95: muestra personajes activos/verificados del catálogo compartido y los personajes integrados localmente.
+- La búsqueda dinámica mantiene todas las coincidencias, pero muestra dos filas aproximadamente a la vez y permite desplazarse dentro de la lista.
+- El desplazamiento táctil queda contenido en la lista de sugerencias; al actualizar la búsqueda vuelve al inicio para evitar quedar a mitad de la lista.
+- Se conservan el aviso emergente para personajes no registrados y las opciones de elegir otro, crear ficha o jugar igualmente.
+- No se modificó multijugador.js ni la lógica de reconexión.
+
+Validaciones locales: sintaxis JavaScript e integridad del ZIP. No se ha probado en el sitio publicado ni se ha verificado el guardado real en Supabase.
