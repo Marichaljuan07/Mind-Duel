@@ -1,0 +1,10 @@
+Mind Duel Fusion v3.13.98 — Catálogo restaurado y aviso emergente
+
+- Se conserva el catálogo completo en su ventana modal independiente, con búsqueda y selección como en la integración anterior.
+- La búsqueda dinámica del modo clásico ahora muestra las coincidencias en una lista desplegable superpuesta debajo del campo; ya no empuja ni corta el resto del formulario.
+- Se quitó el aviso de personaje no registrado del formulario principal.
+- El aviso aparece en un pop-up separado con tres acciones: elegir otro, crear ficha o jugar igualmente.
+- “Crear ficha” abre el catálogo original y precarga el nombre escrito.
+- No se modificó multijugador.js ni la lógica de reconexión.
+
+Pruebas: validar sintaxis de JavaScript e integridad del ZIP. No se ha probado el despliegue real en Vercel ni el guardado remoto de Supabase.

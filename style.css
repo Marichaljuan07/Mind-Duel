@@ -705,3 +705,18 @@ button, input {
 .unknown-character-prompt button{min-width:0;white-space:normal}
 #createUnknownCharacterCardBtn{width:100%;margin:0 0 12px;white-space:normal}
 @media(max-width:420px){.unknown-character-prompt>div{grid-template-columns:minmax(0,1fr)}}
+
+/* v3.13.98: sugerencias desplegables sin romper el formulario y aviso modal */
+.classic-character-search-wrap{position:relative;width:100%;min-width:0;z-index:30}
+.classic-character-search-wrap #classicSecretNameInput{display:block;width:100%;box-sizing:border-box}
+.classic-character-suggestions{position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:80;display:grid;gap:5px;max-height:min(42vh,280px);overflow-y:auto;overscroll-behavior:contain;padding:7px;border:1px solid rgba(25,240,255,.8);border-radius:10px;background:rgba(5,7,22,.99);box-shadow:0 12px 28px rgba(0,0,0,.72),0 0 16px rgba(0,216,255,.22)}
+.classic-character-suggestions.hidden{display:none!important}
+.classic-character-suggestions .character-catalog-item{display:flex;width:100%;min-height:44px;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere}
+.classic-character-suggestions .character-catalog-item strong{font-size:15px;line-height:1.25}
+.classic-character-suggestions .character-catalog-item small{font-size:12px;line-height:1.25}
+.unknown-character-card{box-sizing:border-box;width:min(92vw,430px);text-align:center;padding:22px;max-height:calc(100dvh - 28px);overflow-y:auto}
+.unknown-character-card h2{margin:0 0 14px;color:#ffcf70;font-size:clamp(19px,5vw,25px);line-height:1.2}
+.unknown-character-card p{font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.unknown-character-actions{display:grid;grid-template-columns:1fr;gap:9px;margin-top:18px}
+.unknown-character-actions .btn{width:100%;box-sizing:border-box;white-space:normal}
+@media(max-width:420px){.classic-character-suggestions{max-height:34vh;padding:5px}.unknown-character-card{padding:18px}}
