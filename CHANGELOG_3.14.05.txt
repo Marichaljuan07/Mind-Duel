@@ -1,0 +1,15 @@
+Mind Duel Fusion v3.14.05 — Cerebro clásico: razonamiento más prudente
+
+- Se amplió el detector de conceptos para televisión/series, películas, libros/novelas, cómics, videojuegos, mitología, combate y armas.
+- Se añadieron equivalencias para evitar preguntas redundantes sobre vida/fallecimiento y medios de aparición.
+- Las preguntas con puntuaciones muy cercanas ahora se desempatan aleatoriamente entre las mejores opciones, en vez de conservar siempre el orden del banco.
+- Se evita priorizar preguntas geográficas antes de aclarar si el personaje es real o ficticio.
+- El modo Clásico comprueba las contradicciones firmes del candidato principal antes de adivinar; con dos o más contradicciones no lo presenta como una deducción fiable y puede pedir el nombre al llegar al límite.
+- Se añadió memoria local limitada a las últimas 20 partidas clásicas y categorías aproximadas derivadas de las preguntas. Se usa como máximo un comentario de memoria al comenzar una partida. No guarda datos personales ni envía esta memoria a ningún servicio.
+- Se corrigió el alias mal escrito "poderez" en la base de oráculo; el normalizador conserva compatibilidad con entradas antiguas.
+- Se incluye SIMULACION_CLASICO_3_14_05.js, una prueba Node reproducible de las invariantes de contradicción/deduplicación.
+
+Limitaciones conocidas:
+- La simulación es de reglas aisladas y no demuestra tasa de acierto del juego completo con el catálogo real.
+- Las propuestas de conocimiento siguen el flujo local existente de MindKnowledge; no se declara una ficha como verificada por una sola partida.
+- No se modificó multijugador.js ni el código de reconexión.

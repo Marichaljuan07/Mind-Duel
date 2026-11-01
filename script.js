@@ -323,6 +323,11 @@ async function chooseClassic() {
   stageSequenceActive=false; ui.stage?.classList.remove('curtain-fast-open');
 }
 
+const CLASSIC_MEMORY_KEY='mind_duel_classic_memory_v1';
+function classicMemoryRead(){try{const x=JSON.parse(localStorage.getItem(CLASSIC_MEMORY_KEY)||'{}');return x&&Array.isArray(x.partidas)?x:{partidas:[],categorias:{}}}catch{return{partidas:[],categorias:{}}}}
+function classicMemoryComment(){try{const m=classicMemoryRead();const last=m.partidas[m.partidas.length-1];if(last&&last.nombre&&last.resultado==='jugador')return `La última vez me ganaste con ${last.nombre}. Esta vez voy a prestar más atención.`;const cats=Object.entries(m.categorias||{}).sort((a,b)=>b[1]-a[1]);if(cats[0]&&cats[0][1]>=3)return `Venís eligiendo mucho personajes de ${cats[0][0]}. Voy a tenerlo presente.`;}catch{}return ''}
+function classicMemorySave(nombre,resultado,log){try{const m=classicMemoryRead();const facts=(log||[]).filter(x=>x&&['si','no'].includes(x.a));const text=facts.map(x=>String(x.q||'').toLowerCase()).join(' ');const groups=[['videojuegos',/videojuego|juego/],['mitología',/mitolog|dios|diosa/],['anime',/anime|manga/],['cine y series',/pel[ií]cula|televisi[oó]n|serie/],['cómics',/c[oó]mic|marvel|dc comics/]];for(const [g,re] of groups)if(re.test(text))m.categorias[g]=(m.categorias[g]||0)+1;m.partidas.push({nombre:String(nombre||''),resultado,fecha:Date.now(),preguntas:facts.length});m.partidas=m.partidas.slice(-20);localStorage.setItem(CLASSIC_MEMORY_KEY,JSON.stringify(m));}catch{}}
+
 async function startClassic() {
   machineStartedAt = Date.now();
   window.MindDuelCleanupForMode?.();
@@ -343,6 +348,7 @@ async function startClassic() {
   const secretLabel=el('onlineSecretLabel'); if(secretLabel){secretLabel.textContent='PERSONAJE ELEGIDO: '+classicSecretName;secretLabel.classList.remove('hidden');}
   classicBusy = false;
   await addMessage(pickLine(['Ya tengo el tablero listo. Respondé con cuidado, mortal: cada pista puede acercarme a tu personaje.', 'Perfecto. Ahora empieza mi investigación. No confundas una pregunta sencilla con una deducción sencilla.', 'Que empiece el interrogatorio. Vos conocés la respuesta; yo voy a demostrar que puedo encontrarla.']), 'mind');
+  const memoryComment=classicMemoryComment(); if(memoryComment){await addMessage(memoryComment,'mind');classic.s.commentCount=1;}
   startTimer();
   // La pregunta inicial se solicita después de que termine la presentación.
   classicBusy = false;
@@ -354,7 +360,9 @@ async function nextClassic() {
   classicBusy = true;
   const s = classic.s;
   state.questionCount = s.n; state.guessesLeft = Math.max(0, MAX_GUESSES - classic.fails); updateHud();
-  if (Clasico.debeAdivinar(s) || s.n >= MAX_QUESTIONS) return classicGuess(true);
+  const currentBest=Clasico.mejor(s); const firmContradictions=currentBest?Clasico.contradicciones(s,MindLogic,currentBest.p):0;
+  if (firmContradictions>=2) { if(s.n>=MAX_QUESTIONS || !Clasico.pregunta(s,MindLogic)) return classicName(); }
+  if ((firmContradictions<2 && Clasico.debeAdivinar(s)) || s.n >= MAX_QUESTIONS) { if(firmContradictions>=2)return classicName(); return classicGuess(true); }
   let q = Clasico.pregunta(s, MindLogic);
   // El banco puede no dividir al conjunto inicial; no dejar nunca al Cerebro sin preguntar.
   if (!q) {
@@ -433,6 +441,7 @@ async function classicSaveName(text) {
     }
   }
   const known=findKnownCharacter(nombre); const nombreCanonico=known?.nombre||nombre;
+  classicMemorySave(nombreCanonico,'jugador',classic.s?.log||[]);
   if(!known)try {
     const k = 'mind_personajes_nuevos';
     const l = JSON.parse(localStorage.getItem(k) || '[]');
@@ -555,6 +564,7 @@ async function classicEnd(result = {}) {
   document.body.classList.remove('name-phase');
   $cl('classicPanel').classList.add('hidden');
   const wonByBrain = result.wonBy === 'brain';
+  if(result.nombre) classicMemorySave(result.nombre,wonByBrain?'cerebro':'jugador',classic.s?.log||[]);
   el('classicCharacterNameForm').classList.add('hidden'); el('resultActions').classList.remove('hidden');
   ui.resultTag.textContent = 'MODO CLÁSICO';
   ui.resultTitle.textContent = wonByBrain ? 'HAS PERDIDO' : '¡HAS GANADO!';
@@ -584,8 +594,13 @@ async function classicAnswer(ans) {
   if (c.tipo === 'q') await addMessage(CL_LABEL[ans], 'player');
   if (c.tipo === 'q') {
     Clasico.responder(classic.s, MindLogic, c.q, ans); window.MindSparring?.answer('clásico',c.q,ans); machineAutosave();
-    // El Cerebro no narra obviedades después de cada cuatro respuestas.
-    // Su razonamiento debe notarse en la calidad y progresión de las preguntas.
+    // Resumen vivo: solo usa respuestas firmes y limita los comentarios por partida.
+    const firmCount=classic.s.log.filter(r=>r&&['si','no'].includes(r.a)).length;
+    classic.s.commentCount=classic.s.commentCount||0; classic.s.summaryAt=classic.s.summaryAt||0;
+    if(firmCount>=6 && firmCount%6===0 && classic.s.summaryAt<firmCount && classic.s.commentCount<2){
+      const facts=[]; for(const row of classic.s.log){if(!row||!['si','no'].includes(row.a))continue;const q=String(row.q||'').replace(/[¿?]/g,'').trim().replace(/^es /i,'');const label=row.a==='no'?'no '+q.charAt(0).toLowerCase()+q.slice(1):q.charAt(0).toLowerCase()+q.slice(1);if(!facts.includes(label))facts.push(label)}
+      const summary=facts.slice(-4); if(summary.length){await addMessage('Hasta ahora: '+summary.join(', ')+'. No voy a dar por seguro lo que todavía no sé.','mind');classic.s.summaryAt=firmCount;classic.s.commentCount++;}
+    }
     classicBusy = false;
     return nextClassic();
   }

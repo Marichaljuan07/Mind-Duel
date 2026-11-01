@@ -23,7 +23,8 @@ function pregunta(s,L){
   for(const minCob of [.58,.3,.12]){
     c=[];const vistos=new Set();
     for(let orden=0;orden<pool.length;orden++){
-      const q=pool[orden],key=L.normalizar(q);if(s.asked.has(key)||vistos.has(key))continue;vistos.add(key);
+      const q=pool[orden],key=L.normalizar(q);if(s.asked.has(key)||vistos.has(key))continue;
+      if(/\b(europa|america|asia|africa|oceania|norteamericano|europeo|asiatico)\b/.test(key) && !('real' in hechosFirmes(L,s.log)) && !('ficticio' in hechosFirmes(L,s.log)))continue;vistos.add(key);
       if(esRedundante(s,L,q))continue; // v3.13.78: no repetir ni preguntar lo que ya se deduce
       let si=0,no=0,coberturaPeso=0;
       s.ps.forEach((p,i)=>{const w=s.w[i]||0;if(w<=0)return;const v=Sugeridor.val(L,q,p);if(v===null)return;coberturaPeso+=w;if(v)si+=w;else no+=w});
@@ -41,10 +42,10 @@ function pregunta(s,L){
     }
     if(c.length)break;
   }
-  c.sort((a,b)=>b.score-a.score||a.orden-b.orden);
+  c.sort((a,b)=>b.score-a.score);
 
-  // Elegir la mejor división real, no una de las tres primeras al azar.
-  if(c[0])return c[0].q;
+  // Desempate ponderado entre las mejores: conserva calidad, evita un orden rígido.
+  if(c[0]){const top=c.filter(x=>x.score>=c[0].score-0.035).slice(0,5);let sum=0;const weights=top.map(x=>{const w=Math.max(0.01,x.score-c[0].score+0.05);sum+=w;return w});let pick=Math.random()*sum;for(let i=0;i<top.length;i++){pick-=weights[i];if(pick<=0)return top[i].q}return top[0].q;}
   // v3.13.82: sin ninguna pregunta que separe, antes de arriesgarse se verifica la hipótesis (máx. 2).
   if((s.verif||0)<2&&activos(s)<=2){ // con varios empatados no se verifica a uno solo: eso sería adivinar por pregunta
     const v=preguntaVerificacion(s,L,pool);
@@ -77,7 +78,15 @@ const CONC=[
  ['animal',/\b(animal|mascota|bestia)\b/],
  ['mujer',/\b(mujer|femenin[oa])\b/],
  ['hombre',/\b(hombre|varon|masculino)\b/],
- ['vivo',/\b(vivo|viva|con vida)\b/],
+ ['vivo',/\b(vivo|viva|con vida|fallecido|fallecida|muerto|muerta)\b/],
+ ['television',/\b(television|televisivo|serie de television|series de television|programa de television)\b/],
+ ['peliculas',/\b(pelicula|peliculas|cine|film)\b/],
+ ['libros',/\b(libro|libros|novela|novelas|escribia novelas)\b/],
+ ['comics',/\b(comic|comics|historieta|historietas)\b/],
+ ['videojuego',/\b(videojuego|videojuegos|juego de video)\b/],
+ ['mitologia',/\b(mitologia|mitologico|mitologica|dios|diosa)\b/],
+ ['combate',/\b(combate|combates|lucha|luchador|guerrero)\b/],
+ ['armas',/\b(arma|armas|espada|hacha|arco)\b/],
  ['magia',/\b(magia|magico|magica|mago|hechic\w+)\b/],
  ['poderes',/\b(super ?poderes|poderes|habilidades sobrenaturales)\b/],
  ['franq:marvel',/\bmarvel\b/],['franq:dc',/\bdc\b/],['franq:starwars',/star wars/],
@@ -98,6 +107,8 @@ function implicados(f){
   if(f.poderes===false)set('magia',false);
   if(f.hombre===true)set('mujer',false);
   if(f.mujer===true)set('hombre',false);
+  if(f.vivo===true)set('fallecido',false);
+  if(f.television===true)set('serie_television',true);
   if(f.humano===true)set('animal',false);
   if(f.animal===true)set('humano',false);
   for(const pref of['franq:','geo:']){
