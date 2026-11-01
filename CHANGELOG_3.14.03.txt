@@ -1,0 +1,14 @@
+Mind Duel Fusion v3.14.03 — Diagnóstico del guardado de fichas
+
+Objetivo
+Identificar si el fallo al crear un personaje ocurre al consultar el catálogo compartido o al insertar la ficha en Supabase.
+
+Cambios
+- api/characters.js ahora distingue las etapas catalog_read y character_insert.
+- Los registros del servidor incluyen etapa, estado HTTP y código/respuesta de error de Supabase, limitados para no registrar claves secretas.
+- La respuesta al navegador incluye una referencia de diagnóstico no sensible (etapa, HTTP y código), no el cuerpo completo de Supabase.
+- catalogo_personajes.js muestra esa referencia en el formulario para que el usuario pueda informar el error exacto.
+- No se modificó multijugador.js ni la lógica de reconexión.
+
+Importante
+Esta versión mejora el diagnóstico; no afirma que la causa raíz esté corregida. Para identificarla hay que desplegarla, volver a intentar crear una ficha y revisar el diagnóstico mostrado y/o los registros de Vercel.
