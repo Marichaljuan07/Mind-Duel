@@ -35,13 +35,13 @@ module.exports=async function(req,res){
     const description=String(b.description||'').trim().slice(0,1000);
     const source=String(b.source||'').trim().slice(0,500);
     const image=String(b.image||'').trim().slice(0,500);
-    const payload={name,slug,aliases,description,attributes:{},status:'candidate'};
+    const payload={name,slug,aliases,description,attributes:{},status:'needs_review'};
     stage='character_insert';
     const w=await fetch(`${PROJECT_URL}/rest/v1/characters`,{method:'POST',headers:{...headers,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(payload)});
     if(!w.ok){const upstream=await upstreamError(w);console.error('[MindDuel characters]',JSON.stringify({stage,status:upstream.status,code:upstream.code,body:upstream.body}));return res.status(502).json({error:'Supabase rechazó el guardado de la ficha.',diagnostic:{stage,status:upstream.status,code:upstream.code||null}})}
     const created=await w.json();
     if(!Array.isArray(created)||!created[0])throw Object.assign(new Error('Supabase no devolvió la ficha creada'),{stage,code:'empty_insert_response'});
-    return res.status(201).json({ok:true,character:created[0],source,image,notice:'Ficha candidata guardada. La fuente y la imagen quedan como referencias; los atributos aún deben verificarse.'});
+    return res.status(201).json({ok:true,character:created[0],source,image,notice:'Ficha guardada para revisión. La fuente y la imagen quedan como referencias; los atributos aún deben verificarse.'});
   }catch(e){
     const stageName=e.stage||stage;
     console.error('[MindDuel characters]',JSON.stringify({stage:stageName,code:e.code||'unexpected_error',message:String(e.message||e).slice(0,500)}));
