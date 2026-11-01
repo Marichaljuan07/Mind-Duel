@@ -59,8 +59,12 @@
     }
 
     // El banco compartido amplía el conjunto de preguntas sugeribles sin reemplazar el motor local.
+    const canonicalPrompt = value => String(value || '').trim()
+      .replace(/poderez/ig, 'poderes')
+      .replace(/¿?tu personaje es americano\?/ig, '¿Es de América?')
+      .replace(/\s+/g, ' ');
     const prompts = [...new Set((Array.isArray(data.questions) ? data.questions : [])
-      .map(row => String(row && row.prompt || '').trim())
+      .map(row => canonicalPrompt(row && row.prompt))
       .filter(prompt => prompt.length >= 6 && prompt.length <= 140 && prompt.startsWith('¿')) )];
     window.MindDuelSharedQuestions = prompts;
     const pool = window.Sugeridor && window.Sugeridor.POOL;

@@ -24,7 +24,9 @@ function pregunta(s,L){
     c=[];const vistos=new Set();
     for(let orden=0;orden<pool.length;orden++){
       const q=pool[orden],key=L.normalizar(q);if(s.asked.has(key)||vistos.has(key))continue;
-      if(/\b(europa|america|asia|africa|oceania|norteamericano|europeo|asiatico)\b/.test(key) && !('real' in hechosFirmes(L,s.log)) && !('ficticio' in hechosFirmes(L,s.log)))continue;vistos.add(key);
+      if(/\b(europa|america|americ[aá]n[oa]s?|norteamerican[oa]s?|asia|asiatic[oa]s?|africa|african[oa]s?|oceania|europe[oa]s?)\b/.test(key) && !('real' in hechosFirmes(L,s.log)) && !('ficticio' in hechosFirmes(L,s.log)))continue;
+      // Antes de 8 respuestas, priorizar categorías generales y medios; no saltar a títulos, idiomas o franquicias concretas.
+      if(esEspecificaTemprana(s,L,q))continue;vistos.add(key);
       if(esRedundante(s,L,q))continue; // v3.13.78: no repetir ni preguntar lo que ya se deduce
       let si=0,no=0,coberturaPeso=0;
       s.ps.forEach((p,i)=>{const w=s.w[i]||0;if(w<=0)return;const v=Sugeridor.val(L,q,p);if(v===null)return;coberturaPeso+=w;if(v)si+=w;else no+=w});
@@ -78,25 +80,31 @@ const CONC=[
  ['animal',/\b(animal|mascota|bestia)\b/],
  ['mujer',/\b(mujer|femenin[oa])\b/],
  ['hombre',/\b(hombre|varon|masculino)\b/],
- ['vivo',/\b(vivo|viva|con vida|fallecido|fallecida|muerto|muerta)\b/],
- ['television',/\b(television|televisivo|serie de television|series de television|programa de television)\b/],
+ ['vivo',/\b(vivo|viva|con vida|fallecio|fallece|fallecido|fallecida|muerto|muerta|murio)\b/],
+ ['television',/\b(television|televisivo|serie|series|programa de television|sale en series|aparece en series)\b/],
  ['peliculas',/\b(pelicula|peliculas|cine|film)\b/],
  ['libros',/\b(libro|libros|novela|novelas|escribia novelas)\b/],
  ['comics',/\b(comic|comics|historieta|historietas)\b/],
- ['videojuego',/\b(videojuego|videojuegos|juego de video)\b/],
+ ['videojuego',/\b(videojuego|videojuegos|juego de video|juegos de video)\b/],
  ['mitologia',/\b(mitologia|mitologico|mitologica|dios|diosa)\b/],
  ['combate',/\b(combate|combates|lucha|luchador|guerrero)\b/],
  ['armas',/\b(arma|armas|espada|hacha|arco)\b/],
  ['magia',/\b(magia|magico|magica|mago|hechic\w+)\b/],
- ['poderes',/\b(super ?poderes|poderes|habilidades sobrenaturales)\b/],
+ ['reina',/\breina\b/],['rey',/\brey\b/],['franq:hp',/\b(hogwarts|harry potter)\b/],['capa',/\bcapa\b/],['idioma_espanol',/\b(habla espanol|habla castellano|idioma espanol)\b/],
+ ['poderes',/\b(super ?poderes|poderes|poderez|habilidades sobrenaturales)\b/],
  ['franq:marvel',/\bmarvel\b/],['franq:dc',/\bdc\b/],['franq:starwars',/star wars/],
- ['franq:hp',/harry potter/],['franq:anime',/\b(anime|manga)\b/],['franq:disney',/\bdisney\b/],
+ ['franq:anime',/\b(anime|manga)\b/],['franq:disney',/\bdisney\b/],
  ['franq:pokemon',/\bpokemon\b/],['franq:tolkien',/\b(tolkien|senor de los anillos)\b/],
  ['geo:europa',/\beuropa\b/],['geo:america',/\bamerica\b/],['geo:asia',/\b(asia|asiatic[oa])\b/],
  ['geo:africa',/\bafrica\b/],['geo:oceania',/\boceania\b/]
 ];
 const GRUPO={real:'tipo',ficticio:'tipo',hombre:'genero',mujer:'genero'};
 function conceptoDe(L,q){const t=L.normalizar(q);for(const[k,re]of CONC)if(re.test(t))return k;return null}
+function esEspecificaTemprana(s,L,q){
+  if((s?.n||0)>=10)return false;
+  const t=L.normalizar(q);
+  return /\b(reina|rey|hogwarts|harry potter|habla espanol|habla castellano|capa|marvel|dc comics|star wars|disney|pokemon|tolkien)\b/.test(t);
+}
 // Hechos firmes (SÍ/NO) ya establecidos por el jugador, por concepto.
 function hechosFirmes(L,log){const f={};for(const r of log||[]){if(!r||(r.a!=='si'&&r.a!=='no'))continue;const c=conceptoDe(L,r.q);if(c)f[c]=(r.a==='si')}return f}
 // Lo que ya se deduce de esos hechos, sin necesidad de preguntarlo.
@@ -232,7 +240,7 @@ function preguntaVerificacion(s,L,pool){
   const m=mejor(s);if(!m)return null;
   let mejorQ=null,mejorEsp=-1;
   for(const q of pool){
-    const key=L.normalizar(q);if(s.asked.has(key)||esRedundante(s,L,q))continue;
+    const key=L.normalizar(q);if(s.asked.has(key)||esRedundante(s,L,q)||esEspecificaTemprana(s,L,q))continue;
     if(val(L,q,m.p)!==true)continue;
     let cumplen=0;for(const p of s.ps)if(val(L,q,p)===true)cumplen++;
     const esp=1/(1+cumplen);

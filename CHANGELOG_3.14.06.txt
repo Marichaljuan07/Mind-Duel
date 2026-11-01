@@ -1,0 +1,12 @@
+Mind Duel Fusion v3.14.06 — Correcciones del razonamiento clásico
+
+- Eliminados los resúmenes visibles «Hasta ahora…» del modo Clásico. Las respuestas siguen registradas internamente para orientar preguntas y deducciones.
+- Durante las primeras 10 respuestas, se priorizan categorías generales y medios frente a franquicias y rasgos muy específicos.
+- Ampliada la detección de conceptos equivalentes: variantes sobre series/televisión, fallecimiento, videojuegos, Hogwarts/Harry Potter y poderes.
+- Añadida una pregunta general sobre videojuegos al conjunto local de preguntas del Cerebro clásico.
+- El motor lógico reconoce el concepto de aparición en videojuegos a partir de los medios declarados en cada ficha.
+- Se corrige «poderez» al incorporar preguntas procedentes de la base compartida.
+- Añadida una simulación reproducible del selector real y de las equivalencias de preguntas (`SIMULACION_CLASICO_3_14_06.js`).
+- No se modificó multijugador.js ni el mecanismo de reconexión.
+
+Limitaciones: el catálogo local sigue sin incluir a Kratos en la versión auditada. Si la base compartida no incorpora una ficha jugable para Kratos, el Cerebro no puede adivinarlo por nombre; debe investigar con las preguntas disponibles y admitir el desconocimiento si no encuentra un candidato fiable.

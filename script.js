@@ -594,13 +594,8 @@ async function classicAnswer(ans) {
   if (c.tipo === 'q') await addMessage(CL_LABEL[ans], 'player');
   if (c.tipo === 'q') {
     Clasico.responder(classic.s, MindLogic, c.q, ans); window.MindSparring?.answer('clásico',c.q,ans); machineAutosave();
-    // Resumen vivo: solo usa respuestas firmes y limita los comentarios por partida.
-    const firmCount=classic.s.log.filter(r=>r&&['si','no'].includes(r.a)).length;
-    classic.s.commentCount=classic.s.commentCount||0; classic.s.summaryAt=classic.s.summaryAt||0;
-    if(firmCount>=6 && firmCount%6===0 && classic.s.summaryAt<firmCount && classic.s.commentCount<2){
-      const facts=[]; for(const row of classic.s.log){if(!row||!['si','no'].includes(row.a))continue;const q=String(row.q||'').replace(/[¿?]/g,'').trim().replace(/^es /i,'');const label=row.a==='no'?'no '+q.charAt(0).toLowerCase()+q.slice(1):q.charAt(0).toLowerCase()+q.slice(1);if(!facts.includes(label))facts.push(label)}
-      const summary=facts.slice(-4); if(summary.length){await addMessage('Hasta ahora: '+summary.join(', ')+'. No voy a dar por seguro lo que todavía no sé.','mind');classic.s.summaryAt=firmCount;classic.s.commentCount++;}
-    }
+    // Las respuestas quedan en classic.s.log para el razonamiento interno.
+    // No se muestran resúmenes de pistas durante la partida.
     classicBusy = false;
     return nextClassic();
   }

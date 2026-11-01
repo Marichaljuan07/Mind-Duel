@@ -600,6 +600,7 @@ const CONCEPTOS_PERMITIDOS = [
     "medio_pelicula",
     "medio_serie",
     "medio_animacion",
+    "medio_videojuego",
     "universo_marvel",
     "universo_dc",
     "universo_star_wars",
@@ -712,7 +713,7 @@ function resolverConcepto(concepto, personaje) {
         const medio = concepto.replace('medio_', '');
         const learnedField = ({pelicula:'peliculas',libro:'libros',comic:'comics',serie:'television'})[medio];
         if (learnedField && typeof personaje[learnedField] === 'boolean') return personaje[learnedField];
-        if (!Array.isArray(personaje.medios) || !personaje.medios.length) return null; const aliasesMedio = medio==='serie'?['serie','television','tv']:medio==='pelicula'?['pelicula','peliculas','cine']:medio==='comic'?['comic','comics','historieta']:medio==='libro'?['libro','libros','novela','literatura']:medio==='animacion'?['animacion','anime','manga']:[medio]; return personaje.medios.some(m=>aliasesMedio.includes(normalizar(m)));
+        if (!Array.isArray(personaje.medios) || !personaje.medios.length) return null; const aliasesMedio = medio==='serie'?['serie','series','television','tv']:medio==='pelicula'?['pelicula','peliculas','cine']:medio==='comic'?['comic','comics','historieta']:medio==='libro'?['libro','libros','novela','literatura']:medio==='animacion'?['animacion','anime','manga']:medio==='videojuego'?['videojuego','videojuegos','juego de video','juegos de video']:[medio]; return personaje.medios.some(m=>aliasesMedio.includes(normalizar(m)));
     }
     if (concepto.startsWith('universo_')) {
         if (concepto === 'universo_marvel' && typeof personaje.marvel === 'boolean') return personaje.marvel;
