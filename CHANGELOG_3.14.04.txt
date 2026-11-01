@@ -1,0 +1,9 @@
+Mind Duel Fusion v3.14.04 — Corrección de estado al guardar fichas
+
+- Corregido el estado enviado a Supabase al crear una ficha: ahora usa needs_review, valor permitido por la restricción de characters.status.
+- Las fichas needs_review se muestran como pendientes de verificación en el catálogo.
+- La sincronización no incorpora fichas pendientes de revisión como conocimiento validado.
+- Se conserva compatibilidad con registros antiguos que usen candidate o pending.
+- No se modificó multijugador.js ni la lógica de reconexión.
+
+Validación local: comprobación sintáctica de los archivos JavaScript modificados y prueba de integridad del ZIP. No se realizó una prueba contra Supabase ni contra el despliegue en producción.

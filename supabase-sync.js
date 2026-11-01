@@ -28,7 +28,7 @@
     if (Array.isArray(people)) {
       const byName = new Map(people.map(person => [normalize(person.nombre), person]));
       for (const row of data.characters) {
-        if (!row || !row.name || row.status === 'archived' || row.status === 'candidate') continue;
+        if (!row || !row.name || row.status === 'archived' || (row.status === 'candidate' || row.status === 'needs_review' || row.status === 'pending')) continue;
         const attributes = row.attributes && typeof row.attributes === 'object' && !Array.isArray(row.attributes) ? row.attributes : {};
         const merged = { ...attributes, nombre: row.name, alias: Array.isArray(row.aliases) ? row.aliases : (attributes.alias || []), descripcion: row.description || attributes.descripcion || '' };
         const existing = byName.get(normalize(row.name));
