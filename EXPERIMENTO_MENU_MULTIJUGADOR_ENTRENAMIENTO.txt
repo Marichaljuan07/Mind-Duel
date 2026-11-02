@@ -20,3 +20,4 @@ FIX 2 — Menú, cierre y diálogos
 - Se añadió una frase burlona de anfitrión para el duelo entre jugadores, sin presentar al Cerebro como rival.
 - Se diferenciaron los diálogos de Solo, Clásico y la selección de Entrenamiento.
 - No se cambió el motor de turnos online ni la base de datos.
+\n\nFIX 4 — Recuperación de diálogos originales y botón multijugador\n- script.js restaurado desde la base estable v3.14.06 para recuperar los diálogos originales de bienvenida, Solo y Clásico.\n- El botón JUGAR CONTRA CPU (CEREBRO) abre únicamente las opciones Solo/Clásico; se elimina el diálogo genérico de entrenamiento.\n- El botón MULTIJUGADOR usa un bloqueo local independiente para evitar que una bandera compartida deje el botón sin respuesta.\n- Se agregaron salidas de respaldo para que JUGAR/VOLVER sigan disponibles si falla la presentación.\n- No se modificaron las reglas ni el protocolo de conexión del multijugador.\n

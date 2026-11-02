@@ -1,0 +1,8 @@
+FIX 6 — Presentación multijugador y error de alcance
+
+- Corregido el ReferenceError: el módulo multijugador ya no intenta leer/escribir stageSequenceActive ni stageFastForwardRequested, variables privadas dentro de script.js.
+- La secuencia teatral se ejecuta ahora desde una función expuesta por script.js, donde están disponibles el telón, el diálogo y el control de la escena.
+- El botón MULTIJUGADOR llama a esa función y tiene protección contra clics repetidos.
+- JUGAR y VOLVER siguen usando la configuración multijugador existente.
+- No se cambiaron intencionalmente los protocolos de conexión/reconexión ni las reglas de partida.
+- Validación realizada: sintaxis JavaScript e integridad del ZIP. No se ejecutó una prueba visual en navegador.

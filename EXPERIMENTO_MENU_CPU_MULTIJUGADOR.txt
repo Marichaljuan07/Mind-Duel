@@ -15,3 +15,11 @@ FIX 3 — SECUENCIA TEATRAL MULTIJUGADOR (2026-11-02)
 - El ingreso a Multijugador reutiliza el ciclo de presentación de CPU: se ocultan las opciones, se cierra el telón, se abre, se presenta el Cerebro y luego aparecen JUGAR/VOLVER.
 - Se integra el control de secuencia y la posibilidad de acelerar la presentación con el mismo mecanismo del escenario.
 - JUGAR sigue abriendo la configuración multijugador existente; VOLVER retorna al menú principal. No se modificó la lógica de conexión ni las reglas online.
+
+
+FIX 5 — SECUENCIA TEATRAL MULTIJUGADOR CORREGIDA (2026-11-02)
+- El multijugador usa el mismo ciclo de telón y narración que los modos Solo/Clásico.
+- Se corrige la referencia al escenario (stageScreen), para que foco y opciones se apliquen al elemento real.
+- El diálogo describe el multijugador actual sin afirmar que ambos jugadores adivinan simultáneamente.
+- Se comparte el control de secuencia del escenario; se conserva intacta la lógica de conexión y partida.
+- Validación estática: pendiente de prueba visual/funcional en navegador real.

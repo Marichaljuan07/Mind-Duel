@@ -425,28 +425,33 @@ function ready(c){conn=c;conn.on('open',()=>{const wasReconnecting=!!(offlineRec
  // haya tenido que reabrir la conexión como cliente, el otro lado también vuelve al juego.
  if(myRole&&onlineStartedAt)send({type:'resume_state',hostRole:myRole,snapshot:{version:6,host,roomId:host?String($('roomCode')?.textContent||'').trim():remotePeerId,myRole,theirRole,startedAt:onlineStartedAt,questionCount:onlineQuestionCount,answerCount:onlineAnswerCount,guessesLeft:onlineGuessesLeft,pendingQuestion,lastQuestion:lastOnlineQuestion,lastAnswer:lastOnlineAnswer,waitingForAnswer,waitingForGuess,pendingOnlineGuess,lastGuessResolution:publicGuessResolution(lastGuessResolution),transcript:localTranscript.slice(-500),phoneTranscript:phoneTranscript.slice(-300),phoneUnreadCount,questionBox:$('onlineQuestionBox')?.textContent||'',readingStatus:$('onlineReadingStatus')?.textContent||'',elapsedSeconds:Math.floor(getOnlineElapsedSeconds())}});
  persistSession();status('🟢 Ambos jugadores están conectados. La partida continúa con el mismo rol y turno.');if(wasReconnecting)showOnlineNotice('✓ Rival reconectado. La partida continúa con el mismo rol y turno.','success',5000);});conn.on('data',onData);conn.on('close',()=>{if(onlineCleanupInProgress||onlineMatchFinished||!document.body.classList.contains('duel-online'))return;$('peerStatus').textContent='🔴 RIVAL DESCONECTADO';pauseOnlineClock();offlineRecovery=true;showOfflineRecoveryBar();showReconnectOption();showOnlineNotice('⚠️ Tu rival se desconectó. La partida quedó pausada y se guardó; podés reconectar a la misma sala.','error',6500);persistSession();});conn.on('error',e=>{if(onlineCleanupInProgress||onlineMatchFinished||!document.body.classList.contains('duel-online'))return;const message='Falló la conexión ('+(e.type||'error')+'). Revisá internet y el código de sala; si persiste, que el anfitrión reabra la partida.';status(message);showOnlineNotice('⚠️ '+message,'error',6500);persistSession();});}
-$('dueloBtn').textContent='MULTIJUGADOR';on('dueloBtn','click',async()=>{
-  // La presentación multijugador reutiliza el mismo ciclo teatral de CPU:
-  // ocultar opciones, cerrar telón, abrir telón, diálogo y recién después botones.
-  const stageMenu=$('stageMenu'),trainingChoice=$('trainingModeChoice'),stageActions=$('stageActions'),introActions=$('multiplayerIntroActions'),stage=$('stage');
-  if(stageSequenceActive)return;
-  stageSequenceActive=true;
-  stageFastForwardRequested=false;
-  stageMenu?.classList.add('hidden');trainingChoice?.classList.add('hidden');stageActions?.classList.add('hidden');introActions?.classList.add('hidden');
+$('dueloBtn').textContent='MULTIJUGADOR';
+let multiplayerIntroClickRunning = false;
+on('dueloBtn','click',async(e)=>{
+  e.preventDefault();
+  if (multiplayerIntroClickRunning) return;
+  multiplayerIntroClickRunning = true;
   try {
-    if(typeof closeStageCurtain==='function'&&typeof openStageCurtain==='function'){
-      await closeStageCurtain(2600);
-      await openStageCurtain(2800);
+    if (typeof window.MindDuelPlayMultiplayerIntro === 'function') {
+      await window.MindDuelPlayMultiplayerIntro();
+    } else {
+      // Fallback legible si el archivo principal no expone la presentación.
+      $('stageMenu')?.classList.add('hidden');
+      $('trainingModeChoice')?.classList.add('hidden');
+      $('stageActions')?.classList.add('hidden');
+      const dialog=$('stageDialog');
+      if(dialog) dialog.innerHTML='<strong>CEREBRO:</strong> El duelo multijugador te espera, mortal. ¿Vas a jugar o a retirarte?';
+      $('multiplayerIntroActions')?.classList.remove('hidden');
+      $('stageScreen')?.classList.add('stage-ready','spotlight-on');
     }
-    stage?.classList.add('spotlight-on');
-    const intro='<strong>CEREBRO:</strong> ¿Querés enfrentarte a otro mortal? Bien. Esta vez yo no seré tu rival: cada jugador tendrá que descubrir el personaje secreto del otro. Yo observaré el duelo desde aquí… y no pienso dejar pasar una deducción absurda. ¿Te animás?';
-    if(typeof say==='function'){
-      const ok=await say(intro,42,true,false);
-      if(ok){await sleep(350);introActions?.classList.remove('hidden');stage?.classList.add('stage-ready');}
-    }
+  } catch(err) {
+    console.error('No se pudo completar la presentación multijugador:',err);
+    const dialog=$('stageDialog');
+    if(dialog && !dialog.innerHTML) dialog.innerHTML='<strong>CEREBRO:</strong> El duelo te espera, mortal. ¿Vas a jugar o a retirarte?';
+    $('multiplayerIntroActions')?.classList.remove('hidden');
+    $('stageScreen')?.classList.add('stage-ready','spotlight-on');
   } finally {
-    stageSequenceActive=false;
-    stage?.classList.remove('curtain-fast-open');
+    multiplayerIntroClickRunning = false;
   }
 });
 on('multiplayerIntroPlayBtn','click',()=>{
@@ -456,7 +461,7 @@ on('multiplayerIntroPlayBtn','click',()=>{
 on('multiplayerIntroBackBtn','click',()=>{
   $('multiplayerIntroActions')?.classList.add('hidden');
   $('stageMenu')?.classList.remove('hidden');
-  const dialog=$('stageDialog');if(dialog)dialog.innerHTML='<strong>CEREBRO:</strong> Está bien, mortal. El duelo puede esperar. Elegí otro camino cuando estés listo.';
+  const dialog=$('stageDialog');if(dialog)dialog.innerHTML='<strong>CEREBRO:</strong> Bienvenido de nuevo, mortal. El escenario está listo: elegí cómo querés jugar o volvé cuando quieras.';
   $('stage')?.classList.add('stage-ready','spotlight-on');
 });
 function createRoomCode(){
@@ -581,7 +586,7 @@ function closeMultiplayerSetup(){
  trainingChoice?.classList.add('hidden');
  stageActions?.classList.add('hidden');introActions?.classList.add('hidden');
  if(stageMenu)stageMenu.classList.remove('hidden');
- if(dialog)dialog.innerHTML='<strong>CEREBRO:</strong> Volviste al escenario, mortal. Elegí cómo querés jugar.';
+ if(dialog)dialog.innerHTML='<strong>CEREBRO:</strong> Volviste al escenario, mortal. Elegí un modo cuando estés listo.';
  stage?.classList.add('stage-ready','spotlight-on');
 }
 on('closeDuelBtn','click',closeMultiplayerSetup);if(modal)modal.addEventListener('click',e=>{if(e.target===modal)closeMultiplayerSetup();});
