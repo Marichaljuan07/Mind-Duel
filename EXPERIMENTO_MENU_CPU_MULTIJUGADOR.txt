@@ -1,0 +1,17 @@
+EXPERIMENTO MENU CPU + MULTIJUGADOR — basado en Mind Duel Fusion v3.14.06
+
+CAMBIOS
+- Menú principal: “JUGAR CONTRA CPU (CEREBRO)” arriba y “MULTIJUGADOR” debajo.
+- CPU conserva los modos Solo y Clásico; se restauraron sus diálogos de v3.14.06.
+- Multijugador ahora tiene presentación con telón y diálogo, y muestra JUGAR / VOLVER antes de abrir la configuración existente.
+- JUGAR abre la configuración multijugador existente. VOLVER regresa al menú principal. Cerrar la configuración también regresa al menú principal.
+- No se modificaron las reglas de partida, conexión, roles, reconexión ni los controles internos del multijugador.
+
+VALIDACIÓN
+- Pendiente de prueba visual y funcional en navegador/dispositivo real.
+
+
+FIX 3 — SECUENCIA TEATRAL MULTIJUGADOR (2026-11-02)
+- El ingreso a Multijugador reutiliza el ciclo de presentación de CPU: se ocultan las opciones, se cierra el telón, se abre, se presenta el Cerebro y luego aparecen JUGAR/VOLVER.
+- Se integra el control de secuencia y la posibilidad de acelerar la presentación con el mismo mecanismo del escenario.
+- JUGAR sigue abriendo la configuración multijugador existente; VOLVER retorna al menú principal. No se modificó la lógica de conexión ni las reglas online.

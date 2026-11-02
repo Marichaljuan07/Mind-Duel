@@ -425,7 +425,40 @@ function ready(c){conn=c;conn.on('open',()=>{const wasReconnecting=!!(offlineRec
  // haya tenido que reabrir la conexión como cliente, el otro lado también vuelve al juego.
  if(myRole&&onlineStartedAt)send({type:'resume_state',hostRole:myRole,snapshot:{version:6,host,roomId:host?String($('roomCode')?.textContent||'').trim():remotePeerId,myRole,theirRole,startedAt:onlineStartedAt,questionCount:onlineQuestionCount,answerCount:onlineAnswerCount,guessesLeft:onlineGuessesLeft,pendingQuestion,lastQuestion:lastOnlineQuestion,lastAnswer:lastOnlineAnswer,waitingForAnswer,waitingForGuess,pendingOnlineGuess,lastGuessResolution:publicGuessResolution(lastGuessResolution),transcript:localTranscript.slice(-500),phoneTranscript:phoneTranscript.slice(-300),phoneUnreadCount,questionBox:$('onlineQuestionBox')?.textContent||'',readingStatus:$('onlineReadingStatus')?.textContent||'',elapsedSeconds:Math.floor(getOnlineElapsedSeconds())}});
  persistSession();status('🟢 Ambos jugadores están conectados. La partida continúa con el mismo rol y turno.');if(wasReconnecting)showOnlineNotice('✓ Rival reconectado. La partida continúa con el mismo rol y turno.','success',5000);});conn.on('data',onData);conn.on('close',()=>{if(onlineCleanupInProgress||onlineMatchFinished||!document.body.classList.contains('duel-online'))return;$('peerStatus').textContent='🔴 RIVAL DESCONECTADO';pauseOnlineClock();offlineRecovery=true;showOfflineRecoveryBar();showReconnectOption();showOnlineNotice('⚠️ Tu rival se desconectó. La partida quedó pausada y se guardó; podés reconectar a la misma sala.','error',6500);persistSession();});conn.on('error',e=>{if(onlineCleanupInProgress||onlineMatchFinished||!document.body.classList.contains('duel-online'))return;const message='Falló la conexión ('+(e.type||'error')+'). Revisá internet y el código de sala; si persiste, que el anfitrión reabra la partida.';status(message);showOnlineNotice('⚠️ '+message,'error',6500);persistSession();});}
-$('dueloBtn').textContent='DUELO ONLINE';on('dueloBtn','click',async()=>{if(typeof closeStageCurtain==='function'&&typeof openStageCurtain==='function'){document.getElementById('stageMenu')?.classList.add('hidden');await closeStageCurtain(900);await openStageCurtain(900);}reset();showModal();});
+$('dueloBtn').textContent='MULTIJUGADOR';on('dueloBtn','click',async()=>{
+  // La presentación multijugador reutiliza el mismo ciclo teatral de CPU:
+  // ocultar opciones, cerrar telón, abrir telón, diálogo y recién después botones.
+  const stageMenu=$('stageMenu'),trainingChoice=$('trainingModeChoice'),stageActions=$('stageActions'),introActions=$('multiplayerIntroActions'),stage=$('stage');
+  if(stageSequenceActive)return;
+  stageSequenceActive=true;
+  stageFastForwardRequested=false;
+  stageMenu?.classList.add('hidden');trainingChoice?.classList.add('hidden');stageActions?.classList.add('hidden');introActions?.classList.add('hidden');
+  try {
+    if(typeof closeStageCurtain==='function'&&typeof openStageCurtain==='function'){
+      await closeStageCurtain(2600);
+      await openStageCurtain(2800);
+    }
+    stage?.classList.add('spotlight-on');
+    const intro='<strong>CEREBRO:</strong> ¿Querés enfrentarte a otro mortal? Bien. Esta vez yo no seré tu rival: cada jugador tendrá que descubrir el personaje secreto del otro. Yo observaré el duelo desde aquí… y no pienso dejar pasar una deducción absurda. ¿Te animás?';
+    if(typeof say==='function'){
+      const ok=await say(intro,42,true,false);
+      if(ok){await sleep(350);introActions?.classList.remove('hidden');stage?.classList.add('stage-ready');}
+    }
+  } finally {
+    stageSequenceActive=false;
+    stage?.classList.remove('curtain-fast-open');
+  }
+});
+on('multiplayerIntroPlayBtn','click',()=>{
+  $('multiplayerIntroActions')?.classList.add('hidden');
+  reset();showModal();
+});
+on('multiplayerIntroBackBtn','click',()=>{
+  $('multiplayerIntroActions')?.classList.add('hidden');
+  $('stageMenu')?.classList.remove('hidden');
+  const dialog=$('stageDialog');if(dialog)dialog.innerHTML='<strong>CEREBRO:</strong> Está bien, mortal. El duelo puede esperar. Elegí otro camino cuando estés listo.';
+  $('stage')?.classList.add('stage-ready','spotlight-on');
+});
 function createRoomCode(){
  if(!window.Peer){status('No se pudo cargar la conexión online. Revisá internet y recargá.');return;}
  try{if(conn){conn.close();conn=null;}if(peer){peer.destroy();peer=null;}}catch{}
@@ -541,7 +574,17 @@ on('chatBubbleBtn','click',()=>{$('floatingChat').classList.toggle('hidden');if(
 (function makeChatBubbleDraggable(){const b=$('chatBubbleBtn');if(!b)return;let sx=0,sy=0,ox=0,oy=0,moved=false,dragging=false;const down=e=>{if(e.button!==undefined&&e.button!==0)return;dragging=true;moved=false;const r=b.getBoundingClientRect();sx=e.clientX;sy=e.clientY;ox=r.left;oy=r.top;b.style.right='auto';b.style.bottom='auto';b.style.left=ox+'px';b.style.top=oy+'px';try{b.setPointerCapture(e.pointerId)}catch{};};const move=e=>{if(!dragging)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)+Math.abs(dy)>6)moved=true;const x=Math.max(4,Math.min(window.innerWidth-b.offsetWidth-4,ox+dx));const y=Math.max(4,Math.min(window.innerHeight-b.offsetHeight-4,oy+dy));b.style.left=x+'px';b.style.top=y+'px';};const up=e=>{if(!dragging)return;dragging=false;if(moved){e.preventDefault();b.dataset.dragged='1';setTimeout(()=>delete b.dataset.dragged,250);}try{b.releasePointerCapture(e.pointerId)}catch{}};b.addEventListener('pointerdown',down);b.addEventListener('pointermove',move);b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('click',e=>{if(b.dataset.dragged==='1'){e.preventDefault();e.stopImmediatePropagation();}},true);})();
 on('duelWinBtn','click',()=>{send({type:'result',result:'win',name:saveName()});showResult(true,'Confirmaste la victoria',secret);});
 on('duelLoseBtn','click',()=>{send({type:'result',result:'lose',name:saveName()});showResult(false,'Confirmaste la derrota',secret);});
-on('closeDuelBtn','click',()=>{modal.classList.add('hidden');reset();});if(modal)modal.addEventListener('click',e=>{if(e.target===modal){modal.classList.add('hidden');reset();}});
+function closeMultiplayerSetup(){
+ modal.classList.add('hidden');
+ reset();
+ const stageMenu=$('stageMenu'),trainingChoice=$('trainingModeChoice'),stageActions=$('stageActions'),introActions=$('multiplayerIntroActions'),stage=$('stage'),dialog=$('stageDialog');
+ trainingChoice?.classList.add('hidden');
+ stageActions?.classList.add('hidden');introActions?.classList.add('hidden');
+ if(stageMenu)stageMenu.classList.remove('hidden');
+ if(dialog)dialog.innerHTML='<strong>CEREBRO:</strong> Volviste al escenario, mortal. Elegí cómo querés jugar.';
+ stage?.classList.add('stage-ready','spotlight-on');
+}
+on('closeDuelBtn','click',closeMultiplayerSetup);if(modal)modal.addEventListener('click',e=>{if(e.target===modal)closeMultiplayerSetup();});
 // Indicadores de escritura entre jugadores: solo envía cambios de estado, no el texto escrito.
 (function setupTypingIndicators(){
  let typing=false,stopTimer=null;

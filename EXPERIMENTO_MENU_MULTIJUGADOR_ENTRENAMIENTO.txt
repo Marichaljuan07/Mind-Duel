@@ -1,0 +1,22 @@
+EXPERIMENTO — MENÚ MULTIJUGADOR Y ENTRENAMIENTO
+Base utilizada: Mind_Duel_Fusion_v3_14_06_CEREBRO_CLASICO_CORREGIDO.zip
+
+Cambios:
+- El menú principal del escenario ahora muestra MULTIJUGADOR y ENTRENAMIENTO.
+- Entrenamiento abre un submenú con los modos existentes JUGAR SOLO y MODO CLÁSICO.
+- Se conserva el comportamiento original de Solo y Clásico; no se eliminan.
+- Multijugador mantiene el panel de conexión/salas existente y añade una presentación con telón y diálogo del Cerebro.
+- Se corrigió la referencia al antiguo botón Espejo para que su ausencia no detenga el inicio.
+- No se modificó la base de datos ni se afirma que el motor online ya sea jugador contra jugador simétrico; eso requiere una fase posterior.
+
+Validación realizada:
+- Integridad del ZIP.
+- Sintaxis JavaScript de script.js y multijugador.js.
+- No se realizó prueba de navegador real; probar localmente el flujo de menú y conexión.
+
+
+FIX 2 — Menú, cierre y diálogos
+- Al cerrar el panel de configuración multijugador, se recuperan las opciones principales del escenario.
+- Se añadió una frase burlona de anfitrión para el duelo entre jugadores, sin presentar al Cerebro como rival.
+- Se diferenciaron los diálogos de Solo, Clásico y la selección de Entrenamiento.
+- No se cambió el motor de turnos online ni la base de datos.

@@ -16,6 +16,7 @@ const ui = {
   stageDialog: el('stageDialog'),
   stageActions: el('stageActions'),
   stageMenu: el('stageMenu'),
+  trainingModeChoice: el('trainingModeChoice'),
   soloBtn: el('soloBtn'),
   espejoBtn: el('espejoBtn'),
   dueloBtn: el('dueloBtn'),
@@ -210,7 +211,9 @@ async function openStage() {
   ui.curtainRight.classList.remove('open');
   ui.stageDialog.innerHTML = '';
   ui.stageMenu.classList.add('hidden');
+  ui.trainingModeChoice?.classList.add('hidden');
   ui.stageActions.classList.add('hidden');
+  el('multiplayerIntroActions')?.classList.add('hidden');
   el('machineModeChoice')?.classList.add('hidden');
   el('classicSecretNameForm')?.classList.add('hidden');
 
@@ -220,8 +223,8 @@ async function openStage() {
   ui.stage.classList.add('spotlight-on');
   if(!stageFastForwardRequested) await sleep(1500);
   const menuWelcome = firstWelcomeForThisPage
-    ? `${ORACULO.main}<br><br>¿Enfrentarás sola mi mente, o buscas compañía?`
-    : `${nextStageDialogue('menuReturn', [ORACULO.menuReturn, 'Otra vez por aquí, mortal. El telón ya te conoce. ¿Qué desafío querés abrir ahora?'])}<br><br>¿Qué modo elegís esta vez?`;
+    ? `${ORACULO.main}<br><br>Elegí cómo querés jugar, mortal.`
+    : `${nextStageDialogue('menuReturn', [ORACULO.menuReturn, 'Otra vez por aquí, mortal. El telón ya te conoce. ¿Qué desafío querés abrir ahora?'])}<br><br>¿Qué camino elegís esta vez?`;
   if (await say(`<strong>CEREBRO:</strong> ${menuWelcome}`, 42, true, firstWelcomeForThisPage)) {
     // La bienvenida inicial y su frase especial solo pueden aparecer una vez por carga.
     stageWelcomeEggUsed = true;
@@ -270,6 +273,7 @@ async function chooseSolo() {
   stageSequenceActive=true; stageFastForwardRequested=false;
   state.pendingMode = 'solo';
   ui.stageMenu.classList.add('hidden');
+  ui.trainingModeChoice?.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
   const soloIntro = nextStageDialogue('soloIntro', [ORACULO.solo, '¿Volvés a desafiarme a solas, mortal? Veamos si esta vez lográs seguir mis deducciones.', 'Sin compañía otra vez. Perfecto: una mente contra otra. ¿Aceptás el desafío?']);
@@ -315,6 +319,7 @@ async function chooseClassic() {
   stageSequenceActive=true; stageFastForwardRequested=false;
   state.pendingMode = 'classic';
   ui.stageMenu.classList.add('hidden');
+  ui.trainingModeChoice?.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
   const classicIntro = nextStageDialogue('classicIntro', [ORACULO.clasico, 'Ahora me toca descubrir a tu personaje, mortal. Pensá en alguien real o ficticio y responderás mis preguntas.', 'Cambiamos los papeles: vos elegís a alguien y yo trataré de descubrirlo paso a paso.']);
@@ -1143,14 +1148,31 @@ el('classicSecretNameForm').onsubmit = async e => { e.preventDefault(); const na
 
 
 ui.backTitleBtn.onclick = cancelStageAndReturn;
-ui.menuBackBtn.onclick = cancelStageAndReturn;
+ui.menuBackBtn.onclick = () => { ui.trainingModeChoice?.classList.add('hidden'); cancelStageAndReturn(); };
 $cl('clasicoBtn').onclick = chooseClassic;
 $cl('classicPanel').addEventListener('click', e => { const b = e.target.closest('[data-ans]'); if (b) classicAnswer(b.dataset.ans); });
 $cl('clAgainBtn').onclick = startClassic;
 $cl('clMenuBtn').onclick = openStage;
 ui.soloBtn.onclick = chooseSolo;
-ui.espejoBtn.onclick = async () => { ui.stageMenu.classList.add('hidden'); await closeStageCurtain(2600); await openStageCurtain(2800); const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.espejo}`); if (ok) { await sleep(700); ui.stageMenu.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); } };
+if (ui.espejoBtn) ui.espejoBtn.onclick = async () => { ui.stageMenu.classList.add('hidden'); await closeStageCurtain(2600); await openStageCurtain(2800); const ok = await say(`<strong>CEREBRO:</strong> ${ORACULO.espejo}`); if (ok) { await sleep(700); ui.stageMenu.classList.remove('hidden'); ui.stage.classList.add('stage-ready'); } };
 ui.dueloBtn.onclick = () => {};
+el('trainingBtn')?.addEventListener('click', async () => {
+  ui.stageMenu.classList.add('hidden');
+  ui.trainingModeChoice?.classList.add('hidden');
+  await closeStageCurtain(1800);
+  await openStageCurtain(2000);
+  const ok = await say('<strong>CEREBRO:</strong> ¿Venís a entrenar? Qué prudente, mortal. Elegí cómo querés poner a prueba tu deducción: en un modo vos buscás mi secreto; en el otro, yo intentaré descubrir el tuyo. No confundas práctica con una promesa de victoria.');
+  if (ok) {
+    await sleep(350);
+    ui.trainingModeChoice?.classList.remove('hidden');
+    ui.stage.classList.add('stage-ready');
+  }
+});
+el('trainingBackBtn')?.addEventListener('click', () => {
+  ui.trainingModeChoice?.classList.add('hidden');
+  ui.stageMenu.classList.remove('hidden');
+});
+
 
 el('menuBtn').onclick = openGameMenu;
 el('menuResumeBtn').onclick = () => {el('gameMenuModal').classList.add('hidden');el('menuBtn').setAttribute('aria-expanded','false');};
