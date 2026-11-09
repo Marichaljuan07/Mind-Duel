@@ -723,9 +723,21 @@ function machineSnapshot(){
 function machineAutosave(){if(document.body.classList.contains('duel-online')||!['classic','solo'].includes(state.mode))return;window.SavedMatches?.saveMachineCurrent?.(state.mode,machineSnapshot(),true);}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')machineAutosave();});
 window.addEventListener('pagehide',()=>machineAutosave());
+function buildSoloCharacterPool(){
+ const pool=[...(PERSONAJES||[])];const seen=new Set(pool.map(p=>MindLogic.normalizar(p.nombre)));
+ for(const row of (window.MindCharacterCatalog?.list?.()||[])){
+  if(!row||!row.name||row.status==='archived')continue;
+  const a=row.attributes&&typeof row.attributes==='object'?row.attributes:{};
+  // Para una partida justa se exige el núcleo mínimo; los campos desconocidos no se inventan.
+  if(!['real','ficticio'].includes(a.tipo)||!['hombre','mujer','otro'].includes(a.genero)||typeof a.humano!=='boolean')continue;
+  const key=MindLogic.normalizar(row.name);if(seen.has(key))continue;seen.add(key);
+  pool.push({...a,nombre:row.name,alias:Array.isArray(row.aliases)?row.aliases:[],descripcion:row.description||'',tipo:a.tipo,universo:a.universo||a.tipo,_sharedCatalog:true});
+ }
+ return pool;
+}
 function resetGame() {
   clearInterval(state.timerId);
-  state.secret = PERSONAJES[Math.floor(Math.random() * PERSONAJES.length)];
+  const soloPool=buildSoloCharacterPool();state.secret = soloPool[Math.floor(Math.random() * soloPool.length)] || PERSONAJES[Math.floor(Math.random() * PERSONAJES.length)];
   state.active = true;
   state.busy = false;
   state.questionCount = 0;
@@ -1303,7 +1315,7 @@ window.addEventListener('mind:restore-machine-match',async e=>{
  const snap=e.detail?.snapshot;if(!snap||!['SOLO','CLASSIC'].includes(snap.mode))return;
  window.MindDuelCleanupForMode?.(); machineStartedAt=Number(snap.startedAt)||Date.now(); classicSecretName=String(snap.classicCharacterName||''); resetGame(); classicSetMode(snap.mode==='CLASSIC');
  state.mode=snap.mode==='CLASSIC'?'classic':'solo';state.questionCount=Number(snap.questionCount)||0;state.guessesLeft=Number(snap.guessesLeft)||MAX_GUESSES;state.suggestionUses=Number(snap.suggestionUses??SUGGESTION_LIMIT);state.consecutiveNo=Number(snap.consecutiveNo)||0;state.hintsGiven=Number(snap.hintsGiven)||0;state.asked=new Set(snap.asked||[]);state.facts=Array.isArray(snap.facts)?snap.facts:[];state.seconds=Number(snap.seconds)||0;state.patience=Number(snap.patience)||0;state.suggestionSession=snap.suggestionSession||{options:[],rerolls:0,initialized:false};state.active=snap.status!=='completed';
- if(snap.mode==='SOLO'){state.secret=(PERSONAJES||[]).find(p=>MindLogic.normalizar(p.nombre)===MindLogic.normalizar(snap.secretName))||snap.secret;}
+ if(snap.mode==='SOLO'){state.secret=(PERSONAJES||[]).find(p=>MindLogic.normalizar(p.nombre)===MindLogic.normalizar(snap.secretName))||findKnownCharacter(snap.secretName)||snap.secret;}
  if(snap.mode==='CLASSIC'&&snap.classic){const c=snap.classic;classic.s=Clasico.nuevo(PERSONAJES);classic.s.w=Array.isArray(c.weights)?c.weights.concat(new Array(Math.max(0,PERSONAJES.length-c.weights.length)).fill(0)):classic.s.w;classic.s.asked=new Set((c.asked||[]).map(q=>MindLogic.normalizar(q))); classic.s.log=c.log||[];classic.s.rech=new Set(c.rejected||[]);classic.s.n=Number(c.n)||0;classic.fails=Number(c.fails)||0;classic.phase=c.phase||'ask';classic.cur=null;if(c.cur){const p=(PERSONAJES||[]).find(x=>MindLogic.normalizar(x.nombre)===MindLogic.normalizar(c.cur.p||''));classic.cur={...c.cur,...(p?{p}: {})};}}
  window.MatchHistory?.resume?.(snap.historyId, snap.mode==='CLASSIC'?'clásico':'solo');
  ui.chat.textContent='';for(const ev of (snap.transcript||[])){const kind=ev.kind||'system';const row=document.createElement('div');row.className='message message-'+kind;const av=document.createElement('div');av.className='avatar';const a=avatarFor(kind);av.textContent=a.txt;av.classList.add(a.cls);const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=ev.text||'';row.append(av,bubble);ui.chat.append(row);}

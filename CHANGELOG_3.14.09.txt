@@ -1,0 +1,16 @@
+MIND DUEL FUSION — 3.14.09
+Base: FIX9_CATALOGO_PERFILES_RAZONAMIENTO
+
+- Se agrega /api/character-extract para leer referencias HTML públicas y extraer metadatos y datos estructurados disponibles (JSON-LD y metadatos Open Graph).
+- El catálogo permite extraer datos tanto al proponer una ficha nueva como al enriquecer una ficha existente.
+- Los datos que la fuente no expone permanecen sin completar; la extracción genera un borrador pendiente de revisión y no verifica automáticamente la ficha.
+- Las nuevas fichas conservan los atributos extraídos en el registro compartido.
+- Se agrega vista previa de imagen y comprobación de carga antes de guardar; una URL rota o no accesible impide guardar esa imagen.
+- Se mantienen las reglas actuales de verificación y los estados de revisión.
+- Se conserva multijugador.js sin modificaciones.
+- Se eliminan los TXT heredados del paquete; este changelog es el único TXT incluido.
+
+Limitaciones conocidas:
+- La extracción es conservadora y depende de los metadatos/HTML públicos de cada sitio. No es una IA que comprenda cualquier página; sitios con bloqueo, renderizado exclusivamente por JavaScript o contenido inaccesible pueden no ofrecer datos suficientes.
+- La imagen sigue dependiendo de un enlace externo directo; la carga directa a almacenamiento propio queda pendiente de configurar Supabase Storage y sus permisos.
+- No se pudo probar contra el proyecto Supabase/Vercel real desde este entorno.

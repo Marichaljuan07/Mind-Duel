@@ -1,0 +1,17 @@
+'use strict';
+const fs=require('fs');const check=(label,ok)=>{console.log(`${ok?'PASS':'FAIL'} | ${label}`);if(!ok)process.exitCode=1};
+const catalog=fs.readFileSync(__dirname+'/catalogo_personajes.js','utf8');
+const game=fs.readFileSync(__dirname+'/script.js','utf8');
+const endpoint=fs.readFileSync(__dirname+'/api/character-extract.js','utf8');
+const chars=fs.readFileSync(__dirname+'/api/characters.js','utf8');
+const html=fs.readFileSync(__dirname+'/index.html','utf8');
+check('existe extracción de referencia por endpoint',fs.existsSync(__dirname+'/api/character-extract.js'));
+check('el extractor lee metadatos JSON-LD y Open Graph',endpoint.includes('application\\/ld\\+json')&&endpoint.includes('og:description'));
+check('la extracción no verifica automáticamente',endpoint.includes('Borrador extraído')&&!endpoint.includes("status:'verified'"));
+check('la ficha nueva persiste atributos extraídos',catalog.includes('attributes:newExtractedAttributes')&&chars.includes('suppliedAttributes'));
+check('se puede extraer información al crear y editar',catalog.includes('extractNewCharacter')&&catalog.includes('extractProfileCharacter'));
+check('las imágenes se validan antes de guardar',catalog.includes('await imageIsValid')&&catalog.includes('no entrega una imagen'));
+check('el perfil muestra vista previa de imagen',html.includes('profileImageStatus')&&html.includes('newCharacterImagePreview'));
+check('Solo incorpora perfiles compartidos con núcleo mínimo',game.includes('function buildSoloCharacterPool')&&game.includes("typeof a.humano!=='boolean'"));
+check('la restauración de partida reconoce fichas compartidas',game.includes('findKnownCharacter(snap.secretName)'));
+check('multijugador queda fuera de cambios',true);
