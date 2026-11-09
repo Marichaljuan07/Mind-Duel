@@ -3,8 +3,6 @@ const SERVICE_KEY=process.env.SUPABASE_SERVICE_ROLE_KEY||'';
 const EDITOR_TOKEN=process.env.CHARACTER_EDITOR_TOKEN||'';
 function sameOrigin(req){const o=req.headers.origin,h=req.headers.host;if(!o||!h)return false;try{return new URL(o).host===h}catch{return false}}
 function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'')}
-const createAttempts=new Map();
-function allowCreate(req){const ip=String(req.headers['x-forwarded-for']||req.socket?.remoteAddress||'unknown').split(',')[0].trim();const now=Date.now(),entry=createAttempts.get(ip)||{start:now,count:0};if(now-entry.start>10*60*1000){entry.start=now;entry.count=0;}entry.count++;createAttempts.set(ip,entry);if(createAttempts.size>2000){for(const [key,value] of createAttempts)if(now-value.start>20*60*1000)createAttempts.delete(key);}return entry.count<=8;}
 async function upstreamError(response){
   let body='';
   try{body=(await response.text()).slice(0,1200)}catch{}
@@ -38,7 +36,6 @@ module.exports=async function(req,res){
       const core=['real','ficticio'].includes(attributes.tipo)&&['hombre','mujer','otro'].includes(attributes.genero)&&typeof attributes.humano==='boolean';
       const substantive=Object.entries(attributes).filter(([k,v])=>!k.startsWith('_')&&v!==null&&v!==''&&!(Array.isArray(v)&&!v.length)).length;
       const requestedStatus=String(b.status||'needs_review');
-      if(!['verified','needs_review'].includes(requestedStatus))return res.status(400).json({error:'Estado de ficha inválido.'});
       if(requestedStatus==='verified'&&(!core||!source||substantive<4||description.length<20))return res.status(400).json({error:'Para verificar la ficha hacen falta tipo, género, condición humana, al menos cuatro atributos, una descripción y una fuente.'});
       const payload={name,description,aliases,attributes,status:requestedStatus==='verified'?'verified':'needs_review'};
       const url=new URL(`${PROJECT_URL}/rest/v1/characters`);url.searchParams.set('id',`eq.${id}`);
@@ -51,29 +48,26 @@ module.exports=async function(req,res){
     const name=String(b.name||'').trim().replace(/\s+/g,' ');
     if(name.length<2||name.length>120)return res.status(400).json({error:'El nombre debe tener entre 2 y 120 caracteres.'});
     stage='catalog_read';
-    const r=await fetch(`${PROJECT_URL}/rest/v1/characters?select=id,slug,name,aliases,description,attributes,status&status=neq.archived&limit=1000`,{headers});
+    const r=await fetch(`${PROJECT_URL}/rest/v1/characters?select=id,slug,name,aliases,description,attributes,status&status=not.in.(archived,rejected,retired)&limit=1000`,{headers});
     if(!r.ok){const upstream=await upstreamError(r);console.error('[MindDuel characters]',JSON.stringify({stage,status:upstream.status,code:upstream.code,body:upstream.body}));return res.status(502).json({error:'No se pudo consultar el catálogo compartido.',diagnostic:{stage,status:upstream.status,code:upstream.code||null}})}
     const rows=await r.json();
     if(!Array.isArray(rows))throw Object.assign(new Error('Respuesta inesperada al consultar catálogo'),{stage,code:'invalid_catalog_response'});
     const key=norm(name);
     const matches=rows.filter(x=>norm(x.name)===key||(Array.isArray(x.aliases)&&x.aliases.some(a=>norm(a)===key)));
     if(matches.length)return res.status(200).json({ok:true,duplicate:true,matches:matches.slice(0,5)});
-    if(!allowCreate(req))return res.status(429).json({error:'Se alcanzó el límite temporal de creación. Probá nuevamente más tarde.'});
     const slugBase=key.replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'personaje';
     const slug=slugBase+'-'+Math.random().toString(36).slice(2,7);
     const aliases=String(b.aliases||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,20);
     const description=String(b.description||'').trim().slice(0,1000);
     const source=String(b.source||'').trim().slice(0,500);
     const image=String(b.image||'').trim().slice(0,500);
-    if(source&&!/^https?:\/\//i.test(source))return res.status(400).json({error:'La referencia debe ser una URL http o https.'});
-    if(image&&!/^https?:\/\//i.test(image))return res.status(400).json({error:'La imagen debe ser una URL http o https.'});
-    const suppliedAttributes=b.attributes&&typeof b.attributes==='object'&&!Array.isArray(b.attributes)?b.attributes:{};const safeAttributes={};for(const [k,v] of Object.entries(suppliedAttributes).slice(0,80)){if(typeof k==='string'&&k.length<=80&&!k.startsWith('__')&&(typeof v==='string'||typeof v==='boolean'||typeof v==='number'||v===null||Array.isArray(v))){if(typeof v!=='string'||v.length<=15000)safeAttributes[k]=v;}}const payload={name,slug,aliases,description,attributes:{...safeAttributes,...(source?{_source:source}:{}),...(image?{_image:image}:{})},status:'needs_review'};
+    const suppliedAttributes=b.attributes&&typeof b.attributes==='object'&&!Array.isArray(b.attributes)?b.attributes:{};if(!['real','ficticio'].includes(String(suppliedAttributes.tipo||'')))return res.status(400).json({error:'Indicá si el personaje es real o ficticio antes de guardar.'});const safeAttributes={};for(const [k,v] of Object.entries(suppliedAttributes).slice(0,80)){if(typeof k==='string'&&k.length<=80&&!k.startsWith('__')&&(typeof v==='string'||typeof v==='boolean'||typeof v==='number'||v===null||Array.isArray(v)))safeAttributes[k]=v;}const payload={name,slug,aliases,description,attributes:{...safeAttributes,...(source?{_source:source}:{}),...(image?{_image:image}:{})},status:'needs_review'};
     stage='character_insert';
     const w=await fetch(`${PROJECT_URL}/rest/v1/characters`,{method:'POST',headers:{...headers,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(payload)});
     if(!w.ok){const upstream=await upstreamError(w);console.error('[MindDuel characters]',JSON.stringify({stage,status:upstream.status,code:upstream.code,body:upstream.body}));return res.status(502).json({error:'Supabase rechazó el guardado de la ficha.',diagnostic:{stage,status:upstream.status,code:upstream.code||null}})}
     const created=await w.json();
     if(!Array.isArray(created)||!created[0])throw Object.assign(new Error('Supabase no devolvió la ficha creada'),{stage,code:'empty_insert_response'});
-    return res.status(201).json({ok:true,character:created[0],source,image,notice:'Ficha guardada como pendiente. Ya está disponible para jugar; la verificación es una etiqueta de calidad.'});
+    return res.status(201).json({ok:true,character:created[0],source,image,notice:'Ficha guardada para revisión. La fuente y la imagen quedan como referencias; los atributos aún deben verificarse.'});
   }catch(e){
     const stageName=e.stage||stage;
     console.error('[MindDuel characters]',JSON.stringify({stage:stageName,code:e.code||'unexpected_error',message:String(e.message||e).slice(0,500)}));
