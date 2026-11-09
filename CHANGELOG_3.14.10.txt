@@ -1,0 +1,21 @@
+Mind Duel Fusion — 3.14.10
+Generador de fichas: seguridad y control de datos
+
+- El extractor de referencias valida las direcciones IP públicas antes de solicitar una página.
+- Las redirecciones se procesan manualmente y se vuelve a validar cada destino para bloquear accesos a redes privadas.
+- Se limita el número de redirecciones, el tiempo de respuesta y el tamaño máximo de la página.
+- La extracción deja de inferir que una ficha es real o humana a partir de etiquetas ambiguas. Los datos no demostrados quedan sin completar.
+- Se corrige la extracción de imágenes Open Graph cuando la página no declara una imagen.
+- Los datos extraídos no reemplazan una descripción ya escrita manualmente.
+- Al iniciar una ficha nueva se limpian los datos de extracción, imagen y descripción de la ficha anterior para evitar contaminación entre personajes.
+- La imagen extraída en el perfil actualiza su vista previa.
+- Se aclara que el campo de imagen requiere una URL directa al archivo de imagen; una página de resultados de Google no es una imagen directa.
+- No se modificó multijugador.js.
+
+Pruebas:
+- 4/4 pruebas aisladas del extractor aprobadas.
+- 10/10 controles de la simulación 3.14.09 aprobados.
+- 19/19 controles de regresión FIX9 aprobados.
+- 9/9 controles Clásico 3.14.06 aprobados.
+- Sintaxis de todos los archivos JavaScript comprobada.
+- No se realizó prueba visual en navegador ni extracción real desde Wikipedia/Fandom en este entorno.

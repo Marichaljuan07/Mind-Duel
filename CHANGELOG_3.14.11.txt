@@ -1,0 +1,25 @@
+Mind Duel Fusion 3.14.11 — Extractor genérico de contenido
+
+CAMBIOS
+- El extractor ya no se limita a metadatos Open Graph y JSON-LD: intenta localizar el contenido principal de la página (article, main y contenedores habituales de artículos/wiki).
+- Limpia navegación, scripts, estilos, publicidad y elementos secundarios antes de procesar el texto.
+- Extrae párrafos, encabezados, listas y filas de tablas; guarda el texto útil como contenido_fuente y los datos tabulares como datos_fuente dentro del borrador de atributos.
+- Conserva la extracción de título, descripción, alias e imagen desde metadatos y JSON-LD.
+- Amplía el límite de lectura a 3 MB y el tiempo de espera a 12 segundos, manteniendo límites para evitar descargas excesivas.
+- Los errores de acceso o bloqueo orientan a probar otra referencia del mismo personaje; no se depende de Wikipedia ni de una API de un proveedor.
+- La extracción sigue siendo un borrador: no verifica la veracidad de los datos ni inventa atributos ausentes.
+
+SEGURIDAD CONSERVADA
+- Solo HTTP/HTTPS.
+- Bloqueo de hosts e IP privadas/locales.
+- Validación de cada destino de redirección (máximo cuatro redirecciones).
+- Respuesta HTML requerida; tamaño y tiempo limitados.
+
+PRUEBAS
+- SIMULACION_3_14_11.js: 6/6 aprobadas (contenido principal, tablas, URL de imagen relativa, exclusión de navegación/pie, bloqueo de localhost y método HTTP).
+- No se realizó extracción real desde Wikipedia/Fandom ni prueba visual en navegador; se validó con HTML simulado.
+- multijugador.js no fue modificado.
+
+NOTAS
+- No usa una API exclusiva de Wikipedia ni servicios externos de extracción.
+- Si una web bloquea el acceso automático, hay que pegar una referencia alternativa accesible; el sistema no descubre ni busca automáticamente otra URL.
