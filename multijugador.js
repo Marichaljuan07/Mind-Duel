@@ -462,7 +462,8 @@ on('multiplayerIntroBackBtn','click',()=>{
   $('multiplayerIntroActions')?.classList.add('hidden');
   $('stageMenu')?.classList.remove('hidden');
   const dialog=$('stageDialog');if(dialog)dialog.innerHTML='<strong>CEREBRO:</strong> Bienvenido de nuevo, mortal. El escenario está listo: elegí cómo querés jugar o volvé cuando quieras.';
-  $('stage')?.classList.add('stage-ready','spotlight-on');
+  $('stageScreen')?.classList.remove('hidden');
+  $('stageScreen')?.classList.add('stage-ready','spotlight-on');
 });
 function createRoomCode(){
  if(!window.Peer){status('No se pudo cargar la conexión online. Revisá internet y recargá.');return;}
@@ -582,12 +583,19 @@ on('duelLoseBtn','click',()=>{send({type:'result',result:'lose',name:saveName()}
 function closeMultiplayerSetup(){
  modal.classList.add('hidden');
  reset();
- const stageMenu=$('stageMenu'),trainingChoice=$('trainingModeChoice'),stageActions=$('stageActions'),introActions=$('multiplayerIntroActions'),stage=$('stage'),dialog=$('stageDialog');
+ const stageScreen=$('stageScreen'),stageMenu=$('stageMenu'),trainingChoice=$('trainingModeChoice'),stageActions=$('stageActions'),introActions=$('multiplayerIntroActions'),machineChoice=$('machineModeChoice'),classicForm=$('classicSecretNameForm'),dialog=$('stageDialog');
+ // Restaurar una única vista de menú: evita pantallas hermanas visibles o
+ // un escenario que siga oculto después de salir del setup multijugador.
+ document.querySelectorAll('.screen').forEach(sc=>sc.classList.add('hidden'));
+ stageScreen?.classList.remove('hidden');
  trainingChoice?.classList.add('hidden');
- stageActions?.classList.add('hidden');introActions?.classList.add('hidden');
+ stageActions?.classList.add('hidden');
+ introActions?.classList.add('hidden');
+ machineChoice?.classList.add('hidden');
+ classicForm?.classList.add('hidden');
  if(stageMenu)stageMenu.classList.remove('hidden');
  if(dialog)dialog.innerHTML='<strong>CEREBRO:</strong> Volviste al escenario, mortal. Elegí un modo cuando estés listo.';
- stage?.classList.add('stage-ready','spotlight-on');
+ stageScreen?.classList.add('stage-ready','spotlight-on');
 }
 on('closeDuelBtn','click',closeMultiplayerSetup);if(modal)modal.addEventListener('click',e=>{if(e.target===modal)closeMultiplayerSetup();});
 // Indicadores de escritura entre jugadores: solo envía cambios de estado, no el texto escrito.

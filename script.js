@@ -298,6 +298,9 @@ async function chooseSolo() {
   stageSequenceActive=true; stageFastForwardRequested=false;
   state.pendingMode = 'solo';
   ui.stageMenu.classList.add('hidden');
+  ui.trainingModeChoice?.classList.add('hidden');
+  el('multiplayerIntroActions')?.classList.add('hidden');
+  el('machineModeChoice')?.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
   const soloIntro = nextStageDialogue('soloIntro', [ORACULO.solo, '¿Volvés a desafiarme a solas, mortal? Veamos si esta vez lográs seguir mis deducciones.', 'Sin compañía otra vez. Perfecto: una mente contra otra. ¿Aceptás el desafío?']);
@@ -343,6 +346,9 @@ async function chooseClassic() {
   stageSequenceActive=true; stageFastForwardRequested=false;
   state.pendingMode = 'classic';
   ui.stageMenu.classList.add('hidden');
+  ui.trainingModeChoice?.classList.add('hidden');
+  el('multiplayerIntroActions')?.classList.add('hidden');
+  el('machineModeChoice')?.classList.add('hidden');
   await closeStageCurtain(2600);
   await openStageCurtain(2800);
   const classicIntro = nextStageDialogue('classicIntro', [ORACULO.clasico, 'Ahora me toca descubrir a tu personaje, mortal. Pensá en alguien real o ficticio y responderás mis preguntas.', 'Cambiamos los papeles: vos elegís a alguien y yo trataré de descubrirlo paso a paso.']);

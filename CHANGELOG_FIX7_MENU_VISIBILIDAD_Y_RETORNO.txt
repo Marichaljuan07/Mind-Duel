@@ -1,0 +1,19 @@
+FIX 7 — Visibilidad de menús y regreso desde Multijugador
+
+Base: Mind_Duel_Fusion_EXPERIMENTO_MENU_CPU_MULTIJUGADOR_TEATRO_FIX6.zip
+
+Correcciones:
+- Al elegir JUGAR SOLO o MODO CLÁSICO, ahora también se oculta explícitamente trainingModeChoice, además del menú principal del escenario. Esto evita que los botones JUGAR SOLO / MODO CLÁSICO / VOLVER permanezcan superpuestos durante la presentación del Cerebro.
+- Se ocultan también las acciones introductorias y el selector de partida que no corresponden al flujo elegido, para mantener una sola capa de botones visible.
+- Corregido el identificador incorrecto "stage" por "stageScreen" al volver desde la introducción multijugador.
+- Al cerrar el setup multijugador (botón VOLVER o cierre del modal), se restaura explícitamente stageScreen y el menú principal del escenario, y se ocultan los paneles secundarios. Esto evita volver a un escenario oculto o sin sus botones.
+- Corregido el mismo identificador en el retorno desde la introducción multijugador.
+
+Alcance:
+- No se modificaron reglas de partida, mensajes de red, PeerJS, reconexión ni sincronización.
+- Cambios limitados a visibilidad y restauración de pantallas/menús.
+
+Validación:
+- Se ejecutó node --check sobre los archivos JavaScript del proyecto.
+- Se verificaron las referencias de pantalla y los bloques de transición modificados.
+- No se realizó una prueba visual interactiva en navegador; se recomienda probar las dos rutas en el despliegue.
