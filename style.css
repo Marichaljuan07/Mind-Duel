@@ -722,3 +722,22 @@ button, input {
 .unknown-character-modal-card .modal-actions{display:grid;grid-template-columns:1fr;gap:8px}
 .unknown-character-modal-card .btn{width:100%;white-space:normal}
 @media(max-width:420px){.character-catalog-card{max-height:calc(100dvh - 16px);padding:14px}.character-catalog-results{grid-template-columns:minmax(0,1fr);max-height:30vh}.catalog-type-filters .btn{font-size:11px}.classic-character-suggestions{top:78px;max-height:100px}}
+
+/* FIX9 — perfiles consultables y revisión de fichas */
+.character-profile-card{box-sizing:border-box;width:min(94vw,650px);max-height:calc(100dvh - 18px);overflow-y:auto;overscroll-behavior:contain;text-align:left}
+.character-profile-card h2{text-align:center}
+.character-profile-status{padding:9px 11px;margin:8px 0 12px;border:1px solid rgba(25,240,255,.4);border-radius:8px;color:var(--neon-cyan);font-size:12px;line-height:1.4}
+.character-profile-card label{display:grid;gap:5px;margin:10px 0;color:var(--neon-cyan);font-size:12px}
+.character-profile-card input,.character-profile-card textarea{box-sizing:border-box;width:100%;min-width:0;padding:11px;border:1px solid rgba(25,240,255,.55);border-radius:8px;background:#08091a;color:#fff;font:15px Arial,sans-serif}
+.character-profile-card textarea{resize:vertical;line-height:1.45}
+.character-profile-card #profileAttributes{font-family:ui-monospace,monospace;font-size:13px;white-space:pre;tab-size:2}
+.character-profile-image-wrap{max-height:210px;margin:8px auto 14px;text-align:center;overflow:hidden;border-radius:10px}
+.character-profile-image-wrap img{max-width:100%;max-height:210px;object-fit:contain}
+.character-profile-help{font-size:12px;line-height:1.45;color:rgba(255,255,255,.72)}
+#profileSaveStatus{min-height:18px;font-size:13px;line-height:1.4;overflow-wrap:anywhere}
+.character-profile-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.character-profile-actions .btn{min-width:0;white-space:normal;line-height:1.3}
+.character-profile-actions #profileUseCharacter{grid-column:1/-1}
+.character-profile-actions #profileVerifyCharacter{border-color:rgba(0,255,103,.7)}
+.character-profile-actions .btn:disabled{opacity:.5;filter:grayscale(1)}
+@media(max-width:420px){.character-profile-card{padding:14px}.character-profile-actions{grid-template-columns:1fr}.character-profile-actions #profileUseCharacter{grid-column:auto}}

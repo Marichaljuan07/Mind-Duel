@@ -7,7 +7,7 @@
     'real','ficticio','hombre','mujer','humano','animal','vivo','region_europa','region_america',
     'peliculas','libros','comics','television','anime','combate','poderoso','marvel','dc','star_wars',
     'hijos','terrestre','magia','deportista','futbolista','cientifico','escritor','musico','artista',
-    'pacifista','antiguedad','medieval','renacimiento','nac_ingles','nac_espanol','region_asia','filosofo','politico','militar','rico'
+    'pacifista','antiguedad','medieval','renacimiento','nac_ingles','nac_espanol','nacio_usa','religioso','cargo_publico','region_asia','filosofo','politico','militar','rico'
   ]);
   const QUEUE_KEY='mind_duel_knowledge_queue_v1', DEVICE_KEY='mind_duel_device_id_v1';
   function getDeviceId(){let id='';try{id=localStorage.getItem(DEVICE_KEY)||'';if(!/^(md-)?[a-f0-9-]{32,80}$/i.test(id)){id='md-'+Array.from(crypto.getRandomValues(new Uint8Array(24)),b=>b.toString(16).padStart(2,'0')).join('');localStorage.setItem(DEVICE_KEY,id)}}catch{}return id||('md-'+Math.random().toString(36).slice(2)+Date.now().toString(36));}
@@ -30,7 +30,7 @@
       for (const row of data.characters) {
         if (!row || !row.name || row.status === 'archived' || (row.status === 'candidate' || row.status === 'needs_review' || row.status === 'pending')) continue;
         const attributes = row.attributes && typeof row.attributes === 'object' && !Array.isArray(row.attributes) ? row.attributes : {};
-        const merged = { ...attributes, nombre: row.name, alias: Array.isArray(row.aliases) ? row.aliases : (attributes.alias || []), descripcion: row.description || attributes.descripcion || '' };
+        const merged = { ...attributes, nombre: row.name, alias: Array.isArray(row.aliases) ? row.aliases : (attributes.alias || []), descripcion: row.description || attributes.descripcion || '', _sharedCatalog: true, _catalogStatus: row.status || 'active', _catalogId: row.id || null };
         const existing = byName.get(normalize(row.name));
         if (existing) Object.assign(existing, merged);
         else { people.push(merged); byName.set(normalize(row.name), merged); }

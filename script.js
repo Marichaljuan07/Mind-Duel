@@ -373,15 +373,22 @@ async function startClassic() {
   resetGame();
   classicSetMode(true);
   window.MatchHistory?.begin('clásico'); window.MindSparring?.start('clásico');
-  // Incorporar fichas locales jugables y fichas compartidas con datos
-  // estructurados suficientes. Las fichas pendientes vacías no alteran la cobertura.
+  // Incorporar fichas locales y compartidas estructuradas. Una ficha incompleta
+  // elegida por el jugador se añade solo a esta partida: sus datos desconocidos
+  // no se convierten en respuestas negativas ni contaminan el resto del catálogo.
   try { await Promise.race([window.MindCharacterCatalog?.ready?.() || Promise.resolve(), new Promise(resolve => setTimeout(resolve, 1800))]); } catch {}
   const classicPool = buildClassicCandidatePool();
   const chosenKey=MindLogic.normalizar(classicSecretName);
   const chosenInPool=classicPool.some(p=>MindLogic.normalizar(p.nombre)===chosenKey||(p.alias||[]).some(a=>MindLogic.normalizar(a)===chosenKey));
   const chosenCatalog=window.MindCharacterCatalog?.getCharacter?.(classicSecretName)||null;
+  if(!chosenInPool){
+    const localChosen=findKnownCharacter(classicSecretName);
+    const attrs=chosenCatalog?.attributes&&typeof chosenCatalog.attributes==='object'?chosenCatalog.attributes:{};
+    const fallback=localChosen||{...attrs,nombre:chosenCatalog?.name||classicSecretName,alias:chosenCatalog?.aliases||[],descripcion:chosenCatalog?.description||'',tipo:chosenCatalog?.tipo||attrs.tipo||null,universo:chosenCatalog?.universo||attrs.universo||null};
+    if(fallback?.nombre)classicPool.push(fallback);
+  }
   classic.s = Clasico.nuevo(classicPool);
-  classic.characterDataMissing=!chosenInPool;
+  classic.characterDataMissing=false;
   classic.characterCatalogStatus=chosenCatalog?.status||'unknown';
   classic.cur = null; classic.fails = 0; classic.phase = 'ask';
   classicBusy = true;
@@ -392,11 +399,6 @@ async function startClassic() {
   classicBusy = false;
   await addMessage(pickLine(['Ya tengo el tablero listo. Respondé con cuidado, mortal: cada pista puede acercarme a tu personaje.', 'Perfecto. Ahora empieza mi investigación. No confundas una pregunta sencilla con una deducción sencilla.', 'Que empiece el interrogatorio. Vos conocés la respuesta; yo voy a demostrar que puedo encontrarla.']), 'mind');
   const memoryComment=classicMemoryComment(); if(memoryComment){await addMessage(memoryComment,'mind');classic.s.commentCount=1;}
-  if(classic.characterDataMissing){
-    await addMessage(chosenCatalog
-      ? 'Una observación: esa ficha figura en el catálogo, pero todavía no tiene datos estructurados suficientes para que pueda usarla en mis deducciones. Voy a investigar con el conocimiento disponible, aunque no te prometo reconocerla.'
-      : 'Una observación: no encuentro una ficha utilizable para ese personaje. Voy a investigar con el conocimiento disponible, pero puede que no tenga datos suficientes para reconocerlo.', 'mind');
-  }
   startTimer();
   // La pregunta inicial se solicita después de que termine la presentación.
   classicBusy = false;
@@ -573,7 +575,10 @@ function buildClassicCandidatePool(){
     }
     current.alias=[...new Set([...(current.alias||[]),...(candidate.alias||[])])];
   };
-  (PERSONAJES||[]).forEach(p=>add(p));
+  (PERSONAJES||[]).forEach(p=>{
+    if(p&&p._sharedCatalog){const ready=(['real','ficticio'].includes(p.tipo)&&!!p.genero&&typeof p.humano==='boolean');if(!ready)return;}
+    add(p);
+  });
   // Las plantillas locales jugables pueden haberse actualizado después de cargar la página.
   try { (window.MindKnowledge?.listarJugables?.()||[]).forEach(p=>add(p)); } catch {}
   const shared=window.MindCharacterCatalog?.list?.()||[];
@@ -581,10 +586,10 @@ function buildClassicCandidatePool(){
     if(!row||!row.name||row.status==='archived')continue;
     const raw=row.attributes&&typeof row.attributes==='object'?row.attributes:{};
     const coreReady=(['real','ficticio'].includes(raw.tipo) && !!raw.genero && typeof raw.humano==='boolean');
-    // Las fichas pendientes sin atributos no deben contaminar el cálculo de
-    // cobertura: solo entran si tienen un perfil estructurado mínimo.
-    if(row.status!=='active'&&row.status!=='verified'&&!coreReady)continue;
-    const attrs=(row.status==='active'||row.status==='verified'||coreReady)?raw:{};
+    // Ninguna ficha compartida entra al conjunto de deducción sin los datos
+    // mínimos. Si el jugador elige una incompleta, se incorpora solo a esa ronda.
+    if(!coreReady)continue;
+    const attrs=raw;
     add({...attrs,nombre:row.name,alias:Array.isArray(row.aliases)?row.aliases:[],descripcion:row.description||'',tipo:row.tipo||attrs.tipo||null,universo:row.universo||attrs.universo||null});
   }
   return pool;

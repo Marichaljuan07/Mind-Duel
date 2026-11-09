@@ -55,7 +55,7 @@ function pregunta(s,L){
   }
   return null;
 }
-function responderBase(s,L,q,a){const nq=L.normalizar(q);s.asked.add(nq);s.n++;s.log.push({q,a});const[x,y]=PESO[a]||PESO.nose;s.ps.forEach((p,i)=>{const v=val(L,q,p);if(v===null||a==='nose'){s.w[i]*=1;return}if(a==='psi'){s.w[i]*=v?1:.35;return}if(a==='pno'){s.w[i]*=v?.35:1;return}s.w[i]*=v?x:y});const max=Math.max(0,...s.w);if(max>0&&Number.isFinite(max))s.w=s.w.map(w=>w/max)}
+function responderBase(s,L,q,a){const nq=L.normalizar(q);s.asked.add(nq);const canonical=conceptoDe(L,q);if(canonical)s.asked.add('concepto:'+canonical);s.n++;s.log.push({q,a});const[x,y]=PESO[a]||PESO.nose;s.ps.forEach((p,i)=>{const v=val(L,q,p);if(v===null||a==='nose'){s.w[i]*=1;return}if(a==='psi'){s.w[i]*=v?1:.35;return}if(a==='pno'){s.w[i]*=v?.35:1;return}s.w[i]*=v?x:y});const max=Math.max(0,...s.w);if(max>0&&Number.isFinite(max))s.w=s.w.map(w=>w/max)}
 function mejor(s){let bi=-1,bw=0,tot=0;s.w.forEach((w,i)=>{tot+=w;if(w>bw){bw=w;bi=i}});return bi<0?null:{i:bi,p:s.ps[bi],conf:bw/tot}}
 function debeAdivinarBase(s){
   const m=mejor(s);if(!m||s.n<12)return false;
@@ -80,8 +80,11 @@ const CONC=[
  ['animal',/\b(animal|mascota|bestia)\b/],
  ['mujer',/\b(mujer|femenin[oa])\b/],
  ['hombre',/\b(hombre|varon|masculino)\b/],
- ['vivo',/\b(vivo|viva|con vida|fallecio|fallece|fallecido|fallecida|muerto|muerta|murio)\b/],
- ['television',/\b(television|televisivo|serie|series|programa de television|sale en series|aparece en series)\b/],
+ ['vivo',/\b(vivo|viva|vive|vivir|con vida|fallecio|fallece|fallecido|fallecida|muerto|muerta|murio)\b/],
+ ['television',/\b(television|televisivo|serie|series|programa de television|sale en series|aparece en series|aparece en television)\b/],
+ ['religioso',/\b(figura religiosa|religioso|religiosa|lider religioso)\b/],
+ ['politico',/\b(actividad politica|politico|politica)\b/],
+ ['nacio_usa',/\b(nacio en estados unidos|nacio en eeuu|nacio en usa)\b/],
  ['peliculas',/\b(pelicula|peliculas|cine|film)\b/],
  ['libros',/\b(libro|libros|novela|novelas|escribia novelas)\b/],
  ['comics',/\b(comic|comics|historieta|historietas)\b/],
@@ -241,7 +244,7 @@ function preguntaVerificacion(s,L,pool){
   const m=mejor(s);if(!m)return null;
   let mejorQ=null,mejorEsp=-1;
   for(const q of pool){
-    const key=L.normalizar(q);if(s.asked.has(key)||esRedundante(s,L,q)||esEspecificaTemprana(s,L,q))continue;
+    const key=L.normalizar(q),canonical=conceptoDe(L,q);if(s.asked.has(key)||(canonical&&s.asked.has('concepto:'+canonical))||esRedundante(s,L,q)||esEspecificaTemprana(s,L,q))continue;
     if(val(L,q,m.p)!==true)continue;
     let cumplen=0;for(const p of s.ps)if(val(L,q,p)===true)cumplen++;
     const esp=1/(1+cumplen);
