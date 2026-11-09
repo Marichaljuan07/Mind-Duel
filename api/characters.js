@@ -61,7 +61,7 @@ module.exports=async function(req,res){
     const description=String(b.description||'').trim().slice(0,1000);
     const source=String(b.source||'').trim().slice(0,500);
     const image=String(b.image||'').trim().slice(0,500);
-    const payload={name,slug,aliases,description,attributes:{...(source?{_source:source}:{}),...(image?{_image:image}:{})},status:'needs_review'};
+    const suppliedAttributes=b.attributes&&typeof b.attributes==='object'&&!Array.isArray(b.attributes)?b.attributes:{};const safeAttributes={};for(const [k,v] of Object.entries(suppliedAttributes).slice(0,80)){if(typeof k==='string'&&k.length<=80&&!k.startsWith('__')&&(typeof v==='string'||typeof v==='boolean'||typeof v==='number'||v===null||Array.isArray(v)))safeAttributes[k]=v;}const payload={name,slug,aliases,description,attributes:{...safeAttributes,...(source?{_source:source}:{}),...(image?{_image:image}:{})},status:'needs_review'};
     stage='character_insert';
     const w=await fetch(`${PROJECT_URL}/rest/v1/characters`,{method:'POST',headers:{...headers,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(payload)});
     if(!w.ok){const upstream=await upstreamError(w);console.error('[MindDuel characters]',JSON.stringify({stage,status:upstream.status,code:upstream.code,body:upstream.body}));return res.status(502).json({error:'Supabase rechazó el guardado de la ficha.',diagnostic:{stage,status:upstream.status,code:upstream.code||null}})}
