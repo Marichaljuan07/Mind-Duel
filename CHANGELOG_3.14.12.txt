@@ -1,0 +1,29 @@
+MIND DUEL FUSION — VERSIÓN 3.14.12
+Catálogo colaborativo con protección básica
+
+CAMBIOS
+- Cualquier jugador puede proponer y crear una ficha nueva desde el catálogo.
+- Las fichas nuevas quedan en estado "Pendiente de revisión", pero siguen siendo visibles y jugables.
+- La sincronización del Cerebro ya no excluye las fichas pendientes; solo omite las archivadas.
+- Las fichas existentes se muestran en modo consulta. Los campos de edición se habilitan al introducir la clave de administrador.
+- El servidor exige CHARACTER_EDITOR_TOKEN para cualquier modificación compartida; una clave incorrecta o ausente no permite editar.
+- El servidor limita la creación repetida desde una misma IP a 8 fichas cada 10 minutos por instancia y rechaza referencias/imágenes que no sean URLs HTTP/HTTPS.
+- Se mantiene la comprobación de duplicados antes de crear una ficha.
+- El catálogo muestra el total de personajes, verificados y pendientes de revisión.
+- La extracción genera una descripción breve automática a partir de la descripción de la página o del primer bloque útil; no agrega el nombre al comienzo cuando detecta que se repite.
+- El texto extraído se conserva por separado en contenido_fuente (hasta 12.000 caracteres) y los datos de tablas en datos_fuente.
+- El motor de conocimiento aprovecha datos estructurados explícitos de las tablas (por ejemplo, ocupación, nacionalidad y lugar de nacimiento) sin convertir menciones sueltas del texto en hechos.
+- Se conserva la referencia y la imagen asociadas a cada ficha.
+
+SEGURIDAD Y LÍMITES
+- La clave de administrador nunca se incluye en el código ni se guarda en localStorage; se envía únicamente al servidor al guardar.
+- Configurar CHARACTER_EDITOR_TOKEN como variable de entorno en Vercel y volver a desplegar para habilitar la edición administrativa.
+- El límite de creación por IP es una protección básica de mejor esfuerzo; no reemplaza un sistema persistente de moderación o control de abuso.
+- La descripción automática es heurística, no un resumen semántico perfecto. Debe revisarse la ficha y su referencia.
+- El texto completo se conserva en la ficha y queda disponible junto con los atributos; el motor actual utiliza directamente los atributos y datos estructurados reconocidos, no interpreta semánticamente cada frase del texto libre.
+
+ARCHIVOS Y PRUEBAS
+- multijugador.js no fue modificado.
+- Se conservaron los archivos TXT históricos; el único TXT nuevo es este changelog.
+- Pruebas: extractor y catálogo 10/10; seguridad de catálogo 6/6; datos estructurados 1/1; FIX9 19/19; Clásico FIX8 20/20; Clásico 3.14.05, 3.14.06, extractor 3.14.09 y 3.14.10 aprobados.
+- Se deben realizar pruebas reales en Vercel/Supabase después de configurar la variable de administrador. No se realizó una prueba de producción desde este entorno.

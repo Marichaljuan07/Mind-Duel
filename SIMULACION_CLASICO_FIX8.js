@@ -53,7 +53,7 @@ const poolContext={
     {name:'Personaje local',status:'active',attributes:{tipo:'ficticio'}},
     {name:'Ficha pendiente incompleta',status:'needs_review',description:'Descripción pendiente',attributes:{}},
     {name:'Ficha pendiente completa',status:'needs_review',description:'Perfil estructurado',attributes:{tipo:'real',genero:'hombre',humano:true}},
-    {name:'Ficha activa',status:'active',attributes:{tipo:'ficticio',humano:false}}
+    {name:'Ficha activa',status:'active',attributes:{tipo:'ficticio',genero:'otro',humano:false}}
   ]}}
 };
 vm.runInNewContext(scriptSource.slice(poolStart,poolEnd)+'\nresult=buildClassicCandidatePool();',poolContext);

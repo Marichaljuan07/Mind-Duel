@@ -89,6 +89,18 @@ function votes(){return read(KEY,{version:1,profiles:{},votes:{}})}
 function aggregate(name,concept){const db=votes(),k=norm(name)+'|'+concept,rows=Object.values(db.votes[k]||{});let yes=0,no=0;for(const r of rows){if(r.value===true)yes++;else if(r.value===false)no++}if(yes>=3&&yes>no)return {value:true,confidence:'confirmed',yes,no};if(no>=3&&no>yes)return {value:false,confidence:'confirmed',yes,no};if(yes||no)return {value:null,confidence:'tentative',yes,no};return {value:null,confidence:'unknown',yes:0,no:0}}
 function inferir(p){
  const x={...p,etiquetas:Array.isArray(p?.etiquetas)?[...p.etiquetas]:[],medios:Array.isArray(p?.medios)?[...p.medios]:[]};
+ // Aprovecha datos estructurados extraídos de tablas de la referencia; no interpreta menciones sueltas del texto.
+ for(const row of (Array.isArray(x.datos_fuente)?x.datos_fuente:[])){
+  const line=String(row||''),cut=line.indexOf(':');if(cut<1)continue;
+  const label=norm(line.slice(0,cut)),value=norm(line.slice(cut+1));if(!value)continue;
+  if(/^(ocupacion|profesion|actividad|cargo)$/.test(label)){
+   const tags=[['cientifico',/cientific|investigador|fisico|quimico|biologo/],['escritor',/escritor|novelista|autor|poeta/],['musico',/musico|cantante|compositor/],['futbolista',/futbolista/],['deportista',/deportista|atleta/],['religioso',/religioso|sacerdote|papa|obispo/],['politico',/politico|presidente|senador|ministro/],['militar',/militar|general|soldado/],['artista',/artista|pintor|escultor|actor|actriz|director/]];
+   for(const [tag,re] of tags)if(re.test(value)&&!x.etiquetas.some(t=>norm(t)===tag))x.etiquetas.push(tag);
+  }
+  if(/^(nacionalidad|nacionalidades)$/.test(label)&&!x.nacionalidades?.length)x.nacionalidades=[line.slice(cut+1).trim()];
+  if(/^(lugar de nacimiento|nacimiento|ciudad natal)$/.test(label)&&!x.lugar_nacimiento)x.lugar_nacimiento=line.slice(cut+1).trim();
+  if(/^(tipo|tipo de personaje|naturaleza)$/.test(label)&&!x.tipo){if(/ficticio|ficcion|imaginario/.test(value))x.tipo='ficticio';else if(/^real$|persona real/.test(value))x.tipo='real';}
+ }
  // Reglas de implicancia explícitas: no se aplican a señales vagas ni a simples menciones.
  const uniSeed=norm(x.universo);
  if(x.tipo!=='real' && x.real!==true && typeof x.ficticio!=='boolean' && (hasTag(x,'anime') || hasTag(x,'manga') || hasTag(x,'comic') || hasTag(x,'comics') || ['dragon ball','naruto','one piece','pokemon','yu-gi-oh','yu gi oh'].includes(uniSeed) || ['marvel','dc','star wars'].includes(uniSeed))) { x.ficticio=true; if(typeof x.real!=='boolean')x.real=false; if(!x.tipo)x.tipo='ficticio'; }
