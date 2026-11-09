@@ -1,0 +1,30 @@
+MIND DUEL FUSION — 3.14.14 APRENDIZAJE DE FICHAS
+
+CORRECCIONES
+- Corregido el error "tipo is not defined" en la construcción de plantillas: ahora se asigna explícitamente el tipo seleccionado.
+- El selector Real/Ficticio actualiza el JSON inmediatamente.
+- Al cambiar de tipo se eliminan los campos exclusivos de la plantilla anterior y se conservan los datos comunes compatibles.
+- Al abrir una ficha se recupera el tipo desde el registro cuando el atributo interno estaba vacío.
+- Se amplió la normalización de enlaces de Google Imágenes: si el enlace contiene una URL de imagen incrustada, se extrae y se prueba como imagen directa.
+
+APRENDIZAJE
+- Al terminar una partida, el Cerebro puede pedir al jugador un dato textual que falte en una ficha estructurada (por ejemplo, universo, profesión, especie u origen).
+- Los datos escritos quedan guardados en el dispositivo como aportes pendientes de revisión. No se convierten automáticamente en hechos confirmados ni reemplazan los campos originales.
+- Los aportes locales aparecen en el perfil para poder revisarlos y completar la ficha manualmente.
+- Las respuestas Sí/No de las partidas Clásicas alimentan la evidencia local y se envían al sistema compartido cuando corresponden a conceptos admitidos.
+- El Multijugador conserva su aprendizaje existente de respuestas inequívocas. No se modificó multijugador.js ni sus protocolos de conexión/reconexión.
+
+CATÁLOGO Y PARTIDAS
+- Las fichas Real/Ficticio con género, condición humana u otros atributos desconocidos pueden participar en Solo si tienen definido el tipo.
+- Los valores desconocidos siguen siendo desconocidos; no se convierten en respuestas negativas.
+- Se incorporan al catálogo local las plantillas y los aportes aprendidos en el dispositivo.
+
+LIMITACIONES CONOCIDAS
+- Una página de resultados de Google Imágenes no es una imagen directa. Solo se puede extraer automáticamente la imagen cuando el enlace incluye una URL de imagen utilizable; otros enlaces deben reemplazarse por la dirección directa.
+- Los aportes de texto libre quedan locales y pendientes de revisión. La sincronización compartida actual admite afirmaciones booleanas del conjunto autorizado, no valores textuales arbitrarios.
+- La extracción de referencias sigue dependiendo de que la página permita recuperar su contenido público; no garantiza interpretar cualquier sitio ni completar datos que la fuente no ofrece.
+
+PRUEBAS
+- 13 pruebas nuevas de la versión 3.14.14 aprobadas.
+- Simulaciones anteriores de catálogo, Cerebro, extracción y modo Clásico aprobadas.
+- node --check ejecutado sobre todos los archivos JavaScript del proyecto y de API.

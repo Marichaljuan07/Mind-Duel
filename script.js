@@ -589,7 +589,7 @@ function buildClassicCandidatePool(){
   return pool;
 }
 
-function findKnownCharacter(name){try{const n=MindLogic.normalizar(name);const local=(PERSONAJES||[]).find(p=>MindLogic.normalizar(p.nombre)===n||(Array.isArray(p.alias)&&p.alias.some(a=>MindLogic.normalizar(a)===n)));if(local)return local;const learned=(window.MindKnowledge?.listarJugables?.()||[]).find(p=>MindLogic.normalizar(p.nombre)===n||(Array.isArray(p.alias)&&p.alias.some(a=>MindLogic.normalizar(a)===n)));if(learned)return learned;const shared=window.MindCharacterCatalog?.getCharacter?.(name);if(!shared)return null;const attrs=shared.attributes&&typeof shared.attributes==='object'?shared.attributes:{};return {...attrs,nombre:shared.name,alias:shared.aliases||[],descripcion:shared.description||'',tipo:shared.tipo||attrs.tipo||null,universo:shared.universo||attrs.universo||null,status:shared.status||'active'};}catch{return null;}}
+function findKnownCharacter(name){try{const n=MindLogic.normalizar(name);const local=(PERSONAJES||[]).find(p=>MindLogic.normalizar(p.nombre)===n||(Array.isArray(p.alias)&&p.alias.some(a=>MindLogic.normalizar(a)===n)));if(local){const learned=(window.MindKnowledge?.listarJugables?.()||[]).find(p=>MindLogic.normalizar(p.nombre)===n);return learned?{...local,...learned,...Object.fromEntries(Object.entries(local).filter(([k,v])=>v!==null&&v!==undefined&&v!=='')),...Object.fromEntries(Object.entries(learned).filter(([k,v])=>(local[k]===null||local[k]===undefined||local[k]==='')&&v!==null&&v!==undefined&&v!==''))}:local;}const learned=(window.MindKnowledge?.listarJugables?.()||[]).find(p=>MindLogic.normalizar(p.nombre)===n||(Array.isArray(p.alias)&&p.alias.some(a=>MindLogic.normalizar(a)===n)));if(learned)return learned;const shared=window.MindCharacterCatalog?.getCharacter?.(name);if(!shared)return null;const attrs=shared.attributes&&typeof shared.attributes==='object'?shared.attributes:{};return {...attrs,nombre:shared.name,alias:shared.aliases||[],descripcion:shared.description||'',tipo:shared.tipo||attrs.tipo||null,universo:shared.universo||attrs.universo||null,status:shared.status||'active'};}catch{return null;}}
 function getCharacterDescription(name, fallback=''){
   const key='mind_character_description_'+String(name||'');
   try { const custom=localStorage.getItem(key); if(custom && custom.trim()) return custom.trim(); } catch {}
@@ -598,46 +598,32 @@ function getCharacterDescription(name, fallback=''){
 }
 
 function mostrarPreguntaAprendizaje(nombre) {
-  const box = el('resultLearning');
-  if (!box || !window.MindKnowledge || !nombre) return;
-  const personaje = findKnownCharacter(nombre) || window.MindKnowledge.crearPlantilla(nombre);
-  const item = window.MindPacks ? window.MindPacks.preguntaAprendizaje(personaje) : window.MindKnowledge.preguntaSiguiente(personaje); // v3.13.82: sin preguntas absurdas (ej. futbolista para Goku)
-  box.replaceChildren();
-  if (!item) { box.classList.add('hidden'); return; }
-  const title = document.createElement('h3'); title.textContent = 'EL CEREBRO QUIERE APRENDER';
-  const prompt = document.createElement('p'); prompt.textContent = `Una pregunta sobre ${nombre}: ${item.pregunta}`;
-  const note = document.createElement('small'); note.textContent = 'Tu respuesta queda como dato tentativo. No se usará como verdad hasta que haya coincidencia de varias partidas/dispositivos.';
-  const actions = document.createElement('div'); actions.className = 'learning-actions';
-  [['si','SÍ'],['no','NO'],['ns','NO LO SÉ']].forEach(([answer,label])=>{
-    const btn=document.createElement('button'); btn.type='button'; btn.className='btn '+(answer==='si'?'btn-green':answer==='no'?'btn-red':'btn-purple'); btn.textContent=label;
-    btn.addEventListener('click', async ()=>{
-      if(answer==='ns'){
-        box.replaceChildren();
-        const done=document.createElement('p'); done.textContent='No se agregó ningún dato. El Cerebro no va a inventar la respuesta.';
-        box.append(done);
-        return;
-      }
-      // El voto local se conserva, pero no se presenta como compartido hasta que la API confirme el guardado.
-      window.MindKnowledge.registrarVoto(nombre,item.concepto,answer==='si',personaje);
-      actions.querySelectorAll('button').forEach(button=>button.disabled=true);
-      const waiting=document.createElement('p'); waiting.textContent='Un momento… el Cerebro está procesando tu respuesta.';
-      box.replaceChildren(title,prompt,waiting);
-      let sharedResult={ok:false,message:'La conexión compartida no está disponible.'};
-      if(window.MindDuelSupabase && typeof window.MindDuelSupabase.submitClaim==='function'){
-        sharedResult=await window.MindDuelSupabase.submitClaim({character:nombre,attribute_key:item.concepto,value:answer==='si',source_note:`Respuesta de jugador a la pregunta de aprendizaje: ${item.pregunta}`});
-        if(sharedResult.ok && typeof window.MindDuelSupabase.flushClaims==='function') { const sent=await window.MindDuelSupabase.flushClaims(false); sharedResult={ok:!!sent.ok,pending:sent.pending||0}; }
-      }
-      box.replaceChildren();
-      const done=document.createElement('p');
-      if(sharedResult && sharedResult.ok===true){
-        done.textContent=sharedResult.pending ? 'La respuesta quedó guardada y se enviará cuando vuelva la conexión.' : 'Respuesta recibida. El Cerebro seguirá afinando sus deducciones.';
-      } else {
-        done.textContent='La respuesta quedó pendiente. Podés seguir jugando; el Cerebro intentará procesarla más adelante.';
-      }
-      box.append(done);
-    },{once:true}); actions.append(btn);
-  });
-  box.append(title,prompt,note,actions); box.classList.remove('hidden');
+  const box=el('resultLearning');if(!box||!window.MindKnowledge||!nombre)return;
+  const personaje=findKnownCharacter(nombre)||window.MindKnowledge.crearPlantilla(nombre);
+  const item=window.MindPacks?window.MindPacks.preguntaAprendizaje(personaje):window.MindKnowledge.preguntaSiguiente(personaje);
+  box.replaceChildren();if(!item){box.classList.add('hidden');return;}
+  const title=document.createElement('h3');title.textContent='EL CEREBRO QUIERE APRENDER';
+  const prompt=document.createElement('p');prompt.textContent=`Una pregunta sobre ${nombre}: ${item.pregunta}`;
+  const note=document.createElement('small');note.textContent=item.kind==='field'?'El dato se guardará como aporte pendiente de revisión; no se tratará automáticamente como verdad.':'Tu respuesta queda como dato tentativo y necesita coincidencia de varias partidas/dispositivos.';
+  const actions=document.createElement('div');actions.className='learning-actions';
+  if(item.kind==='field'){
+   const input=document.createElement('input');input.type='text';input.maxLength=300;input.placeholder='Escribí el dato si lo conocés';input.autocomplete='off';
+   const save=document.createElement('button');save.type='button';save.className='btn btn-green';save.textContent='APORTAR DATO';
+   const skip=document.createElement('button');skip.type='button';skip.className='btn btn-purple';skip.textContent='NO LO SÉ';
+   save.addEventListener('click',()=>{const result=window.MindKnowledge.aportarDato(nombre,item.field,input.value,personaje);box.replaceChildren();const done=document.createElement('p');done.textContent=result.ok?'Aporte guardado como pendiente de revisión. El Cerebro no lo considerará confirmado todavía.':result.error;box.append(done);});
+   skip.addEventListener('click',()=>{box.replaceChildren();const done=document.createElement('p');done.textContent='No se agregó ningún dato. El Cerebro no va a inventar la respuesta.';box.append(done);});
+   actions.append(input,save,skip);
+  }else{
+   [['si','SÍ'],['no','NO'],['ns','NO LO SÉ']].forEach(([answer,label])=>{
+    const btn=document.createElement('button');btn.type='button';btn.className='btn '+(answer==='si'?'btn-green':answer==='no'?'btn-red':'btn-purple');btn.textContent=label;
+    btn.addEventListener('click',async()=>{if(answer==='ns'){box.replaceChildren();const done=document.createElement('p');done.textContent='No se agregó ningún dato. El Cerebro no va a inventar la respuesta.';box.append(done);return;}
+     window.MindKnowledge.registrarVoto(nombre,item.concepto,answer==='si',personaje);actions.querySelectorAll('button').forEach(button=>button.disabled=true);const waiting=document.createElement('p');waiting.textContent='Un momento… el Cerebro está procesando tu respuesta.';box.replaceChildren(title,prompt,waiting);
+     let sharedResult={ok:false};if(window.MindDuelSupabase?.submitClaim){sharedResult=await window.MindDuelSupabase.submitClaim({character:nombre,attribute_key:item.concepto,value:answer==='si',source_note:`Respuesta de jugador a la pregunta de aprendizaje: ${item.pregunta}`});if(sharedResult.ok&&window.MindDuelSupabase.flushClaims){const sent=await window.MindDuelSupabase.flushClaims(false);sharedResult={ok:!!sent.ok,pending:sent.pending||0};}}
+     box.replaceChildren();const done=document.createElement('p');done.textContent=sharedResult.ok?'Respuesta recibida. El Cerebro seguirá afinando sus deducciones.':'La respuesta quedó guardada localmente; se intentará sincronizar cuando haya conexión.';box.append(done);
+    },{once:true});actions.append(btn);
+   });
+  }
+  box.append(title,prompt,note,actions);box.classList.remove('hidden');
 }
 window.MindDuelLearningPrompt = mostrarPreguntaAprendizaje;
 async function classicEnd(result = {}) {
@@ -687,7 +673,9 @@ async function classicAnswer(ans) {
   classicBusy = true;
   if (c.tipo === 'q') await addMessage(CL_LABEL[ans], 'player');
   if (c.tipo === 'q') {
-    Clasico.responder(classic.s, MindLogic, c.q, ans); window.MindSparring?.answer('clásico',c.q,ans); machineAutosave();
+    Clasico.responder(classic.s, MindLogic, c.q, ans);
+    if(classicSecretName&&['si','no','psi','pno'].includes(ans)&&window.MindKnowledge){const concept=window.MindKnowledge.conceptoDePregunta(c.q);if(concept){const value=ans==='si'||ans==='psi';const character=findKnownCharacter(classicSecretName)||window.MindKnowledge.crearPlantilla(classicSecretName);window.MindKnowledge.registrarVoto(classicSecretName,concept,value,character);if(window.MindDuelSupabase?.submitClaim){window.MindDuelSupabase.submitClaim({character:classicSecretName,attribute_key:concept,value,source_note:`Respuesta del jugador durante una partida clásica: ${c.q}`}).then(()=>window.MindDuelSupabase.flushClaims?.(false)).catch(()=>{});}}}
+    window.MindSparring?.answer('clásico',c.q,ans); machineAutosave();
     // Las respuestas quedan en classic.s.log para el razonamiento interno.
     // No se muestran resúmenes de pistas durante la partida.
     classicBusy = false;
@@ -723,7 +711,7 @@ function buildSoloCharacterPool(){
   if(!row||!row.name||['archived','rejected','retired'].includes(row.status))continue;
   const a=row.attributes&&typeof row.attributes==='object'?row.attributes:{};
   // Para una partida justa se exige el núcleo mínimo; los campos desconocidos no se inventan.
-  if(!['real','ficticio'].includes(a.tipo)||!['hombre','mujer','otro'].includes(a.genero)||typeof a.humano!=='boolean')continue;
+  if(!['real','ficticio'].includes(a.tipo))continue;
   const key=MindLogic.normalizar(row.name);if(seen.has(key))continue;seen.add(key);
   pool.push({...a,nombre:row.name,alias:Array.isArray(row.aliases)?row.aliases:[],descripcion:row.description||'',tipo:a.tipo,universo:a.universo||a.tipo,_sharedCatalog:true});
  }

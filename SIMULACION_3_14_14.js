@@ -1,0 +1,25 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert');let pass=0;
+function test(name,fn){try{fn();console.log('PASS',name);pass++;}catch(e){console.error('FAIL',name,e.message);process.exitCode=1;}}
+const catalog=fs.readFileSync(__dirname+'/catalogo_personajes.js','utf8');
+const match=catalog.match(/function applyFichaTemplate\(attrs,type\)\{[\s\S]*?\n\}/);assert(match,'No se encontró applyFichaTemplate');
+const apply=vm.runInNewContext('('+match[0].replace('function applyFichaTemplate(attrs,type)','function(attrs,type)')+')');
+test('cambiar de real a ficticio elimina campos exclusivos de persona real',()=>{const x=apply({tipo:'real',nacionalidad:'Argentina',profesion:'Médico',fecha_nacimiento:'1936-12-17',nombre_completo:'Ejemplo',humano:true},'ficticio');assert.equal(x.tipo,'ficticio');assert.equal(x.universo,null);assert(!('profesion'in x));assert(!('nacionalidad'in x));assert.equal(x.humano,true);});
+test('cambiar de ficticio a real elimina campos exclusivos de ficción',()=>{const x=apply({tipo:'ficticio',universo:'God of War',especie:'Semidiós',armas:['Hachas'],humano:false},'real');assert.equal(x.tipo,'real');assert.equal(x.profesion,null);assert(!('universo'in x));assert(!('especie'in x));assert(!('armas'in x));assert.equal(x.humano,false);});
+test('la plantilla conserva contenido de fuente y datos compartidos',()=>{const x=apply({tipo:'real',contenido_fuente:'Texto fuente',datos_fuente:[{campo:'profesion'}],genero:'otro'},'real');assert.equal(x.contenido_fuente,'Texto fuente');assert.equal(x.datos_fuente.length,1);assert.equal(x.genero,'otro');});
+const store=new Map();global.localStorage={getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>store.set(k,String(v))};delete require.cache[require.resolve('./conocimiento.js')];const K=require('./conocimiento.js');
+const profile={nombre:'Kratos',tipo:'ficticio',plantillaVersion:2,universo:null,franquicia:null,medio_origen:null,especie:null,creador:null};
+test('el Cerebro pregunta por un campo estructurado desconocido',()=>{const q=K.preguntaSiguiente(profile);assert.equal(q.kind,'field');assert.equal(q.field,'universo');});
+test('la respuesta abierta queda guardada como aporte pendiente y no como dato confirmado',()=>{const r=K.aportarDato('Kratos','universo','God of War',profile);assert.equal(r.ok,true);const saved=K.listarPlantillas().find(x=>x.nombre==='Kratos');assert.equal(saved.aportes_pendientes[0].value,'God of War');assert.equal(saved.aportes_pendientes[0].status,'needs_review');assert.equal(saved.universo,null);});
+test('el Cerebro no vuelve a preguntar inmediatamente por el campo ya aportado',()=>{const q=K.preguntaSiguiente(profile);assert.equal(q.field,'franquicia');});
+test('las fichas nuevas siguen jugables aunque tengan atributos desconocidos',()=>{assert(K.listarJugables().some(x=>x.nombre==='Kratos'));});
+const imageFn=catalog.match(/function normalizeImageUrl\(raw\)\{[^\n]*\}/);assert(imageFn,'No se encontró normalizador de imagen');const normalizeImage=vm.runInNewContext('('+imageFn[0].replace('function normalizeImageUrl(raw)','function(raw)')+')',{URL});
+test('extrae la URL real de imagen incluida en un enlace de Google Imágenes',()=>{const source='https://www.google.com/imgres?imgurl='+encodeURIComponent('https://cdn.example.com/kratos.jpg');assert.equal(normalizeImage(source),'https://cdn.example.com/kratos.jpg');});
+test('no confunde una página de resultados de Google con una imagen directa',()=>{const source='https://www.google.com/search?tbm=isch&q=Kratos';assert.equal(normalizeImage(source),source);});
+test('el selector de tipo actualiza el JSON del perfil al instante',()=>{assert(catalog.includes("$('profileType')?.addEventListener('change'"));assert(catalog.includes('JSON.stringify(applyFichaTemplate(attrs,type),null,2)'));});
+const script=fs.readFileSync(__dirname+'/script.js','utf8');
+test('las respuestas Sí/No del modo clásico alimentan el aprendizaje',()=>{assert(script.includes('registrarVoto(classicSecretName,concept,value,character)'));assert(script.includes('submitClaim({character:classicSecretName,attribute_key:concept,value,source_note:'));});
+test('el modo Solo ya no exige género y condición humana completos para incluir una ficha',()=>{const block=script.slice(script.indexOf('function buildSoloCharacterPool'),script.indexOf('function resetGame'));assert(block.includes("if(!['real','ficticio'].includes(a.tipo))continue;"));assert(!block.includes("!['hombre','mujer','otro'].includes(a.genero)"));});
+const mp=fs.readFileSync(__dirname+'/multijugador.js','utf8');
+test('el multijugador conserva el aprendizaje de respuestas inequívocas sin alterar su protocolo',()=>{assert(mp.includes('function storeLearning(question,answer)'));assert(mp.includes("MindDuelSupabase.submitClaim({character:secret,attribute_key:attribute,value:match[1]==='si'"));});
+console.log(`Resultado: ${pass} pruebas aprobadas.`);

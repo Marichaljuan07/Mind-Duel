@@ -120,6 +120,7 @@ const SOLO_FICCION_NO=new Set(['deportista','futbolista','cientifico','escritor'
 const SOLO_REAL_NO=new Set(['marvel','dc','star_wars','anime','magia']);
 function preguntaAprendizaje(p){
   const K=(typeof window!=='undefined'&&window.MindKnowledge)||null;if(!K||!p||!Array.isArray(K.QUESTIONS))return null;
+  const next=K.preguntaSiguiente?.(p);if(next?.kind==='field')return next;
   let own={},dev='';
   try{own=(JSON.parse(localStorage.getItem('mind_knowledge_evidence_v1')||'null')||{}).votes||{};dev=localStorage.getItem('mind_knowledge_device_v1')||''}catch(e){}
   const evitar=p.tipo==='ficticio'?SOLO_FICCION_NO:p.tipo==='real'?SOLO_REAL_NO:new Set();
