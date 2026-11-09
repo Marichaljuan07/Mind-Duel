@@ -741,3 +741,41 @@ button, input {
 .character-profile-actions #profileVerifyCharacter{border-color:rgba(0,255,103,.7)}
 .character-profile-actions .btn:disabled{opacity:.5;filter:grayscale(1)}
 @media(max-width:420px){.character-profile-card{padding:14px}.character-profile-actions{grid-template-columns:1fr}.character-profile-actions #profileUseCharacter{grid-column:auto}}
+
+/* 3.14.13 — selector de tipo integrado al tema synthwave */
+.character-profile-card select,
+.character-catalog-card select,
+.new-character-form select,
+#pType {
+  box-sizing:border-box;
+  width:100%;
+  min-height:48px;
+  padding:11px 42px 11px 13px;
+  border:1px solid rgba(25,240,255,.72);
+  border-radius:9px;
+  outline:none;
+  color:#e9fbff;
+  background-color:#08091a;
+  font:600 15px/1.25 Arial,sans-serif;
+  color-scheme:dark;
+  appearance:none;
+  -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2319f0ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 13px center;
+  box-shadow:inset 0 0 0 1px rgba(25,240,255,.06),0 0 9px rgba(25,240,255,.08);
+}
+.character-profile-card select:focus,
+.character-catalog-card select:focus,
+.new-character-form select:focus,
+#pType:focus {
+  border-color:#e600ff;
+  box-shadow:0 0 0 2px rgba(230,0,255,.16),0 0 13px rgba(230,0,255,.2);
+}
+.character-profile-card select option,
+.character-catalog-card select option,
+.new-character-form select option,
+#pType option {
+  color:#e9fbff;
+  background:#08091a;
+}

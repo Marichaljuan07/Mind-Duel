@@ -1,0 +1,7 @@
+Mind Duel Fusion 3.14.13 — Selector visual synthwave
+
+- Se unifica el estilo de los selectores de tipo de personaje con el tema visual del juego.
+- Fondo oscuro, texto claro, borde cian, flecha cian y foco magenta.
+- Se aplica al formulario de perfil, al formulario de creación y al curador.
+- Se conserva la lógica y los valores existentes de los selectores.
+- Sin cambios en multijugador.js ni en la lógica de partidas.
