@@ -1,0 +1,32 @@
+MIND DUEL FUSION — 3.14.15 FICHAS ESTRUCTURADAS Y GUARDADO CLARO
+
+EXTRACCIÓN
+- La extracción deja de copiar párrafos y biografías al JSON.
+- Se eliminan contenido_fuente, datos_fuente sin clasificar y content_excerpt de la respuesta.
+- Los datos detectados se asignan únicamente a campos de las plantillas Real/Ficticio.
+- Se retiran las asignaciones genéricas de predecesor/sucesor y cargo que podían mezclar puestos distintos.
+- Se agrega numero_en_cargo para fuentes que indiquen expresamente un número de orden o pontificado.
+- Los campos sin evidencia permanecen null o como listas vacías; no se completan por inferencia.
+
+DESCRIPCIÓN
+- Se elimina el uso de metadescripciones y párrafos de la página como descripción automática.
+- La descripción se construye únicamente con atributos estructurados disponibles.
+- Ejemplo: "Papa número 266 de la Iglesia católica." cuando la fuente proporciona cargo, número y organización.
+- Si no hay datos suficientes, la descripción queda vacía para revisión manual.
+
+PLANTILLAS
+- El JSON se limita a los campos permitidos por la plantilla seleccionada.
+- Los campos exclusivos de Real/Ficticio se eliminan al cambiar de tipo.
+- Los campos de listas se normalizan como arrays y género se normaliza a minúsculas.
+
+GUARDADO
+- Si falla la edición remota de una ficha existente, se conserva una copia local y se informa claramente que NO se sincronizó con el catálogo compartido.
+- El servidor ahora identifica explícitamente la variable CHARACTER_EDITOR_TOKEN que falta cuando la edición compartida no está habilitada.
+- Se agrega una aclaración en el formulario sobre la configuración necesaria en Vercel.
+- No se elimina la protección de edición: permitir editar sin clave abriría el catálogo a modificaciones públicas.
+
+PRUEBAS
+- 7 pruebas de la simulación 3.14.15 aprobadas.
+- node --check ejecutado sobre todos los archivos JavaScript del proyecto.
+- Prueba simulada del extractor: devuelve atributos concretos, sin biografía, y genera una descripción breve.
+- No se pudo probar el guardado remoto contra el proyecto Vercel/Supabase real desde este entorno.

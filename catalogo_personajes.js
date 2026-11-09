@@ -3,23 +3,15 @@ const $=id=>document.getElementById(id),modal=$('characterCatalogModal'),profile
 let characters=[],loaded=false,loadPromise=null,typeFilter='all',activeProfile=null,newExtractedAttributes={};const LOCAL_EDITS='mind_character_catalog_edits_v1';
 const normalize=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 function applyFichaTemplate(attrs,type){
- const a={...(attrs||{})};if(!['real','ficticio'].includes(type))return a;
- const realOnly=['profesion','ambito','organizaciones','fecha_nacimiento','fecha_fallecimiento','predecesor','sucesor','obras','formacion','logros','nacionalidad','nacionalidades','lugar_nacimiento','ocupacion'];
- const fictionOnly=['universo','franquicia','medio_origen','especie','habilidades','poderes','armas','afiliaciones','aliados','enemigos','origen','creador'];
- const commonKeys=['tipo','plantillaVersion','genero','humano','vivo','rasgos','medios','datos_fuente','contenido_fuente'];
- const oldType=a.tipo;
- const switched=oldType&&oldType!==type;
- const preserved={};
- for(const k of commonKeys)if(a[k]!==undefined)preserved[k]=a[k];
- // Los campos exclusivos del tipo anterior no sobreviven al cambio de plantilla.
- for(const k of (type==='real'?fictionOnly:realOnly))delete a[k];
- const common={tipo:type,plantillaVersion:2,genero:null,humano:null,vivo:null,rasgos:[],medios:[],datos_fuente:[],contenido_fuente:''};
- const specific=type==='real'?{plantilla:'persona_real_v2',nacionalidad:null,nacionalidades:[],profesion:null,ocupacion:null,ambito:null,organizaciones:[],fecha_nacimiento:null,fecha_fallecimiento:null,lugar_nacimiento:null,predecesor:null,sucesor:null,obras:[],formacion:[],logros:[]}:{plantilla:'personaje_ficticio_v2',universo:null,franquicia:null,medio_origen:null,especie:null,habilidades:[],poderes:[],armas:[],afiliaciones:[],aliados:[],enemigos:[],origen:null,creador:null};
- const merged={...common,...specific,...a,...preserved,tipo:type,plantillaVersion:2,plantilla:type==='real'?'persona_real_v2':'personaje_ficticio_v2'};
- if(switched){for(const k of (type==='real'?fictionOnly:realOnly))delete merged[k];}
- if(!Array.isArray(merged.datos_fuente))merged.datos_fuente=[];
- if(typeof merged.contenido_fuente!=='string')merged.contenido_fuente='';
- delete merged._contenidoFuente;return merged;
+ const a=(attrs&&typeof attrs==='object'&&!Array.isArray(attrs))?attrs:{};if(!['real','ficticio'].includes(type))return {...a};
+ const common={tipo:type,plantillaVersion:2,genero:null,humano:null,vivo:null,rasgos:[],medios:[],otros_nombres:null};
+ const specific=type==='real'?{plantilla:'persona_real_v2',nombre_completo:null,nacionalidad:null,nacionalidades:[],numero_en_cargo:null,profesion:null,ocupacion:null,ambito:null,organizaciones:[],cargos:[],fecha_nacimiento:null,fecha_fallecimiento:null,lugar_nacimiento:null,obras:[],formacion:[],logros:[]}:{plantilla:'personaje_ficticio_v2',universo:null,franquicia:null,medio_origen:null,especie:null,habilidades:[],poderes:[],armas:[],afiliaciones:[],aliados:[],enemigos:[],origen:null,creador:null};
+ const allowed=new Set([...Object.keys(common),...Object.keys(specific),'_source','_image']);
+ const out={...common,...specific};for(const [k,v] of Object.entries(a))if(allowed.has(k))out[k]=v;
+ out.tipo=type;out.plantillaVersion=2;out.plantilla=type==='real'?'persona_real_v2':'personaje_ficticio_v2';
+ const arrayKeys=['rasgos','medios','nacionalidades','organizaciones','cargos','obras','formacion','logros','habilidades','poderes','armas','afiliaciones','aliados','enemigos'];for(const k of arrayKeys){if(Array.isArray(a[k]))out[k]=a[k];else if(typeof a[k]==='string'&&a[k].trim())out[k]=[a[k].trim()];else out[k]=[];}
+ if(typeof out.genero==='string')out.genero=out.genero.toLowerCase();
+ return out;
 }
 
 const readEdits=()=>{try{return JSON.parse(localStorage.getItem(LOCAL_EDITS)||'{}')}catch{return{}}};
@@ -52,26 +44,47 @@ function profileAttributes(c){const a=c?.attributes&&typeof c.attributes==='obje
 function openProfile(c){activeProfile=c;let attrs=profileAttributes(c);if(attrs.contenido_fuente===undefined&&attrs._contenidoFuente)attrs.contenido_fuente=attrs._contenidoFuente;const source=attrs._source||c.source||'',image=attrs._image||c.image||'',resolvedType=['real','ficticio'].includes(attrs.tipo)?attrs.tipo:(['real','ficticio'].includes(c.tipo)?c.tipo:'');$('profileType').value=resolvedType;if(resolvedType)attrs=applyFichaTemplate(attrs,resolvedType);$('characterProfileTitle').textContent=c.name;$('profileName').value=c.name||'';$('profileAliases').value=(c.aliases||[]).join(', ');$('profileDescription').value=c.description||'';$('profileSource').value=source;$('profileImage').value=image;$('profileAttributes').value=JSON.stringify(attrs,null,2);$('characterProfileStatus').textContent=`Estado de ficha: ${c.status==='verified'?'VERIFICADA':(['needs_review','pending','candidate'].includes(c.status)?'PENDIENTE DE REVISIÓN':'ACTIVA')}${c.id?' · Registro compartido':' · Registro local'}`;const wrap=$('characterProfileImageWrap'),img=$('characterProfileImage');if(image){img.onload=()=>{wrap.classList.remove('hidden');$('profileImageStatus').textContent='Imagen cargada correctamente.'};img.onerror=()=>{wrap.classList.add('hidden');$('profileImageStatus').textContent='La imagen guardada ya no está disponible. Corregí el enlace antes de volver a guardar.'};img.src=image;wrap.classList.remove('hidden')}else{img.removeAttribute('src');wrap.classList.add('hidden');$('profileImageStatus').textContent='Sin imagen.'}$('profileSaveStatus').textContent='';$('profileVerifyCharacter').disabled=false;profileModal.classList.remove('hidden');}
 function readProfileForm(){let attrs;try{attrs=JSON.parse($('profileAttributes').value||'{}')}catch{throw Error('El JSON de atributos no es válido.')}if(!attrs||typeof attrs!=='object'||Array.isArray(attrs))throw Error('Los atributos deben ser un objeto JSON.');attrs=applyFichaTemplate(attrs,$('profileType').value||attrs.tipo);attrs._source=$('profileSource').value.trim();attrs._image=normalizeImageUrl($('profileImage').value);return{name:$('profileName').value.trim(),aliases:$('profileAliases').value.split(',').map(x=>x.trim()).filter(Boolean),description:$('profileDescription').value.trim(),attributes:attrs};}
 function canVerify(data){const a=data.attributes,core=['real','ficticio'].includes(a.tipo)&&['hombre','mujer','otro'].includes(a.genero)&&typeof a.humano==='boolean',source=/^https?:\/\//i.test(a._source||''),count=Object.entries(a).filter(([k,v])=>!k.startsWith('_')&&v!==null&&v!==''&&!(Array.isArray(v)&&!v.length)).length;return core&&source&&count>=4&&data.description.length>=20;}
-async function saveProfile(verify=false){const status=$('profileSaveStatus'),btn=verify?$('profileVerifyCharacter'):$('profileSaveCharacter');try{if(!activeProfile)throw Error('No hay una ficha seleccionada.');if(verify&&!activeProfile.id)throw Error('Esta ficha pertenece al catálogo local y todavía no tiene un registro compartido para verificar.');const data=readProfileForm();status.textContent='Comprobando imagen…';await imageIsValid(data.attributes._image);if(data.name.length<2)throw Error('El nombre es demasiado corto.');if(verify&&!canVerify(data))throw Error('Para verificar hacen falta tipo, género, condición humana, cuatro atributos, descripción de al menos 20 caracteres y una fuente web.');btn.disabled=true;status.textContent='Guardando ficha…';let saved;
- if(activeProfile.id){const r=await fetch('/api/characters?id='+encodeURIComponent(activeProfile.id),{method:'PATCH',headers:{'Content-Type':'application/json',Accept:'application/json','x-character-editor-token':$('profileEditorToken').value.trim()},body:JSON.stringify({...data,status:verify?'verified':'needs_review'})});const result=await r.json();if(!r.ok)throw Error(result.error||'No se pudo guardar la ficha.');saved=result.character;}
- else{const edits=readEdits(),localEdit={...data,status:'needs_review'};edits[normalize(activeProfile.name)]=localEdit;edits[normalize(data.name)]=localEdit;localStorage.setItem(LOCAL_EDITS,JSON.stringify(edits));saved={...activeProfile,...data,status:'needs_review'};}
- characters=mergeCharacters([...characters.filter(c=>normalize(c.name)!==normalize(activeProfile.name)),saved]);activeProfile=characters.find(c=>normalize(c.name)===normalize(saved.name))||saved;$('characterProfileStatus').textContent=`Estado de ficha: ${verify?'VERIFICADA':'PENDIENTE DE REVISIÓN'}${activeProfile.id?' · Registro compartido':' · Guardado en este dispositivo'}`;status.textContent=verify?'Ficha guardada y marcada como verificada.':'Cambios guardados. La ficha queda pendiente de verificación.';renderModal();renderSuggestions();
- }catch(err){status.textContent=err.message;}finally{btn.disabled=false}}
+async function saveProfile(verify=false){
+ const status=$('profileSaveStatus'),btn=verify?$('profileVerifyCharacter'):$('profileSaveCharacter');let localOnly=false;
+ try{
+  if(!activeProfile)throw Error('No hay una ficha seleccionada.');
+  if(verify&&!activeProfile.id)throw Error('Esta ficha todavía no tiene un registro compartido para verificar.');
+  const data=readProfileForm();status.textContent='Comprobando imagen…';await imageIsValid(data.attributes._image);
+  if(data.name.length<2)throw Error('El nombre es demasiado corto.');
+  if(verify&&!canVerify(data))throw Error('Para verificar hacen falta tipo, género, condición humana, cuatro atributos, descripción de al menos 20 caracteres y una fuente web.');
+  btn.disabled=true;status.textContent='Guardando ficha…';let saved;
+  if(activeProfile.id){
+   try{
+    const r=await fetch('/api/characters?id='+encodeURIComponent(activeProfile.id),{method:'PATCH',headers:{'Content-Type':'application/json',Accept:'application/json','x-character-editor-token':$('profileEditorToken').value.trim()},body:JSON.stringify({...data,status:verify?'verified':'needs_review'})});
+    const result=await r.json();if(!r.ok)throw Error(result.error||'No se pudo guardar la ficha.');saved=result.character;
+   }catch(serverError){
+    const edits=readEdits(),localEdit={...data,status:'needs_review',_localOnly:true};edits[normalize(activeProfile.name)]=localEdit;edits[normalize(data.name)]=localEdit;localStorage.setItem(LOCAL_EDITS,JSON.stringify(edits));saved={...activeProfile,...data,status:'needs_review'};localOnly=true;
+    status.textContent=`Copia guardada en este dispositivo, pero NO en el catálogo compartido. Motivo del servidor: ${serverError.message}`;
+   }
+  }else{
+   const edits=readEdits(),localEdit={...data,status:'needs_review',_localOnly:true};edits[normalize(activeProfile.name)]=localEdit;edits[normalize(data.name)]=localEdit;localStorage.setItem(LOCAL_EDITS,JSON.stringify(edits));saved={...activeProfile,...data,status:'needs_review'};localOnly=true;
+  }
+  characters=mergeCharacters([...characters.filter(c=>normalize(c.name)!==normalize(activeProfile.name)),saved]);activeProfile=characters.find(c=>normalize(c.name)===normalize(saved.name))||saved;
+  $('characterProfileStatus').textContent=`Estado de ficha: ${verify&&!localOnly?'VERIFICADA':'PENDIENTE DE REVISIÓN'}${localOnly?' · Copia local no sincronizada':activeProfile.id?' · Registro compartido':' · Guardado en este dispositivo'}`;
+  if(!localOnly)status.textContent=verify?'Ficha guardada y marcada como verificada.':'Cambios guardados en el catálogo compartido. La ficha queda pendiente de verificación.';
+  renderModal();renderSuggestions();
+ }catch(err){status.textContent=err.message;}finally{btn.disabled=false}
+}
 async function extractReference(url,statusEl,mode){
  const urlValue=String(url||'').trim();if(!/^https?:\/\//i.test(urlValue))throw Error('Pegá primero una URL http o https.');const selectedType=mode==='profile'?$('profileType').value:$('newCharacterType').value;if(!['real','ficticio'].includes(selectedType))throw Error('Elegí primero si el personaje es real o ficticio para cargar la plantilla correcta.');
  statusEl.textContent='Leyendo la referencia y extrayendo datos públicos…';
  const r=await fetch('/api/character-extract',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({url:urlValue,type:mode==='profile'?$('profileType').value:$('newCharacterType').value})});const d=await r.json();if(!r.ok)throw Error(d.error||'No se pudo extraer la referencia.');const x=d.extracted||{};
  if(mode==='profile'){
   if(x.name&&!$('profileName').value.trim())$('profileName').value=x.name;
-  if(x.description&&!$('profileDescription').value.trim())$('profileDescription').value=x.description;
+  if(x.description)$('profileDescription').value=x.description;
   if(x.aliases?.length){const old=$('profileAliases').value.split(',').map(v=>v.trim()).filter(Boolean);$('profileAliases').value=[...new Set([...old,...x.aliases])].join(', ')}
   let attrs;try{attrs=JSON.parse($('profileAttributes').value||'{}')}catch{attrs={}}if(!$('profileType').value&&x.attributes?.tipo)$('profileType').value=x.attributes.tipo;
-  for(const [k,v] of Object.entries(x.attributes||{})){if(['contenido_fuente','datos_fuente','plantilla','plantillaVersion','tipo'].includes(k)){if(v!==null&&v!==undefined&&v!=='')attrs[k]=v;}else if(attrs[k]===undefined||attrs[k]===null||attrs[k]==='')attrs[k]=v;}
+  for(const [k,v] of Object.entries(x.attributes||{})){if(['plantilla','plantillaVersion','tipo'].includes(k)){if(v!==null&&v!==undefined&&v!=='')attrs[k]=v;}else if(attrs[k]===undefined||attrs[k]===null||attrs[k]==='')attrs[k]=v;}
   attrs=applyFichaTemplate(attrs,$('profileType').value||x.attributes?.tipo||attrs.tipo);attrs._source=d.source||urlValue;$('profileSource').value=d.source||urlValue;$('profileAttributes').value=JSON.stringify(attrs,null,2);
   if(x.image&&!$('profileImage').value.trim()){$('profileImage').value=x.image;$('profileImage').dispatchEvent(new Event('input',{bubbles:true}));}
  }else{
   if(x.name&&!$('newCharacterName').value.trim())$('newCharacterName').value=x.name;
-  if(x.description&&!$('newCharacterDescription').value.trim())$('newCharacterDescription').value=x.description;
+  if(x.description)$('newCharacterDescription').value=x.description;
   if(x.aliases?.length&&!$('newCharacterAliases').value.trim())$('newCharacterAliases').value=x.aliases.join(', ');
   $('newCharacterSource').value=d.source||urlValue;if(!$('newCharacterType').value&&x.attributes?.tipo)$('newCharacterType').value=x.attributes.tipo;newExtractedAttributes=applyFichaTemplate({...newExtractedAttributes,...(x.attributes||{})},$('newCharacterType').value||x.attributes?.tipo);newExtractedAttributes._source=d.source||urlValue;
   if(x.image&&!$('newCharacterImage').value.trim())$('newCharacterImage').value=x.image;
