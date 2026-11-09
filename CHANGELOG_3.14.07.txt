@@ -1,0 +1,41 @@
+MIND DUEL FUSION v3.14.07 — Reparación del razonamiento Clásico
+Base: FIX7_MENU_VISIBILIDAD_RETORNO
+
+CORRECCIONES
+- Corregido el flujo de nextClassic(): el selector Clasico.pregunta() se ejecuta una sola vez por turno. Antes se utilizaba como comprobación y se descartaba la pregunta devuelta, aunque podía modificar el estado de verificación.
+- El Cerebro ya no abandona la partida automáticamente al detectar dos contradicciones en su candidato principal. Ahora descarta hipótesis con dos contradicciones firmes y vuelve a evaluar los candidatos restantes.
+- Al alcanzar 20 preguntas, el Cerebro intenta adivinar. Si falla, conserva el segundo intento; solo solicita el nombre cuando agota los intentos o no quedan candidatos utilizables.
+- Ampliada la detección semántica de preguntas repetidas mediante el diccionario de MindKnowledge y Sugeridor.
+- Hechas más conservadoras las deducciones automáticas: no se presupone que una persona real no pueda tener magia/poderes, que humano excluya animal o que pertenecer a una franquicia excluya automáticamente otras.
+
+CATÁLOGO Y FICHAS
+- El modo Clásico incorpora perfiles locales jugables aunque se hayan actualizado después de cargar la página.
+- Incorpora fichas compartidas activas/verificadas y fichas pendientes que ya tengan un perfil estructurado mínimo.
+- Las fichas pendientes sin atributos no se introducen como candidatos vacíos, porque degradarían la cobertura de preguntas. Si se elige una, el Cerebro avisa que todavía no dispone de datos suficientes.
+- Corregido el catálogo para leer el array PERSONAJES aunque no esté expuesto como window.PERSONAJES.
+- El catálogo conserva atributos al combinar fichas locales y compartidas y expone acceso a las fichas y a la finalización de su carga.
+- El aprendizaje de una partida ya no convierte una ficha previamente verificada en pendiente de revisión.
+
+ARCHIVOS MODIFICADOS
+- script.js
+- clasico.js
+- catalogo_personajes.js
+- conocimiento.js
+
+ARCHIVOS NUEVOS
+- SIMULACION_CLASICO_FIX8.js
+- CHANGELOG_3.14.07.txt
+- CHANGELOG_FIX8_CLASICO_RAZONAMIENTO.txt
+
+ALCANCE Y LIMITACIONES
+- No se modificó multijugador.js, PeerJS, protocolos, reconexión ni lógica de partidas online.
+- No se conectó una IA externa; esta versión corrige el razonamiento determinista existente.
+- Las fichas creadas solo con nombre y descripción siguen sin tener atributos suficientes para una deducción fiable. Para que el Cerebro las use plenamente necesitan un perfil estructurado; el juego ahora lo advierte en lugar de fingir que conoce esos datos.
+- No se alteraron las reglas de 20 preguntas ni los dos intentos.
+
+VALIDACIÓN
+- node --check ejecutado sobre todos los archivos JavaScript.
+- SIMULACION_CLASICO_FIX8.js: 20 controles PASS.
+- SIMULACION_CLASICO_3_14_06.js: 9 controles PASS.
+- Integridad del ZIP comprobada con unzip -t.
+- No se realizó prueba visual interactiva en navegador; se recomienda probar partidas reales en móvil y escritorio.

@@ -99,7 +99,15 @@ const CONC=[
  ['geo:africa',/\bafrica\b/],['geo:oceania',/\boceania\b/]
 ];
 const GRUPO={real:'tipo',ficticio:'tipo',hombre:'genero',mujer:'genero'};
-function conceptoDe(L,q){const t=L.normalizar(q);for(const[k,re]of CONC)if(re.test(t))return k;return null}
+function conceptoDe(L,q){
+  const t=L.normalizar(q);
+  for(const[k,re]of CONC)if(re.test(t))return k;
+  // Reutiliza el diccionario semántico compartido para reconocer paráfrasis
+  // que el detector local del modo Clásico no contemplaba.
+  try { const learned=window.MindKnowledge?.conceptoDePregunta?.(q); if(learned)return learned; } catch {}
+  try { const suggested=window.Sugeridor?.concepto?.(q); if(suggested)return suggested; } catch {}
+  return null;
+}
 function esEspecificaTemprana(s,L,q){
   if((s?.n||0)>=10)return false;
   const t=L.normalizar(q);
@@ -110,19 +118,12 @@ function hechosFirmes(L,log){const f={};for(const r of log||[]){if(!r||(r.a!=='s
 // Lo que ya se deduce de esos hechos, sin necesidad de preguntarlo.
 function implicados(f){
   const imp={},set=(k,v)=>{if(!(k in f)&&!(k in imp))imp[k]=v};
-  if('real' in f){set('ficticio',!f.real);if(f.real){set('poderes',false);set('magia',false);CONC.forEach(([k])=>{if(k.startsWith('franq:'))set(k,false)})}}
+  if('real' in f)set('ficticio',!f.real);
   if('ficticio' in f)set('real',!f.ficticio);
-  if(f.poderes===false)set('magia',false);
+  // Solo se infieren equivalencias estrictas. No asumir que humano excluye
+  // animal, que real excluye magia/poderes ni que dos universos no se cruzan.
   if(f.hombre===true)set('mujer',false);
   if(f.mujer===true)set('hombre',false);
-  if(f.vivo===true)set('fallecido',false);
-  if(f.television===true)set('serie_television',true);
-  if(f.humano===true)set('animal',false);
-  if(f.animal===true)set('humano',false);
-  for(const pref of['franq:','geo:']){
-    const si=Object.keys(f).filter(k=>k.startsWith(pref)&&f[k]===true);
-    if(si.length)CONC.forEach(([k])=>{if(k.startsWith(pref)&&!si.includes(k))set(k,false)});
-  }
   return imp;
 }
 // ¿Esta pregunta repite o ya está respondida por lo que el jugador contestó?
@@ -266,8 +267,15 @@ function contradicciones(s,L,p){
   for(const r of s.log||[]){if(!r||(r.a!=='si'&&r.a!=='no'))continue;const v=val(L,r.q,p);if(v===null)continue;if(v!==(r.a==='si'))n++}
   return n;
 }
+// Descarta candidatos que ya contradicen dos respuestas firmes. Evita que una
+// hipótesis imposible siga liderando por peso acumulado o bloquee la deducción.
+function descartarContradichos(s,L,limite=2){
+  const descartados=[];let m=mejor(s),guard=0;
+  while(m&&contradicciones(s,L,m.p)>=limite&&guard<s.ps.length){descartados.push({i:m.i,p:m.p,contradicciones:contradicciones(s,L,m.p)});rechazar(s,m.i);m=mejor(s);guard++;}
+  return {mejor:m,descartados};
+}
 function encaje(s,L){const m=mejor(s);return m?{p:m.p,contra:contradicciones(s,L,m.p)}:null}
 
-const C={nuevo,pregunta,responder,mejor,debeAdivinar,rechazar,frase,esRedundante,separaLideres,nota,razonar,notaFallo,encaje,contradicciones,preguntaVerificacion};
+const C={nuevo,pregunta,responder,mejor,debeAdivinar,rechazar,frase,esRedundante,separaLideres,nota,razonar,notaFallo,encaje,contradicciones,preguntaVerificacion,descartarContradichos};
 if(typeof module!=='undefined'&&module.exports)module.exports=C;else window.Clasico=C;
 })();

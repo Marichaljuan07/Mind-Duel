@@ -1,0 +1,27 @@
+FIX 8 — Reparación del modo Clásico
+
+Base: Mind_Duel_Fusion_FIX7_MENU_VISIBILIDAD_RETORNO.zip
+
+Qué se corrigió:
+- El Cerebro ya no llama dos veces al selector de preguntas en un mismo turno ni descarta silenciosamente una pregunta que ya había reservado.
+- Si su candidato principal contradice dos respuestas firmes, lo descarta y sigue investigando en lugar de rendirse.
+- Al llegar a la pregunta 20 intenta adivinar; si falla, puede utilizar el segundo intento.
+- La detección de preguntas equivalentes utiliza también el diccionario semántico compartido.
+- Se eliminaron algunas inferencias demasiado amplias que podían descartar personajes válidos.
+- El modo Clásico vuelve a consultar perfiles locales jugables y fichas compartidas con datos estructurados.
+- El catálogo conserva los atributos de las fichas y puede leer correctamente el catálogo local.
+- El aprendizaje ya no degrada fichas verificadas.
+
+Importante sobre personajes creados:
+Una ficha compartida que solo tenga nombre y descripción no contiene información suficiente para que el Cerebro pueda deducir sus características. FIX8 la identifica y avisa de esa limitación. Las fichas pendientes solo entran al conjunto de candidatos cuando tienen datos estructurados mínimos; así no se llena el conjunto de personajes con fichas vacías.
+
+Alcance:
+- Cambios limitados al modo Clásico, catálogo y aprendizaje.
+- multijugador.js queda intacto. No se modificó PeerJS ni la reconexión.
+
+Pruebas:
+- 20 controles nuevos: PASS.
+- 9 controles de simulación anterior: PASS.
+- node --check de todos los JavaScript: PASS.
+- Integridad del ZIP: PASS.
+- Sin prueba visual interactiva de navegador.
