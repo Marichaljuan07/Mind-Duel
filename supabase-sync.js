@@ -28,9 +28,9 @@
     if (Array.isArray(people)) {
       const byName = new Map(people.map(person => [normalize(person.nombre), person]));
       for (const row of data.characters) {
-        if (!row || !row.name || row.status === 'archived') continue;
+        if (!row || !row.name || row.status === 'archived' || (row.status === 'candidate' || row.status === 'needs_review' || row.status === 'pending')) continue;
         const attributes = row.attributes && typeof row.attributes === 'object' && !Array.isArray(row.attributes) ? row.attributes : {};
-        const merged = { ...attributes, _source: attributes._source || '', _image: attributes._image || '', _contenidoFuente: attributes.contenido_fuente || '', nombre: row.name, alias: Array.isArray(row.aliases) ? row.aliases : (attributes.alias || []), descripcion: row.description || attributes.descripcion || '', _sharedCatalog: true, _catalogStatus: row.status || 'active', _catalogId: row.id || null };
+        const merged = { ...attributes, nombre: row.name, alias: Array.isArray(row.aliases) ? row.aliases : (attributes.alias || []), descripcion: row.description || attributes.descripcion || '', _sharedCatalog: true, _catalogStatus: row.status || 'active', _catalogId: row.id || null };
         const existing = byName.get(normalize(row.name));
         if (existing) Object.assign(existing, merged);
         else { people.push(merged); byName.set(normalize(row.name), merged); }

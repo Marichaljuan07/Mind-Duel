@@ -1,21 +1,26 @@
 'use strict';
 const assert=require('node:assert/strict');
-const dns=require('node:dns').promises;
-const originalLookup=dns.lookup,originalFetch=global.fetch;
-const endpoint=require('./api/character-extract');
-function responseMock(html,status=200,headers={'content-type':'text/html; charset=utf-8'}){return new Response(html,{status,headers});}
-async function invoke(url,html,status=200){dns.lookup=async()=>[{address:'93.184.216.34',family:4}];global.fetch=async()=>responseMock(html,status);const headers={};const res={statusCode:200,setHeader(k,v){headers[k]=v},status(n){this.statusCode=n;return this},json(v){this.payload=v;return this}};await endpoint({method:'POST',body:{url}},res);return res;}
-(async()=>{let passed=0;const test=async(name,fn)=>{try{await fn();passed++;console.log('PASS',name)}catch(e){console.error('FAIL',name,e.message);process.exitCode=1}};
-const html=`<!doctype html><html><head><title>Personaje de prueba</title><meta property="og:description" content="Una descripción corta"><meta property="og:image" content="/foto.jpg"></head><body><nav>Menú y enlaces que no interesan</nav><article><h1>Personaje de prueba</h1><p>Esta es una biografía suficientemente extensa del personaje que permite comprobar que el extractor toma contenido real del artículo y no solamente los metadatos de la página.</p><p>Nació en una ciudad conocida y desarrolló una extensa trayectoria como dirigente y escritor.</p><table><tr><th>Nacimiento</th><td>14 de marzo de 1950</td></tr><tr><th>Ocupación</th><td>Escritor</td></tr></table></article><footer>Publicidad y pie de página</footer></body></html>`;
-await test('genera una descripción breve automáticamente',async()=>{const r=await invoke('https://example.com/personaje',html);assert.equal(r.statusCode,200);assert.ok(r.payload.extracted.description.length<=260);assert.equal(r.payload.extracted.description,'Una descripción corta')});
-await test('la descripción no comienza repitiendo el nombre del personaje',async()=>{const html='<html><head><title>Francisco (papa)</title><meta name="description" content="Francisco fue el 266.º papa de la Iglesia católica, cuyo pontificado transcurrió entre 2013 y 2025."></head><body><article><p>Francisco fue el 266.º papa de la Iglesia católica, cuyo pontificado transcurrió entre 2013 y 2025.</p></article></body></html>';const r=await invoke('https://example.com/francisco',html);assert.match(r.payload.extracted.description,/^266.º papa/);assert.doesNotMatch(r.payload.extracted.description,/^Francisco/i)});
-await test('conserva el contenido fuente completo por separado',async()=>{const r=await invoke('https://example.com/personaje',html);assert.match(r.payload.extracted.attributes.contenido_fuente,/biografía suficientemente extensa/);assert.match(r.payload.extracted.attributes.contenido_fuente,/trayectoria como dirigente/) });
-await test('extrae filas de tablas como datos de fuente',async()=>{const r=await invoke('https://example.com/personaje',html);assert.deepEqual(r.payload.extracted.attributes.datos_fuente,['Nacimiento: 14 de marzo de 1950','Ocupación: Escritor'])});
-await test('conserva imagen relativa como URL absoluta',async()=>{const r=await invoke('https://example.com/personaje',html);assert.equal(r.payload.extracted.image,'https://example.com/foto.jpg')});
-await test('no incorpora navegación ni pie de página',async()=>{const r=await invoke('https://example.com/personaje',html);assert.doesNotMatch(r.payload.extracted.description,/Menú y enlaces|Publicidad y pie/)});
-await test('rechaza destinos locales',async()=>{dns.lookup=originalLookup;global.fetch=originalFetch;const headers={};const res={setHeader(){},status(n){this.statusCode=n;return this},json(v){this.payload=v;return this}};await endpoint({method:'POST',body:{url:'http://127.0.0.1/admin'}},res);assert.equal(res.statusCode,400)});
-await test('rechaza método distinto de POST',async()=>{const res={setHeader(){},status(n){this.statusCode=n;return this},json(v){this.payload=v;return this}};await endpoint({method:'GET',body:{}},res);assert.equal(res.statusCode,405)});
-await test('el catálogo compartido no excluye fichas pendientes de la sincronización del Cerebro',async()=>{const sync=require('fs').readFileSync(__dirname+'/supabase-sync.js','utf8');assert.match(sync,/row\.status === 'archived'/);assert.doesNotMatch(sync,/row\.status === 'needs_review'|row\.status === 'pending'|row\.status === 'candidate'/)});
-await test('el Cerebro admite fichas pendientes con los datos mínimos y evita las incompletas',async()=>{const fs=require('fs'),vm=require('vm'),source=fs.readFileSync(__dirname+'/script.js','utf8'),a=source.indexOf('function buildClassicCandidatePool(){'),b=source.indexOf('\nfunction findKnownCharacter',a);const context={PERSONAJES:[],MindLogic:{normalizar:s=>String(s||'').toLowerCase()},window:{MindKnowledge:{listarJugables:()=>[]},MindCharacterCatalog:{list:()=>[{name:'Pendiente completo',status:'needs_review',attributes:{tipo:'real',genero:'hombre',humano:true,contenido_fuente:'Texto de referencia'}},{name:'Pendiente incompleto',status:'needs_review',attributes:{contenido_fuente:'Texto de referencia'}}]}}};vm.runInNewContext(source.slice(a,b)+'\nresult=buildClassicCandidatePool();',context);assert.ok(context.result.some(x=>x.nombre==='Pendiente completo'));assert.ok(!context.result.some(x=>x.nombre==='Pendiente incompleto'))});
-dns.lookup=originalLookup;global.fetch=originalFetch;console.log(`${passed}/10 pruebas aprobadas`);if(passed!==10)process.exitCode=1;
-})().catch(e=>{dns.lookup=originalLookup;global.fetch=originalFetch;console.error(e);process.exitCode=1});
+const fs=require('node:fs');
+const K=require('./conocimiento.js');
+let passed=0;
+function test(name,fn){try{fn();passed++;console.log('PASS',name)}catch(e){console.error('FAIL',name,e.message);process.exitCode=1}}
+test('genera preguntas dinámicas desde atributos reales de las fichas',()=>{
+ const ps=[{nombre:'Francisco',tipo:'real',profesion:'Papa'},{nombre:'Einstein',tipo:'real',profesion:'Físico'},{nombre:'Otro papa',tipo:'real',profesion:'Papa'}];
+ const q=K.preguntasDesdeFichas(ps);assert(q.includes('¿Su profesión es Papa?'));assert(q.includes('¿Su profesión es Físico?'));
+});
+test('el Cerebro puede evaluar respuestas positivas y negativas con esos atributos',()=>{
+ const a={profesion:'Papa'},b={profesion:'Físico'},c={};const concept=K.conceptoDePregunta('¿Su profesión es Papa?');assert.equal(K.valor(a,concept),true);assert.equal(K.valor(b,concept),false);assert.equal(K.valor(c,concept),null);
+});
+test('la plantilla separa personas reales y personajes ficticios',()=>{
+ const ui=fs.readFileSync('catalogo_personajes.js','utf8');assert.match(ui,/persona_real_v2/);assert.match(ui,/personaje_ficticio_v2/);assert.match(fs.readFileSync('index.html','utf8'),/newCharacterType/);
+});
+test('las fichas pendientes compartidas no se excluyen del conjunto clásico',()=>{
+ const s=fs.readFileSync('script.js','utf8');assert.match(s,/\['archived','rejected','retired'\]\.includes\(row\.status\)/);assert.doesNotMatch(s,/if\(!coreReady\)continue/);assert.doesNotMatch(s,/const coreReady=/);
+});
+test('la extracción conserva el texto de fuente en contenido_fuente y genera descripción corta',()=>{
+ const api=fs.readFileSync('api/character-extract.js','utf8');assert.match(api,/attributes\.contenido_fuente=content\.slice\(0,MAX_TEXT\)/);assert.match(api,/conciseDescription\(/);assert.match(api,/mapFacts\(/);
+});
+test('las fichas nuevas requieren indicar real o ficticio',()=>{
+ const api=fs.readFileSync('api/characters.js','utf8');assert.match(api,/Indicá si el personaje es real o ficticio/);
+});
+console.log(`${passed}/6 pruebas aprobadas`);

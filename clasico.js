@@ -11,7 +11,8 @@ function pregunta(s,L){
   const maxActual=maxPeso(s);
   const candidatosActivos=s.ps.filter((p,i)=>(s.w[i]||0)>=Math.max(0.000001,maxActual*0.12));
   const contextual=Sugeridor.preguntasContextuales?Sugeridor.preguntasContextuales(L,facts,s.n,candidatosActivos):[];
-  const pool=[...new Set([...contextual,...Sugeridor.POOL])];
+  const dynamic=typeof window!=='undefined'?(window.MindKnowledge?.preguntasDesdeFichas?.(s.ps)||[]):[];
+  const pool=[...new Set([...contextual,...Sugeridor.POOL,...dynamic])];
   let c=[];
   // v3.13.82: con un único sospechoso no se hacen preguntas de relleno: se lo pone a prueba.
   if((s.verif||0)<2&&s.n>=4&&activos(s)<=1){

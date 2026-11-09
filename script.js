@@ -373,9 +373,8 @@ async function startClassic() {
   resetGame();
   classicSetMode(true);
   window.MatchHistory?.begin('clásico'); window.MindSparring?.start('clásico');
-  // Incorporar fichas locales y compartidas estructuradas. Una ficha incompleta
-  // elegida por el jugador se añade solo a esta partida: sus datos desconocidos
-  // no se convierten en respuestas negativas ni contaminan el resto del catálogo.
+  // Incorporar fichas locales y compartidas, incluidas las pendientes.
+  // Los atributos desconocidos permanecen neutrales y no se convierten en NO.
   try { await Promise.race([window.MindCharacterCatalog?.ready?.() || Promise.resolve(), new Promise(resolve => setTimeout(resolve, 1800))]); } catch {}
   const classicPool = buildClassicCandidatePool();
   const chosenKey=MindLogic.normalizar(classicSecretName);
@@ -575,22 +574,17 @@ function buildClassicCandidatePool(){
     }
     current.alias=[...new Set([...(current.alias||[]),...(candidate.alias||[])])];
   };
-  (PERSONAJES||[]).forEach(p=>{
-    if(p&&p._sharedCatalog){const ready=(['real','ficticio'].includes(p.tipo)&&!!p.genero&&typeof p.humano==='boolean');if(!ready)return;}
-    add(p);
-  });
+  (PERSONAJES||[]).forEach(p=>{if(p&&p._sharedCatalog&&['archived','rejected','retired'].includes(p.status))return;add(p);});
   // Las plantillas locales jugables pueden haberse actualizado después de cargar la página.
   try { (window.MindKnowledge?.listarJugables?.()||[]).forEach(p=>add(p)); } catch {}
   const shared=window.MindCharacterCatalog?.list?.()||[];
   for(const row of shared){
-    if(!row||!row.name||row.status==='archived')continue;
+    if(!row||!row.name||['archived','rejected','retired'].includes(row.status))continue;
     const raw=row.attributes&&typeof row.attributes==='object'?row.attributes:{};
-    const coreReady=(['real','ficticio'].includes(raw.tipo) && !!raw.genero && typeof raw.humano==='boolean');
-    // Ninguna ficha compartida entra al conjunto de deducción sin los datos
-    // mínimos. Si el jugador elige una incompleta, se incorpora solo a esa ronda.
-    if(!coreReady)continue;
+    // Las fichas pendientes también son jugables. Los campos desconocidos
+    // permanecen como null y no se interpretan como respuestas negativas.
     const attrs=raw;
-    add({...attrs,nombre:row.name,alias:Array.isArray(row.aliases)?row.aliases:[],descripcion:row.description||'',tipo:row.tipo||attrs.tipo||null,universo:row.universo||attrs.universo||null});
+    add({...attrs,nombre:row.name,alias:Array.isArray(row.aliases)?row.aliases:[],descripcion:row.description||'',tipo:row.tipo||attrs.tipo||null,universo:row.universo||attrs.universo||null,_sharedCatalog:true,status:row.status||'needs_review'});
   }
   return pool;
 }
@@ -726,7 +720,7 @@ window.addEventListener('pagehide',()=>machineAutosave());
 function buildSoloCharacterPool(){
  const pool=[...(PERSONAJES||[])];const seen=new Set(pool.map(p=>MindLogic.normalizar(p.nombre)));
  for(const row of (window.MindCharacterCatalog?.list?.()||[])){
-  if(!row||!row.name||row.status==='archived')continue;
+  if(!row||!row.name||['archived','rejected','retired'].includes(row.status))continue;
   const a=row.attributes&&typeof row.attributes==='object'?row.attributes:{};
   // Para una partida justa se exige el núcleo mínimo; los campos desconocidos no se inventan.
   if(!['real','ficticio'].includes(a.tipo)||!['hombre','mujer','otro'].includes(a.genero)||typeof a.humano!=='boolean')continue;

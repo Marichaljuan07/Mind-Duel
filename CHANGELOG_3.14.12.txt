@@ -1,29 +1,50 @@
-MIND DUEL FUSION — VERSIÓN 3.14.12
-Catálogo colaborativo con protección básica
+MIND DUEL FUSION — VERSION 3.14.12
+FICHAS TIPADAS Y CONOCIMIENTO DINÁMICO DEL CEREBRO
 
 CAMBIOS
-- Cualquier jugador puede proponer y crear una ficha nueva desde el catálogo.
-- Las fichas nuevas quedan en estado "Pendiente de revisión", pero siguen siendo visibles y jugables.
-- La sincronización del Cerebro ya no excluye las fichas pendientes; solo omite las archivadas.
-- Las fichas existentes se muestran en modo consulta. Los campos de edición se habilitan al introducir la clave de administrador.
-- El servidor exige CHARACTER_EDITOR_TOKEN para cualquier modificación compartida; una clave incorrecta o ausente no permite editar.
-- El servidor limita la creación repetida desde una misma IP a 8 fichas cada 10 minutos por instancia y rechaza referencias/imágenes que no sean URLs HTTP/HTTPS.
-- Se mantiene la comprobación de duplicados antes de crear una ficha.
-- El catálogo muestra el total de personajes, verificados y pendientes de revisión.
-- La extracción genera una descripción breve automática a partir de la descripción de la página o del primer bloque útil; no agrega el nombre al comienzo cuando detecta que se repite.
-- El texto extraído se conserva por separado en contenido_fuente (hasta 12.000 caracteres) y los datos de tablas en datos_fuente.
-- El motor de conocimiento aprovecha datos estructurados explícitos de las tablas (por ejemplo, ocupación, nacionalidad y lugar de nacimiento) sin convertir menciones sueltas del texto en hechos.
-- Se conserva la referencia y la imagen asociadas a cada ficha.
 
-SEGURIDAD Y LÍMITES
-- La clave de administrador nunca se incluye en el código ni se guarda en localStorage; se envía únicamente al servidor al guardar.
-- Configurar CHARACTER_EDITOR_TOKEN como variable de entorno en Vercel y volver a desplegar para habilitar la edición administrativa.
-- El límite de creación por IP es una protección básica de mejor esfuerzo; no reemplaza un sistema persistente de moderación o control de abuso.
-- La descripción automática es heurística, no un resumen semántico perfecto. Debe revisarse la ficha y su referencia.
-- El texto completo se conserva en la ficha y queda disponible junto con los atributos; el motor actual utiliza directamente los atributos y datos estructurados reconocidos, no interpreta semánticamente cada frase del texto libre.
+1. PLANTILLAS SEGÚN EL TIPO
+- Las fichas nuevas requieren indicar si el personaje es REAL o FICTICIO.
+- Se incorpora la plantilla persona_real_v2 para personas reales.
+- Se incorpora la plantilla personaje_ficticio_v2 para personajes ficticios.
+- Al cambiar el tipo se eliminan campos exclusivos de la plantilla anterior para evitar datos cruzados.
+- Los datos desconocidos permanecen en null o sin completar.
 
-ARCHIVOS Y PRUEBAS
+2. EXTRACCIÓN DESDE REFERENCIAS
+- El extractor organiza etiquetas de tablas en campos estructurados: profesión, ocupación, nacionalidad, lugar y fechas de nacimiento, fallecimiento, universo, especie, habilidades, poderes, armas, organizaciones, afiliaciones, obras y otros datos.
+- Genera una descripción breve a partir del comienzo de la fuente, intentando no repetir el nombre.
+- La descripción usa reglas heurísticas; no es un resumen semántico producido por un modelo de IA.
+- Conserva hasta 12.000 caracteres del contenido principal en contenido_fuente y los datos de tablas en datos_fuente.
+- Al actualizar una referencia se refrescan el contenido_fuente y los datos_fuente; los demás campos ya completados se preservan salvo que estén vacíos.
+- Se normaliza el campo legado _contenidoFuente a contenido_fuente.
+- Se conserva la protección SSRF, el límite de descarga y las validaciones existentes.
+
+3. CEREBRO CON PREGUNTAS BASADAS EN FICHAS
+- Clásico genera preguntas adicionales usando valores concretos presentes en las fichas: profesión, ocupación, nacionalidad, lugar de nacimiento, universo, franquicia, medio de origen, especie, habilidades, poderes, armas, organizaciones, afiliaciones, ámbito y rasgos.
+- Solo formula preguntas cuando hay valores conocidos que permiten distinguir candidatos.
+- Un campo ausente sigue siendo desconocido; nunca se interpreta automáticamente como NO.
+- Las fichas pendientes y verificadas participan en la deducción.
+- Las fichas archivadas, rechazadas o retiradas quedan fuera del catálogo público y del conjunto de candidatos.
+
+4. CATÁLOGO Y CONTRIBUCIONES
+- Las fichas nuevas se guardan con estado needs_review, pero ese estado no bloquea su uso en partidas.
+- El tipo real/ficticio se valida antes de guardar una ficha nueva.
+- La edición de fichas compartidas conserva la protección administrativa mediante CHARACTER_EDITOR_TOKEN en el servidor.
+
+ARCHIVOS Y COMPATIBILIDAD
 - multijugador.js no fue modificado.
-- Se conservaron los archivos TXT históricos; el único TXT nuevo es este changelog.
-- Pruebas: extractor y catálogo 10/10; seguridad de catálogo 6/6; datos estructurados 1/1; FIX9 19/19; Clásico FIX8 20/20; Clásico 3.14.05, 3.14.06, extractor 3.14.09 y 3.14.10 aprobados.
-- Se deben realizar pruebas reales en Vercel/Supabase después de configurar la variable de administrador. No se realizó una prueba de producción desde este entorno.
+- No se requiere migración nueva de tablas: los atributos continúan almacenándose en el JSONB existente.
+- Se conservaron los changelogs y archivos históricos que ya estaban en la versión base.
+
+PRUEBAS
+- 80 controles de simulación aprobados en los conjuntos 3.14.09, 3.14.10, 3.14.11, 3.14.12, Clásico, FIX8 y FIX9.
+- 3 pruebas adicionales de extracción: descripción breve y campos reales; conservación de contenido; plantilla ficticia y mapeo de universo/especie/habilidades.
+- 3 pruebas de integración del Cerebro: preguntas desde atributos, uso conjunto de fichas pendientes/verificadas y neutralidad de datos ausentes.
+- Sintaxis Node comprobada en los archivos JavaScript.
+- Hash de multijugador.js idéntico al de la versión base.
+
+LIMITACIONES DE VALIDACIÓN
+- No se realizó una extracción en vivo contra Wikipedia/Fandom desde este entorno.
+- No se verificó el despliegue en Vercel ni la escritura/lectura real en Supabase.
+- El contenido de fuente se limita a los primeros 12.000 caracteres seleccionados por el extractor; no equivale a almacenar la página web completa.
+- La generación de descripción y el mapeo de tablas son heurísticos. Requieren revisión cuando la página usa etiquetas o formatos no contemplados.

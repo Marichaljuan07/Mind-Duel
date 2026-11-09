@@ -35,7 +35,7 @@ const context={PERSONAJES:[{nombre:'Local',tipo:'real',genero:'hombre',humano:tr
 vm.runInNewContext(source.slice(a,b)+'\nresult=buildClassicCandidatePool();',context);
 const names=context.result.map(p=>p.nombre);
 check('se incluyen fichas compartidas con perfil mínimo',names.includes('Pendiente completo')&&names.includes('Activo completo'));
-check('se excluyen fichas compartidas incompletas',!names.includes('Pendiente incompleto')&&!names.includes('Activo incompleto')&&!names.includes('Shared incompleto'));
+check('las fichas compartidas incompletas también quedan disponibles como candidatos',names.includes('Pendiente incompleto')&&names.includes('Activo incompleto')&&names.includes('Shared incompleto'));
 check('se conservan personajes y plantillas locales',names.includes('Local')&&names.includes('Plantilla local'));
 
 check('el aviso técnico de ficha incompleta ya no aparece en el diálogo',!source.includes('Una observación: esa ficha figura en el catálogo'));

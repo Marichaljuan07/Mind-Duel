@@ -53,13 +53,13 @@ const poolContext={
     {name:'Personaje local',status:'active',attributes:{tipo:'ficticio'}},
     {name:'Ficha pendiente incompleta',status:'needs_review',description:'Descripción pendiente',attributes:{}},
     {name:'Ficha pendiente completa',status:'needs_review',description:'Perfil estructurado',attributes:{tipo:'real',genero:'hombre',humano:true}},
-    {name:'Ficha activa',status:'active',attributes:{tipo:'ficticio',genero:'otro',humano:false}}
+    {name:'Ficha activa',status:'active',attributes:{tipo:'ficticio',humano:false}}
   ]}}
 };
 vm.runInNewContext(scriptSource.slice(poolStart,poolEnd)+'\nresult=buildClassicCandidatePool();',poolContext);
 const pool=poolContext.result;
 check('el catálogo compartido incorpora fichas pendientes con perfil estructurado',pool.some(p=>p.nombre==='Ficha pendiente completa'));
-check('las fichas pendientes sin atributos se excluyen para no contaminar el cálculo',!pool.some(p=>p.nombre==='Ficha pendiente incompleta'));
+check('las fichas pendientes sin atributos también están disponibles como candidatos',pool.some(p=>p.nombre==='Ficha pendiente incompleta'));
 check('el perfil pendiente completo conserva sus datos estructurados',pool.find(p=>p.nombre==='Ficha pendiente completa')?.tipo==='real' && pool.find(p=>p.nombre==='Ficha pendiente completa')?.humano===true);
 check('las fichas activas conservan sus atributos',pool.find(p=>p.nombre==='Ficha activa')?.tipo==='ficticio' && pool.find(p=>p.nombre==='Ficha activa')?.humano===false);
 check('las plantillas locales jugables se incorporan en cada partida',pool.some(p=>p.nombre==='Perfil local nuevo'));
