@@ -9,7 +9,7 @@ function applyFichaTemplate(attrs,type){
  const allowed=new Set([...Object.keys(common),...Object.keys(specific),'_source','_image']);
  const out={...common,...specific};for(const [k,v] of Object.entries(a))if(allowed.has(k))out[k]=v;
  out.tipo=type;out.plantillaVersion=2;out.plantilla=type==='real'?'persona_real_v2':'personaje_ficticio_v2';
- const arrayKeys=['rasgos','medios','nacionalidades','organizaciones','cargos','obras','formacion','logros','habilidades','poderes','armas','afiliaciones','aliados','enemigos'];for(const k of arrayKeys){if(Array.isArray(a[k]))out[k]=a[k];else if(typeof a[k]==='string'&&a[k].trim())out[k]=[a[k].trim()];else out[k]=[];}
+ const arrayKeys=['rasgos','medios','nacionalidades','organizaciones','cargos','obras','formacion','logros','habilidades','poderes','armas','afiliaciones','aliados','enemigos'];for(const k of arrayKeys){if(!allowed.has(k))continue;if(Array.isArray(a[k]))out[k]=a[k];else if(typeof a[k]==='string'&&a[k].trim())out[k]=[a[k].trim()];else out[k]=[];}
  if(typeof out.genero==='string')out.genero=out.genero.toLowerCase();
  return out;
 }
@@ -70,21 +70,22 @@ async function saveProfile(verify=false){
   renderModal();renderSuggestions();
  }catch(err){status.textContent=err.message;}finally{btn.disabled=false}
 }
+function mergeExtractedAttributes(current, extracted){const out={...current};for(const [k,v] of Object.entries(extracted||{})){if(['tipo','plantilla','plantillaVersion'].includes(k)){if(v!==null&&v!==undefined&&v!=='')out[k]=v;continue;}const old=out[k];if(Array.isArray(v)){if(!Array.isArray(old)||old.length===0)out[k]=v.slice();else if(v.length)out[k]=[...new Set([...old,...v])];}else if(old===undefined||old===null||old==='')out[k]=v;}return out;}
 async function extractReference(url,statusEl,mode){
  const urlValue=String(url||'').trim();if(!/^https?:\/\//i.test(urlValue))throw Error('Pegá primero una URL http o https.');const selectedType=mode==='profile'?$('profileType').value:$('newCharacterType').value;if(!['real','ficticio'].includes(selectedType))throw Error('Elegí primero si el personaje es real o ficticio para cargar la plantilla correcta.');
  statusEl.textContent='Leyendo la referencia y extrayendo datos públicos…';
  const r=await fetch('/api/character-extract',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({url:urlValue,type:mode==='profile'?$('profileType').value:$('newCharacterType').value})});const d=await r.json();if(!r.ok)throw Error(d.error||'No se pudo extraer la referencia.');const x=d.extracted||{};
  if(mode==='profile'){
   if(x.name&&!$('profileName').value.trim())$('profileName').value=x.name;
-  if(x.description)$('profileDescription').value=x.description;
+  if(x.description&&!$('profileDescription').value.trim())$('profileDescription').value=x.description;
   if(x.aliases?.length){const old=$('profileAliases').value.split(',').map(v=>v.trim()).filter(Boolean);$('profileAliases').value=[...new Set([...old,...x.aliases])].join(', ')}
   let attrs;try{attrs=JSON.parse($('profileAttributes').value||'{}')}catch{attrs={}}if(!$('profileType').value&&x.attributes?.tipo)$('profileType').value=x.attributes.tipo;
-  for(const [k,v] of Object.entries(x.attributes||{})){if(['plantilla','plantillaVersion','tipo'].includes(k)){if(v!==null&&v!==undefined&&v!=='')attrs[k]=v;}else if(attrs[k]===undefined||attrs[k]===null||attrs[k]==='')attrs[k]=v;}
+  attrs=mergeExtractedAttributes(attrs,x.attributes||{});
   attrs=applyFichaTemplate(attrs,$('profileType').value||x.attributes?.tipo||attrs.tipo);attrs._source=d.source||urlValue;$('profileSource').value=d.source||urlValue;$('profileAttributes').value=JSON.stringify(attrs,null,2);
   if(x.image&&!$('profileImage').value.trim()){$('profileImage').value=x.image;$('profileImage').dispatchEvent(new Event('input',{bubbles:true}));}
  }else{
   if(x.name&&!$('newCharacterName').value.trim())$('newCharacterName').value=x.name;
-  if(x.description)$('newCharacterDescription').value=x.description;
+  if(x.description&&!$('newCharacterDescription').value.trim())$('newCharacterDescription').value=x.description;
   if(x.aliases?.length&&!$('newCharacterAliases').value.trim())$('newCharacterAliases').value=x.aliases.join(', ');
   $('newCharacterSource').value=d.source||urlValue;if(!$('newCharacterType').value&&x.attributes?.tipo)$('newCharacterType').value=x.attributes.tipo;newExtractedAttributes=applyFichaTemplate({...newExtractedAttributes,...(x.attributes||{})},$('newCharacterType').value||x.attributes?.tipo);newExtractedAttributes._source=d.source||urlValue;
   if(x.image&&!$('newCharacterImage').value.trim())$('newCharacterImage').value=x.image;

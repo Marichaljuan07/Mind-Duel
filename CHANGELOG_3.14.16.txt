@@ -1,0 +1,32 @@
+MIND DUEL FUSION — 3.14.16 EXTRACCIÓN ESTRUCTURADA Y PLANTILLAS CORREGIDAS
+
+EXTRACCIÓN
+- Combina datos JSON-LD, filas de infobox/tablas y hechos concretos detectados en el comienzo del artículo.
+- El texto introductorio se utiliza únicamente para identificar atributos; nunca se devuelve como biografía ni se guarda como contenido_fuente.
+- Reconoce, entre otros, cargo, número en el cargo, organización, profesión, nacionalidad, nombre secular, fechas y lugar de nacimiento.
+- Normaliza fechas españolas al formato AAAA-MM-DD.
+- Prioriza entidades Person/FictionalCharacter frente a WebPage, WebSite y otras entidades auxiliares del JSON-LD.
+- Los datos no identificados permanecen null o en listas vacías; no se inventan.
+
+PLANTILLAS Y COMBINACIÓN
+- Corregido el bucle de normalización de arrays que reintroducía habilidades, poderes y armas en fichas Reales después de filtrarlos.
+- El esquema del servidor filtra atributos por tipo Real/Ficticio.
+- Las listas vacías de una ficha existente ahora pueden completarse con datos extraídos.
+- Los datos manuales no vacíos se preservan; las listas se combinan sin reemplazar aportes previos.
+- La extracción no pisa una descripción manual ya escrita.
+
+DESCRIPCIÓN
+- Se construye únicamente a partir de atributos estructurados.
+- Ejemplo de prueba: «Papa número 266 de la Iglesia católica.»
+- No copia metadescripciones ni párrafos de la página.
+
+ALCANCE
+- No requiere API de IA externa.
+- La extracción depende de que la fuente permita recuperar HTML y de que sus datos aparezcan en estructuras o expresiones reconocibles. No promete interpretar cualquier página arbitraria.
+- No se modificó api/characters.js ni multijugador.js; el flujo de guardado y la protección por clave quedan como estaban.
+
+PRUEBAS
+- 9 pruebas de simulación aprobadas: Francisco, Kratos, JSON-LD, plantillas, combinación de atributos y ausencia de biografías.
+- node --check aprobado en los 39 archivos JavaScript.
+- multijugador.js conserva exactamente el mismo SHA-256 que la versión 3.14.15.
+- No se probó el guardado contra el proyecto Vercel/Supabase en producción desde este entorno.
