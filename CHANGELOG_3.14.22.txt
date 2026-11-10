@@ -1,0 +1,37 @@
+MIND DUEL FUSION — VERSIÓN 3.14.22
+Corrección de procesamiento bloqueante en el modo Clásico.
+
+CAMBIOS
+- Se agregaron variantes cooperativas asíncronas para procesar las respuestas, seleccionar preguntas y descartar candidatos contradictorios.
+- Los recorridos del catálogo se dividen en bloques y ceden el control al navegador entre bloques, permitiendo que el hilo principal atienda la interfaz y el reloj.
+- La siguiente pregunta se calcula con el mismo criterio de cobertura, equilibrio, contexto y variedad de la versión 3.14.21.
+- El análisis secundario de Sparring se ejecuta después de mostrar la pregunta y también procesa candidatos por bloques; ya no retrasa la aparición de la siguiente pregunta.
+- Se mantienen las reglas de ponderación, las dos oportunidades de adivinanza, el máximo de 20 preguntas y la protección contra repeticiones semánticas.
+
+ARCHIVOS MODIFICADOS
+- clasico.js
+- script.js
+- SIMULACION_CLASICO_3_14_22.js (prueba nueva)
+- SIMULACION_CLASICO_3_14_21.js (compatibilidad de la prueba histórica con Sparring diferido)
+- CHANGELOG_3.14.22.txt
+
+ARCHIVOS PROTEGIDOS SIN MODIFICAR
+- multijugador.js
+- api/character-extract.js
+- solo.js
+- conocimiento.js
+- sugeridor.js
+
+PRUEBAS
+- node --check: todos los archivos JavaScript del paquete.
+- Simulación cooperativa con 900 candidatos: respuesta, selección de la siguiente pregunta y filtrado de contradicciones.
+- Simulación de no repetición semántica y continuidad de la partida.
+- FIX9: 19/19 controles aprobados.
+- Simulación 3.14.20: aprobada.
+- Simulación 3.14.17: 13/13 pruebas aprobadas.
+- Las pruebas son sintéticas; la confirmación de fluidez real requiere probar la versión en el navegador del teléfono.
+
+ALCANCE
+- No se modificó la lógica de Solo ni Multijugador.
+- No se modificó el prompt del extractor.
+- Esta versión se entrega como ZIP; no actualiza GitHub automáticamente.

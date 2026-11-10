@@ -404,6 +404,20 @@ async function startClassic() {
   await nextClassic();
 }
 
+
+async function processClassicSparring(q) {
+  try {
+    const source=(classic.s?.ps||[]).map((p,i)=>({p,weight:classic.s?.w?.[i]||0})).filter(x=>x.weight>0).sort((a,b)=>b.weight-a.weight);
+    const limit=120,sample=source.length<=limit?source:Array.from({length:limit},(_,i)=>source[Math.round(i*(source.length-1)/(limit-1))]);
+    const candidates=[];
+    for(let i=0;i<sample.length;i+=24){
+      for(const x of sample.slice(i,i+24))candidates.push({weight:x.weight,value:Sugeridor.val(MindLogic,q,x.p)});
+      await new Promise(resolve=>setTimeout(resolve,0));
+    }
+    window.MindSparring?.question('clásico',q,{candidates});
+  } catch(err) { console.warn('[MIND] Sparring no pudo registrar la pregunta:',err); }
+}
+
 async function nextClassic() {
   if (classicBusy || classic.phase === 'end' || classic.phase === 'name') return;
   classicBusy = true;
@@ -412,12 +426,12 @@ async function nextClassic() {
     if (!s) throw new Error('No existe el estado de la partida clásica.');
     state.questionCount = s.n; state.guessesLeft = Math.max(0, MAX_GUESSES - classic.fails); updateHud();
 
-    const filtered = Clasico.descartarContradichos(s, MindLogic, 2);
+    const filtered = await (Clasico.descartarContradichosAsync?.(s, MindLogic, 2) || Promise.resolve(Clasico.descartarContradichos(s, MindLogic, 2)));
     const best = filtered.mejor;
     if (!best) { await classicName(); return; }
     if (Clasico.debeAdivinar(s) || s.n >= MAX_QUESTIONS) { await classicGuess(true); return; }
 
-    let q = Clasico.pregunta(s, MindLogic);
+    let q = await (Clasico.preguntaAsync?.(s, MindLogic) || Promise.resolve(Clasico.pregunta(s, MindLogic)));
     if (!q) {
       const fallback = ['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es un animal?','¿Es conocido principalmente por la ciencia?','¿Es conocido por el entretenimiento?', ...(Sugeridor.POOL || [])];
       q = fallback.find(x => !s.asked.has(MindLogic.normalizar(x)) && !Clasico.esRedundante(s, MindLogic, x));
@@ -426,14 +440,10 @@ async function nextClassic() {
     if (!q) { await classicGuess(true); return; }
 
     classic.cur = { tipo: 'q', q };
-    try {
-      const sparringSource=(classic.s?.ps||[]).map((p,i)=>({p,weight:classic.s?.w?.[i]||0})).filter(x=>x.weight>0).sort((a,b)=>b.weight-a.weight);
-      const sparringLimit=120;
-      const sparringSample=sparringSource.length<=sparringLimit?sparringSource:Array.from({length:sparringLimit},(_,i)=>sparringSource[Math.round(i*(sparringSource.length-1)/(sparringLimit-1))]);
-      const sparringCandidates=sparringSample.map(x=>({weight:x.weight,value:Sugeridor.val(MindLogic,q,x.p)}));
-      window.MindSparring?.question('clásico',q,{candidates:sparringCandidates});
-    } catch (err) { console.warn('[MIND] Sparring no pudo registrar la pregunta:',err); }
+    // La pregunta se muestra primero. Sparring es telemetría secundaria y no
+    // debe bloquear la respuesta visual ni la actualización del reloj.
     await addMessage(Clasico.frase(q), 'mind');
+    setTimeout(() => processClassicSparring(q), 0);
   } catch (err) {
     console.error('[MIND] Error al preparar el siguiente turno de Clásico:',err);
     // Si el selector falla, una pregunta general mantiene la partida jugable.
@@ -688,7 +698,7 @@ async function classicAnswer(ans) {
   try {
     if (c.tipo === 'q') {
       await addMessage(CL_LABEL[ans], 'player');
-      Clasico.responder(classic.s, MindLogic, c.q, ans);
+      await (Clasico.responderAsync?.(classic.s, MindLogic, c.q, ans) || Promise.resolve(Clasico.responder(classic.s, MindLogic, c.q, ans)));
       // La evidencia puede cambiar tras cada respuesta: renovar las fichas inferidas
       // antes de calcular la siguiente pregunta, pero reutilizarlas durante cada cálculo.
       Sugeridor.invalidarCache?.();

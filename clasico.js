@@ -287,6 +287,82 @@ function descartarContradichos(s,L,limite=2){
 }
 function encaje(s,L){const m=mejor(s);return m?{p:m.p,contra:contradicciones(s,L,m.p)}:null}
 
-const C={nuevo,pregunta,responder,mejor,debeAdivinar,rechazar,frase,esRedundante,separaLideres,nota,razonar,notaFallo,encaje,contradicciones,preguntaVerificacion,descartarContradichos};
+
+// v3.14.22: variantes cooperativas para que el navegador pueda pintar y
+// actualizar el reloj mientras se procesan catálogos grandes.
+const yieldUI=()=>new Promise(resolve=>setTimeout(resolve,0));
+async function responderAsync(s,L,q,a,chunk=450){
+  const nq=L.normalizar(q);s.asked.add(nq);const canonical=conceptoDe(L,q);if(canonical){s.asked.add('concepto:'+canonical);const group=grupoConcepto(canonical);if(group)s.asked.add('grupo:'+group)}s.n++;s.log.push({q,a});
+  const [x,y]=PESO[a]||PESO.nose;let processed=0;
+  for(let i=0;i<s.ps.length;i++){
+    const p=s.ps[i],v=val(L,q,p);
+    if(v===null||a==='nose'){/* neutral */}
+    else if(a==='psi')s.w[i]*=v?1:.35;
+    else if(a==='pno')s.w[i]*=v?.35:1;
+    else s.w[i]*=v?x:y;
+    if(++processed%chunk===0)await yieldUI();
+  }
+  const max=Math.max(0,...s.w);if(max>0&&Number.isFinite(max))s.w=s.w.map(w=>w/max);
+  if(s.verifQs&&s.verifQs.includes(q)){if(a==='si')s.verifOk=(s.verifOk||0)+1;else if(a==='no')s.verifFail=(s.verifFail||0)+1;}
+}
+async function preguntaVerificacionAsync(s,L,pool,chunk=450){
+  const m=mejor(s);if(!m)return null;let mejorQ=null,mejorEsp=-1,processed=0;
+  for(const q of pool){
+    const key=L.normalizar(q),canonical=conceptoDe(L,q);
+    if(s.asked.has(key)||(canonical&&(s.asked.has('concepto:'+canonical)||(grupoConcepto(canonical)&&s.asked.has('grupo:'+grupoConcepto(canonical)))))||esRedundante(s,L,q)||esEspecificaTemprana(s,L,q))continue;
+    if(val(L,q,m.p)!==true)continue;
+    let cumplen=0;
+    for(const p of s.ps){if(val(L,q,p)===true)cumplen++;if(++processed%chunk===0)await yieldUI();}
+    const esp=1/(1+cumplen);if(esp>mejorEsp){mejorEsp=esp;mejorQ=q;}
+  }
+  return mejorQ;
+}
+async function preguntaAsync(s,L,chunk=450){
+  const totalPeso=s.w.reduce((a,b)=>a+b,0);if(!totalPeso)return null;
+  const facts=s.log.filter(r=>r&&['si','no'].includes(r.a)).map(r=>({texto:r.q,answer:r.a==='si'}));
+  const maxActual=maxPeso(s),candidatosActivos=s.ps.filter((p,i)=>(s.w[i]||0)>=Math.max(.000001,maxActual*.12));
+  const contextual=Sugeridor.preguntasContextuales?Sugeridor.preguntasContextuales(L,facts,s.n,candidatosActivos):[];
+  const dynamic=typeof window!=='undefined'?(window.MindKnowledge?.preguntasDesdeFichas?.(s.ps)||[]):[];
+  const pool=[...new Set([...contextual,...Sugeridor.POOL,...dynamic])];
+  if((s.verif||0)<2&&s.n>=4&&activos(s)<=1){const v=await preguntaVerificacionAsync(s,L,pool,chunk);if(v){s.verif=(s.verif||0)+1;(s.verifQs=s.verifQs||[]).push(v);return v;}}
+  let c=[];let processed=0;
+  for(const minCob of [.58,.3,.12]){
+    c=[];const vistos=new Set();
+    for(let orden=0;orden<pool.length;orden++){
+      const q=pool[orden],key=L.normalizar(q),canonical=conceptoDe(L,q);
+      if(s.asked.has(key)||(canonical&&(s.asked.has('concepto:'+canonical)||(grupoConcepto(canonical)&&s.asked.has('grupo:'+grupoConcepto(canonical)))))||vistos.has(key))continue;
+      if(/\b(europa|america|americ[aá]n[oa]s?|norteamerican[oa]s?|asia|asiatic[oa]s?|africa|african[oa]s?|oceania|europe[oa]s?)\b/.test(key)&&!('real' in hechosFirmes(L,s.log))&&!('ficticio' in hechosFirmes(L,s.log)))continue;
+      if(esEspecificaTemprana(s,L,q))continue;vistos.add(key);if(esRedundante(s,L,q))continue;
+      let si=0,no=0,coberturaPeso=0;
+      for(let i=0;i<s.ps.length;i++){
+        const w=s.w[i]||0;if(w>0){const v=Sugeridor.val(L,q,s.ps[i]);if(v!==null){coberturaPeso+=w;if(v)si+=w;else no+=w;}}
+        if(++processed%chunk===0)await yieldUI();
+      }
+      const cobertura=coberturaPeso/totalPeso;
+      if(minCob<.58){let lSi=0,lNo=0,mxL=maxPeso(s);for(let i=0;i<s.ps.length;i++){if((s.w[i]||0)>=.5*mxL){const v=Sugeridor.val(L,q,s.ps[i]);if(v!==null){if(v)lSi++;else lNo++;}}if(++processed%chunk===0)await yieldUI();}if(!lSi||!lNo)continue;}
+      if(cobertura<minCob||si<=1e-9||no<=1e-9)continue;
+      const equilibrio=1-Math.abs(si-no)/coberturaPeso,contextualBonus=orden<contextual.length?.025:0;
+      c.push({q,score:cobertura*(equilibrio*.86+.14)+contextualBonus,orden});
+    }
+    if(c.length)break;
+  }
+  c.sort((a,b)=>b.score-a.score);
+  if(c[0]){
+    const top=c.filter(x=>x.score>=c[0].score-.085).slice(0,8);let sum=0;
+    const weights=top.map(x=>{const w=Math.exp((x.score-c[0].score)/.045);sum+=w;return w;});
+    let pick=Math.random()*sum;for(let i=0;i<top.length;i++){pick-=weights[i];if(pick<=0)return top[i].q;}return top[0].q;
+  }
+  if((s.verif||0)<2&&activos(s)<=2){const v=await preguntaVerificacionAsync(s,L,pool,chunk);if(v){s.verif=(s.verif||0)+1;(s.verifQs=s.verifQs||[]).push(v);return v;}}
+  return null;
+}
+async function descartarContradichosAsync(s,L,limite=2,chunk=450){
+  const descartados=[];let m=mejor(s),processed=0;
+  while(m){let contra=0;for(const r of s.log||[]){if(r&&['si','no'].includes(r.a)){const v=val(L,r.q,m.p);if(v!==null&&v!==(r.a==='si'))contra++;}if(++processed%chunk===0)await yieldUI();}
+    if(contra<limite)break;descartados.push({i:m.i,p:m.p,contradicciones:contra});rechazar(s,m.i);m=mejor(s);
+  }
+  return {mejor:m,descartados};
+}
+
+const C={nuevo,pregunta,preguntaAsync,responder,responderAsync,descartarContradichosAsync,mejor,debeAdivinar,rechazar,frase,esRedundante,separaLideres,nota,razonar,notaFallo,encaje,contradicciones,preguntaVerificacion,descartarContradichos};
 if(typeof module!=='undefined'&&module.exports)module.exports=C;else window.Clasico=C;
 })();

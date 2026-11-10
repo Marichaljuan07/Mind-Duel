@@ -74,7 +74,7 @@ console.log(`PASS rendimiento sintético (900 candidatos): inicio ${firstMs} ms;
 const app=fs.readFileSync(__dirname+'/script.js','utf8');
 assert.ok(app.includes("La última vez me ganaste. Esta vez voy a prestar más atención."));
 assert.ok(!app.includes('La última vez me ganaste con ${last.nombre}'));
-assert.match(app,/const sparringLimit=120/);
+assert.match(app,/(?:const sparringLimit=120|const limit=120)/);
 assert.match(app,/Clasico\.esRedundante\(s,MindLogic,x\)/);
 const knowledge=fs.readFileSync(__dirname+'/conocimiento.js','utf8');
 assert.match(knowledge,/let INFER_CACHE=new WeakMap\(\)/);
