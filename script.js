@@ -359,7 +359,7 @@ async function chooseClassic() {
 
 const CLASSIC_MEMORY_KEY='mind_duel_classic_memory_v1';
 function classicMemoryRead(){try{const x=JSON.parse(localStorage.getItem(CLASSIC_MEMORY_KEY)||'{}');return x&&Array.isArray(x.partidas)?x:{partidas:[],categorias:{}}}catch{return{partidas:[],categorias:{}}}}
-function classicMemoryComment(){try{const m=classicMemoryRead();const last=m.partidas[m.partidas.length-1];if(last&&last.nombre&&last.resultado==='jugador')return `La última vez me ganaste con ${last.nombre}. Esta vez voy a prestar más atención.`;const cats=Object.entries(m.categorias||{}).sort((a,b)=>b[1]-a[1]);if(cats[0]&&cats[0][1]>=3)return `Venís eligiendo mucho personajes de ${cats[0][0]}. Voy a tenerlo presente.`;}catch{}return ''}
+function classicMemoryComment(){try{const m=classicMemoryRead();const last=m.partidas[m.partidas.length-1];if(last&&last.nombre&&last.resultado==='jugador')return 'La última vez me ganaste. Esta vez voy a prestar más atención.';const cats=Object.entries(m.categorias||{}).sort((a,b)=>b[1]-a[1]);if(cats[0]&&cats[0][1]>=3)return `Venís eligiendo mucho personajes de ${cats[0][0]}. Voy a tenerlo presente.`;}catch{}return ''}
 function classicMemorySave(nombre,resultado,log){try{const m=classicMemoryRead();const facts=(log||[]).filter(x=>x&&['si','no'].includes(x.a));const text=facts.map(x=>String(x.q||'').toLowerCase()).join(' ');const groups=[['videojuegos',/videojuego|juego/],['mitología',/mitolog|dios|diosa/],['anime',/anime|manga/],['cine y series',/pel[ií]cula|televisi[oó]n|serie/],['cómics',/c[oó]mic|marvel|dc comics/]];for(const [g,re] of groups)if(re.test(text))m.categorias[g]=(m.categorias[g]||0)+1;m.partidas.push({nombre:String(nombre||''),resultado,fecha:Date.now(),preguntas:facts.length});m.partidas=m.partidas.slice(-20);localStorage.setItem(CLASSIC_MEMORY_KEY,JSON.stringify(m));}catch{}}
 
 async function startClassic() {
@@ -427,7 +427,10 @@ async function nextClassic() {
 
     classic.cur = { tipo: 'q', q };
     try {
-      const sparringCandidates=(classic.s?.ps||[]).map((p,i)=>({weight:classic.s?.w?.[i]||0,value:Sugeridor.val(MindLogic,q,p)}));
+      const sparringSource=(classic.s?.ps||[]).map((p,i)=>({p,weight:classic.s?.w?.[i]||0})).filter(x=>x.weight>0).sort((a,b)=>b.weight-a.weight);
+      const sparringLimit=120;
+      const sparringSample=sparringSource.length<=sparringLimit?sparringSource:Array.from({length:sparringLimit},(_,i)=>sparringSource[Math.round(i*(sparringSource.length-1)/(sparringLimit-1))]);
+      const sparringCandidates=sparringSample.map(x=>({weight:x.weight,value:Sugeridor.val(MindLogic,q,x.p)}));
       window.MindSparring?.question('clásico',q,{candidates:sparringCandidates});
     } catch (err) { console.warn('[MIND] Sparring no pudo registrar la pregunta:',err); }
     await addMessage(Clasico.frase(q), 'mind');
@@ -436,7 +439,7 @@ async function nextClassic() {
     // Si el selector falla, una pregunta general mantiene la partida jugable.
     const s=classic.s;
     const fallback=['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es un animal?','¿Es conocido por el entretenimiento?','¿Es conocido por la ciencia?'];
-    const q=fallback.find(x=>s&&!s.asked.has(MindLogic.normalizar(x)));
+    const q=fallback.find(x=>s&&!s.asked.has(MindLogic.normalizar(x))&&!Clasico.esRedundante(s,MindLogic,x));
     if(q){
       classic.cur={tipo:'q',q};
       try{await addMessage(Clasico.frase(q),'mind');}catch(messageError){console.warn('[MIND] No se pudo mostrar la pregunta de respaldo:',messageError);}

@@ -15,7 +15,7 @@ const enriquecer=p=>{
  let result=p;try{if(window.MindKnowledge)result=window.MindKnowledge.enriquecer(p)||p}catch{}
  ENRICH_CACHE.set(p,result);return result;
 };
-function invalidarCache(){VAL_CACHE=new WeakMap();ENRICH_CACHE=new WeakMap();}
+function invalidarCache(){VAL_CACHE=new WeakMap();ENRICH_CACHE=new WeakMap();try{window.MindKnowledge?.invalidarCache?.()}catch{}}
 function concepto(q){if(SUG_CONCEPTO[q])return SUG_CONCEPTO[q];try{return window.MindKnowledge?.conceptoDePregunta(q)||null}catch{return null}}
 const val=(L,q,p)=>{if(!p||typeof p!=='object'){const c=concepto(q);return c?L.resolverConcepto(c,p):L.evaluarPregunta(q,p)}let m=VAL_CACHE.get(p);if(!m){m=new Map();VAL_CACHE.set(p,m)}if(m.has(q))return m.get(q);const ep=enriquecer(p),c=concepto(q);let v=c?L.resolverConcepto(c,ep):L.evaluarPregunta(q,ep);if(v===null&&c&&typeof window!=='undefined'&&window.MindKnowledge){try{v=window.MindKnowledge.valor(ep,c)}catch{}}m.set(q,v);return v};
 function consistentes(L,ps,facts){return ps.filter(p=>facts.every(f=>{const ep=enriquecer(p),v=f.concepto?L.resolverConcepto(f.concepto,ep):L.evaluarPregunta(f.texto,ep);return v===null||v===f.answer}))}

@@ -1,0 +1,38 @@
+MIND DUEL FUSION — VERSIÓN 3.14.21
+Correcciones del modo Clásico: variedad de preguntas y rendimiento.
+
+CAMBIOS
+- Se amplió el margen de selección aleatoria controlada entre preguntas con puntuaciones cercanas. El Cerebro ya no queda atado a una única pregunta ganadora cuando hay alternativas de calidad similar.
+- Se reforzó el bloqueo de preguntas ya realizadas usando también su concepto semántico, no solamente el texto exacto.
+- Las preguntas «¿Es real?» y «¿Es ficticio?» se consideran equivalentes para evitar repetir la misma distinción incluso después de un «NO LO SÉ».
+- Se incorporó una caché de inferencias por ficha en MindKnowledge. Evita recalcular las mismas reglas para cada pregunta y candidato.
+- La caché se invalida cuando cambia el conocimiento aprendido, para no conservar inferencias desactualizadas.
+- El análisis de sparring de Clásico evalúa una muestra representativa de hasta 120 candidatos en vez de recalcular todos los candidatos en cada turno.
+- El fallback de error también respeta las preguntas semánticamente repetidas.
+- Las preguntas dinámicas ya no convierten valores booleanos true/false ni los tipos genéricos «real/ficticio» en preguntas literales absurdas.
+- El comentario de memoria ya no revela el nombre del personaje de la partida anterior.
+
+ARCHIVOS MODIFICADOS
+- clasico.js
+- conocimiento.js
+- sugeridor.js
+- script.js
+- SIMULACION_CLASICO_3_14_21.js (prueba nueva)
+
+ARCHIVOS PROTEGIDOS SIN MODIFICAR
+- multijugador.js
+- api/character-extract.js
+
+PRUEBAS
+- node --check: 42 archivos JavaScript aprobados.
+- Simulación 3.14.21: 4 primeras preguntas distintas en 20 partidas con el catálogo incluido (98 fichas); 12 preguntas sin repetición semántica; equivalencia real/ficticio; preguntas dinámicas; memoria y rendimiento sintético con 900 candidatos.
+- Rendimiento sintético observado: aproximadamente 250–350 ms por selección en este entorno Node. No equivale a una medición real en el teléfono.
+- SIMULACION_CLASICO_3_14_20.js: aprobada.
+- SIMULACION_FIX9.js: 19/19 controles aprobados.
+- SIMULACION_CEREBRO_FICHAS_3_14_12.js: aprobada.
+- SIMULACION_3_14_17.js: 13/13 pruebas aprobadas.
+- Algunas simulaciones históricas del ZIP 3.14.20 ya fallaban en la base original por expectativas de versiones anteriores; se comparó y confirmó, entre otras, la falla de SIMULACION_CLASICO_FIX8.js en la base 3.14.20.
+
+IMPORTANTE
+- Las pruebas son sintéticas y estáticas. La confirmación final de fluidez, variedad real del catálogo y comportamiento visual requiere probar el ZIP en el navegador del teléfono.
+- Esta versión no actualiza GitHub. Está preparada como ZIP para revisión y despliegue manual.

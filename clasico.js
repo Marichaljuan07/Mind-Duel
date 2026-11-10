@@ -24,7 +24,7 @@ function pregunta(s,L){
   for(const minCob of [.58,.3,.12]){
     c=[];const vistos=new Set();
     for(let orden=0;orden<pool.length;orden++){
-      const q=pool[orden],key=L.normalizar(q);if(s.asked.has(key)||vistos.has(key))continue;
+      const q=pool[orden],key=L.normalizar(q),canonical=conceptoDe(L,q);if(s.asked.has(key)||(canonical&&(s.asked.has('concepto:'+canonical)||(grupoConcepto(canonical)&&s.asked.has('grupo:'+grupoConcepto(canonical)))))||vistos.has(key))continue;
       if(/\b(europa|america|americ[aá]n[oa]s?|norteamerican[oa]s?|asia|asiatic[oa]s?|africa|african[oa]s?|oceania|europe[oa]s?)\b/.test(key) && !('real' in hechosFirmes(L,s.log)) && !('ficticio' in hechosFirmes(L,s.log)))continue;
       // Antes de 8 respuestas, priorizar categorías generales y medios; no saltar a títulos, idiomas o franquicias concretas.
       if(esEspecificaTemprana(s,L,q))continue;vistos.add(key);
@@ -48,7 +48,13 @@ function pregunta(s,L){
   c.sort((a,b)=>b.score-a.score);
 
   // Desempate ponderado entre las mejores: conserva calidad, evita un orden rígido.
-  if(c[0]){const top=c.filter(x=>x.score>=c[0].score-0.035).slice(0,5);let sum=0;const weights=top.map(x=>{const w=Math.max(0.01,x.score-c[0].score+0.05);sum+=w;return w});let pick=Math.random()*sum;for(let i=0;i<top.length;i++){pick-=weights[i];if(pick<=0)return top[i].q}return top[0].q;}
+  if(c[0]){
+    // Variación controlada entre partidas: considerar hasta ocho preguntas
+    // cercanas a la mejor puntuación, sin sacrificar preguntas claramente superiores.
+    const top=c.filter(x=>x.score>=c[0].score-0.085).slice(0,8);
+    let sum=0;const weights=top.map(x=>{const w=Math.exp((x.score-c[0].score)/0.045);sum+=w;return w});
+    let pick=Math.random()*sum;for(let i=0;i<top.length;i++){pick-=weights[i];if(pick<=0)return top[i].q}return top[0].q;
+  }
   // v3.13.82: sin ninguna pregunta que separe, antes de arriesgarse se verifica la hipótesis (máx. 2).
   if((s.verif||0)<2&&activos(s)<=2){ // con varios empatados no se verifica a uno solo: eso sería adivinar por pregunta
     const v=preguntaVerificacion(s,L,pool);
@@ -56,7 +62,7 @@ function pregunta(s,L){
   }
   return null;
 }
-function responderBase(s,L,q,a){const nq=L.normalizar(q);s.asked.add(nq);const canonical=conceptoDe(L,q);if(canonical)s.asked.add('concepto:'+canonical);s.n++;s.log.push({q,a});const[x,y]=PESO[a]||PESO.nose;s.ps.forEach((p,i)=>{const v=val(L,q,p);if(v===null||a==='nose'){s.w[i]*=1;return}if(a==='psi'){s.w[i]*=v?1:.35;return}if(a==='pno'){s.w[i]*=v?.35:1;return}s.w[i]*=v?x:y});const max=Math.max(0,...s.w);if(max>0&&Number.isFinite(max))s.w=s.w.map(w=>w/max)}
+function responderBase(s,L,q,a){const nq=L.normalizar(q);s.asked.add(nq);const canonical=conceptoDe(L,q);if(canonical){s.asked.add('concepto:'+canonical);const group=grupoConcepto(canonical);if(group)s.asked.add('grupo:'+group)}s.n++;s.log.push({q,a});const[x,y]=PESO[a]||PESO.nose;s.ps.forEach((p,i)=>{const v=val(L,q,p);if(v===null||a==='nose'){s.w[i]*=1;return}if(a==='psi'){s.w[i]*=v?1:.35;return}if(a==='pno'){s.w[i]*=v?.35:1;return}s.w[i]*=v?x:y});const max=Math.max(0,...s.w);if(max>0&&Number.isFinite(max))s.w=s.w.map(w=>w/max)}
 function mejor(s){let bi=-1,bw=0,tot=0;s.w.forEach((w,i)=>{tot+=w;if(w>bw){bw=w;bi=i}});return bi<0?null:{i:bi,p:s.ps[bi],conf:bw/tot}}
 function debeAdivinarBase(s){
   const m=mejor(s);if(!m||s.n<12)return false;
@@ -103,6 +109,7 @@ const CONC=[
  ['geo:africa',/\bafrica\b/],['geo:oceania',/\boceania\b/]
 ];
 const GRUPO={real:'tipo',ficticio:'tipo',hombre:'genero',mujer:'genero'};
+const grupoConcepto=c=>c==='real'||c==='ficticio'?'tipo':null;
 function conceptoDe(L,q){
   const t=L.normalizar(q);
   for(const[k,re]of CONC)if(re.test(t))return k;
@@ -133,7 +140,7 @@ function implicados(f){
 // ¿Esta pregunta repite o ya está respondida por lo que el jugador contestó?
 function esRedundante(s,L,q){
   const c=conceptoDe(L,q);if(!c)return false;
-  for(const r of s.log||[]){if(r&&conceptoDe(L,r.q)===c)return true} // mismo concepto ya preguntado, con la respuesta que sea
+  for(const r of s.log||[]){if(!r)continue;const prior=conceptoDe(L,r.q);if(prior===c)return true;const group=grupoConcepto(c);if(group&&grupoConcepto(prior)===group)return true;} // mismo concepto o equivalencia lógica ya preguntada, incluso con NO LO SÉ
   const imp=implicados(hechosFirmes(L,s.log));
   return c in imp;
 }
@@ -245,7 +252,7 @@ function preguntaVerificacion(s,L,pool){
   const m=mejor(s);if(!m)return null;
   let mejorQ=null,mejorEsp=-1;
   for(const q of pool){
-    const key=L.normalizar(q),canonical=conceptoDe(L,q);if(s.asked.has(key)||(canonical&&s.asked.has('concepto:'+canonical))||esRedundante(s,L,q)||esEspecificaTemprana(s,L,q))continue;
+    const key=L.normalizar(q),canonical=conceptoDe(L,q);if(s.asked.has(key)||(canonical&&(s.asked.has('concepto:'+canonical)||(grupoConcepto(canonical)&&s.asked.has('grupo:'+grupoConcepto(canonical)))))||esRedundante(s,L,q)||esEspecificaTemprana(s,L,q))continue;
     if(val(L,q,m.p)!==true)continue;
     let cumplen=0;for(const p of s.ps)if(val(L,q,p)===true)cumplen++;
     const esp=1/(1+cumplen);
