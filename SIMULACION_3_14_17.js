@@ -91,6 +91,20 @@ async function extract(html,type,ai){
  test('otros modelos: sin reasoning_effort y una sola llamada si no hay error',()=>{assert.equal(aiCalls.length,1);assert.equal(aiCalls[0].body.reasoning_effort,undefined)});
  delete process.env.AI_MODEL;
 
+
+ // ---- G) casos reales vistos en producción: León XIV ----
+ delete process.env.AI_API_KEY;
+ const leonHtml=`<html><body><h1>León XIV</h1><table class="infobox"><tr><th>Formación</th><td>Doctor en Derecho canónico<br>Licenciado en Sagrada Teología<br/>Licenciado en Matemáticas</td></tr>
+ <tr><th>Obras</th><td><ul><li>Dilexi te</li><li>Magnifica humanitas</li></ul></td></tr></table>
+ <p>León XIV (Chicago, 14 de septiembre de 1955), de nombre secular Robert Francis Prevost, es el 267.º papa de la Iglesia católica. Fue elegido en el cónclave el 8 de mayo de 2025.</p></body></html>`;
+ const g=await extract(leonHtml,'real');const gx=g.extracted.attributes;
+ test('persona viva: una segunda fecha en la portada (elección) NO es fallecimiento',()=>{assert.equal(gx.fecha_nacimiento,'1955-09-14');assert.equal(gx.fecha_fallecimiento,null);assert.notEqual(gx.vivo,false)});
+ test('persona real: humano queda true sin necesitar la IA',()=>{assert.equal(gx.humano,true)});
+ test('celdas con <br> o <li> se separan en ítems, no se pegan',()=>{assert.deepEqual(gx.formacion,['Doctor en Derecho canónico','Licenciado en Sagrada Teología','Licenciado en Matemáticas']);assert.deepEqual(gx.obras,['Dilexi te','Magnifica humanitas'])});
+ const finadoHtml=franciscoHtml.replace('(Buenos Aires, 17 de diciembre de 1936)','(Buenos Aires, 17 de diciembre de 1936 – Ciudad del Vaticano, 21 de abril de 2025)');
+ const h=await extract(finadoHtml,'real');
+ test('fallecimiento real: el paréntesis con dos fechas sí marca muerte y vivo=false',()=>{assert.equal(h.extracted.attributes.fecha_fallecimiento,'2025-04-21');assert.equal(h.extracted.attributes.vivo,false)});
+
  // ---- Front: plantilla y reemplazo de descripciones automáticas ----
  const vm=require('vm');
  const fnSrc=catalog.slice(catalog.indexOf('function canReplaceDescription('),catalog.indexOf('\nfunction mergeExtractedAttributes('));

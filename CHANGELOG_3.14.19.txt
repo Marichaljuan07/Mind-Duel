@@ -1,0 +1,17 @@
+MIND DUEL FUSION — 3.14.19 (incluye el fix de gpt-oss de la 3.14.18)
+
+BUGS ENCONTRADOS A PARTIR DE LA FICHA DE LEÓN XIV
+1) Fallecimiento falso: el extractor tomaba CUALQUIER segunda fecha de la portada como fecha de muerte. León XIV figuraba
+   fallecido el 2025-05-08 (su elección) y vivo=false. Ahora nacimiento/fallecimiento salen solo del primer paréntesis
+   "(Lugar, fecha – Lugar, fecha)" o de frases explícitas ("nació el...", "falleció el...").
+2) Ítems pegados: celdas de la infobox con <br> o <li> quedaban en un solo texto ("Doctor en Derecho canónico Licenciado en ...").
+   Ahora se separan en ítems.
+3) humano quedaba null en personas reales. Ahora es true por regla, sin depender de la IA.
+
+DE LA 3.14.18 (por si no se había subido)
+- gpt-oss: razonamiento bajo y más margen de salida; si el proveedor da 400 se reintenta sin response_format;
+  el mensaje de error muestra hasta 170 caracteres del proveedor.
+
+PRUEBAS
+- 19 pruebas 3.14.17 + 9 de la 3.14.16, todas aprobadas, con proveedor y páginas simuladas.
+- No se probó contra Groq ni Wikipedia reales desde este entorno.
