@@ -370,7 +370,7 @@ async function startClassic() {
   if (window.MindDuelSupabaseReady && typeof window.MindDuelSupabaseReady.then === 'function') {
     await Promise.race([window.MindDuelSupabaseReady.catch(() => null), new Promise(resolve => setTimeout(resolve, 1600))]);
   }
-  resetGame();
+  resetGame(true);
   classicSetMode(true);
   window.MatchHistory?.begin('clásico'); window.MindSparring?.start('clásico');
   // Incorporar fichas locales y compartidas, incluidas las pendientes.
@@ -396,8 +396,8 @@ async function startClassic() {
   const chosen=el('classicChosenCharacter'); if(chosen) chosen.textContent='';
   const secretLabel=el('onlineSecretLabel'); if(secretLabel){secretLabel.textContent='PERSONAJE ELEGIDO: '+classicSecretName;secretLabel.classList.remove('hidden');}
   classicBusy = false;
-  await addMessage(pickLine(['Ya tengo el tablero listo. Respondé con cuidado, mortal: cada pista puede acercarme a tu personaje.', 'Perfecto. Ahora empieza mi investigación. No confundas una pregunta sencilla con una deducción sencilla.', 'Que empiece el interrogatorio. Vos conocés la respuesta; yo voy a demostrar que puedo encontrarla.']), 'mind');
-  const memoryComment=classicMemoryComment(); if(memoryComment){await addMessage(memoryComment,'mind');classic.s.commentCount=1;}
+  try { await addMessage(pickLine(['Ya tengo el tablero listo. Respondé con cuidado, mortal: cada pista puede acercarme a tu personaje.', 'Perfecto. Ahora empieza mi investigación. No confundas una pregunta sencilla con una deducción sencilla.', 'Que empiece el interrogatorio. Vos conocés la respuesta; yo voy a demostrar que puedo encontrarla.']), 'mind'); } catch (err) { console.warn('[MIND] No se pudo mostrar la presentación de Clásico:',err); }
+  const memoryComment=classicMemoryComment(); if(memoryComment){try{await addMessage(memoryComment,'mind');classic.s.commentCount=1;}catch(err){console.warn('[MIND] No se pudo mostrar el comentario de memoria:',err);}}
   startTimer();
   // La pregunta inicial se solicita después de que termine la presentación.
   classicBusy = false;
@@ -407,34 +407,45 @@ async function startClassic() {
 async function nextClassic() {
   if (classicBusy || classic.phase === 'end' || classic.phase === 'name') return;
   classicBusy = true;
-  const s = classic.s;
-  state.questionCount = s.n; state.guessesLeft = Math.max(0, MAX_GUESSES - classic.fails); updateHud();
+  try {
+    const s = classic.s;
+    if (!s) throw new Error('No existe el estado de la partida clásica.');
+    state.questionCount = s.n; state.guessesLeft = Math.max(0, MAX_GUESSES - classic.fails); updateHud();
 
-  // Un candidato con dos contradicciones firmes ya no puede seguir liderando.
-  // Se descarta y se vuelve a evaluar el conjunto, en lugar de abandonar la partida.
-  const filtered = Clasico.descartarContradichos(s, MindLogic, 2);
-  const best = filtered.mejor;
-  if (!best) return classicName();
+    const filtered = Clasico.descartarContradichos(s, MindLogic, 2);
+    const best = filtered.mejor;
+    if (!best) { await classicName(); return; }
+    if (Clasico.debeAdivinar(s) || s.n >= MAX_QUESTIONS) { await classicGuess(true); return; }
 
-  // A las 20 preguntas el Cerebro debe intentar adivinar. Si falla, classicAnswer
-  // descarta ese candidato y permite el segundo intento.
-  if (Clasico.debeAdivinar(s) || s.n >= MAX_QUESTIONS) return classicGuess(true);
+    let q = Clasico.pregunta(s, MindLogic);
+    if (!q) {
+      const fallback = ['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es un animal?','¿Es conocido principalmente por la ciencia?','¿Es conocido por el entretenimiento?', ...(Sugeridor.POOL || [])];
+      q = fallback.find(x => !s.asked.has(MindLogic.normalizar(x)) && !Clasico.esRedundante(s, MindLogic, x));
+    }
+    if (!q && s.n < MAX_QUESTIONS) q = (Sugeridor.POOL || []).find(x => !s.asked.has(MindLogic.normalizar(x)) && !Clasico.esRedundante(s, MindLogic, x));
+    if (!q) { await classicGuess(true); return; }
 
-  // IMPORTANTE: pregunta() puede modificar el estado (verificaciones). Se llama
-  // una sola vez por turno; no se usa como comprobación y luego se descarta.
-  let q = Clasico.pregunta(s, MindLogic);
-  if (!q) {
-    const fallback = ['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es un animal?','¿Es conocido principalmente por la ciencia?','¿Es conocido por el entretenimiento?', ...(Sugeridor.POOL || [])];
-    q = fallback.find(x => !s.asked.has(MindLogic.normalizar(x)) && !Clasico.esRedundante(s, MindLogic, x) && Clasico.separaLideres(s, MindLogic, x));
+    classic.cur = { tipo: 'q', q };
+    try {
+      const sparringCandidates=(classic.s?.ps||[]).map((p,i)=>({weight:classic.s?.w?.[i]||0,value:Sugeridor.val(MindLogic,q,p)}));
+      window.MindSparring?.question('clásico',q,{candidates:sparringCandidates});
+    } catch (err) { console.warn('[MIND] Sparring no pudo registrar la pregunta:',err); }
+    await addMessage(Clasico.frase(q), 'mind');
+  } catch (err) {
+    console.error('[MIND] Error al preparar el siguiente turno de Clásico:',err);
+    // Si el selector falla, una pregunta general mantiene la partida jugable.
+    const s=classic.s;
+    const fallback=['¿Es una persona real?','¿Es ficticio?','¿Es humano?','¿Es un animal?','¿Es conocido por el entretenimiento?','¿Es conocido por la ciencia?'];
+    const q=fallback.find(x=>s&&!s.asked.has(MindLogic.normalizar(x)));
+    if(q){
+      classic.cur={tipo:'q',q};
+      try{await addMessage(Clasico.frase(q),'mind');}catch(messageError){console.warn('[MIND] No se pudo mostrar la pregunta de respaldo:',messageError);}
+    } else {
+      try { await classicGuess(true); } catch (guessError) { console.error('[MIND] Tampoco se pudo abrir el intento de adivinanza:',guessError); classic.cur=null; }
+    }
+  } finally {
+    classicBusy = false;
   }
-  if (!q && s.n < MAX_QUESTIONS) q = (Sugeridor.POOL || []).find(x => !s.asked.has(MindLogic.normalizar(x)) && !Clasico.esRedundante(s, MindLogic, x) && Clasico.separaLideres(s, MindLogic, x));
-  if (!q) return classicGuess(true);
-
-  classic.cur = { tipo: 'q', q };
-  const sparringCandidates=(classic.s?.ps||[]).map((p,i)=>({weight:classic.s?.w?.[i]||0,value:Sugeridor.val(MindLogic,q,p)}));
-  window.MindSparring?.question('clásico',q,{candidates:sparringCandidates});
-  await addMessage(Clasico.frase(q), 'mind');
-  classicBusy = false;
 }
 
 async function classicGuess(announce = false) {
@@ -671,28 +682,53 @@ async function classicAnswer(ans) {
   const c = classic.cur;
   if (!c || classicBusy || classic.phase === 'end') return;
   classicBusy = true;
-  if (c.tipo === 'q') await addMessage(CL_LABEL[ans], 'player');
-  if (c.tipo === 'q') {
-    Clasico.responder(classic.s, MindLogic, c.q, ans);
-    if(classicSecretName&&['si','no','psi','pno'].includes(ans)&&window.MindKnowledge){const concept=window.MindKnowledge.conceptoDePregunta(c.q);if(concept){const value=ans==='si'||ans==='psi';const character=findKnownCharacter(classicSecretName)||window.MindKnowledge.crearPlantilla(classicSecretName);window.MindKnowledge.registrarVoto(classicSecretName,concept,value,character);if(window.MindDuelSupabase?.submitClaim){window.MindDuelSupabase.submitClaim({character:classicSecretName,attribute_key:concept,value,source_note:`Respuesta del jugador durante una partida clásica: ${c.q}`}).then(()=>window.MindDuelSupabase.flushClaims?.(false)).catch(()=>{});}}}
-    window.MindSparring?.answer('clásico',c.q,ans); machineAutosave();
-    // Las respuestas quedan en classic.s.log para el razonamiento interno.
-    // No se muestran resúmenes de pistas durante la partida.
+  try {
+    if (c.tipo === 'q') {
+      await addMessage(CL_LABEL[ans], 'player');
+      Clasico.responder(classic.s, MindLogic, c.q, ans);
+      // La evidencia puede cambiar tras cada respuesta: renovar las fichas inferidas
+      // antes de calcular la siguiente pregunta, pero reutilizarlas durante cada cálculo.
+      Sugeridor.invalidarCache?.();
+      try {
+        if(classicSecretName&&['si','no','psi','pno'].includes(ans)&&window.MindKnowledge){
+          const concept=window.MindKnowledge.conceptoDePregunta(c.q);
+          if(concept){
+            const value=ans==='si'||ans==='psi';
+            const character=findKnownCharacter(classicSecretName)||window.MindKnowledge.crearPlantilla(classicSecretName);
+            window.MindKnowledge.registrarVoto(classicSecretName,concept,value,character);
+            if(window.MindDuelSupabase?.submitClaim){window.MindDuelSupabase.submitClaim({character:classicSecretName,attribute_key:concept,value,source_note:`Respuesta del jugador durante una partida clásica: ${c.q}`}).then(()=>window.MindDuelSupabase.flushClaims?.(false)).catch(()=>{});}
+          }
+        }
+      } catch (learningError) { console.warn('[MIND] No se pudo registrar el aprendizaje de la respuesta:',learningError); }
+      try { window.MindSparring?.answer('clásico',c.q,ans); } catch (sparringError) { console.warn('[MIND] Sparring no pudo registrar la respuesta:',sparringError); }
+      try { machineAutosave(); } catch (saveError) { console.warn('[MIND] No se pudo guardar la partida:',saveError); }
+      classicBusy = false;
+      await nextClassic();
+      return;
+    }
+
+    el('classicGuessModal').classList.add('hidden');
+    if (ans === 'si' || ans === 'psi') {
+      try { window.MindSparring?.guess('clásico',c.p?.nombre,true); } catch {}
+      await addMessage(`¡Lo sabía! Eras ${c.p.nombre}.`, 'mind');
+      await classicEnd({wonBy:'brain', nombre:c.p.nombre, descripcion:c.p.descripcion || 'El personaje que estabas pensando.'});
+      return;
+    }
+    classic.fails++;
+    try { window.MindSparring?.guess('clásico',c.p?.nombre,false); } catch {}
+    Clasico.rechazar(classic.s, c.i);
+    if (classic.fails >= MAX_GUESSES || !Clasico.mejor(classic.s)) { await classicName(); return; }
+    await addMessage(pickLine(['¡Fallé! No te emociones, todavía sigo en el duelo.', 'Bien jugado, mortal. Sigo buscando.', 'Ese no era… mi próximo intento será mejor.']), 'mind');
     classicBusy = false;
-    return nextClassic();
+    await nextClassic();
+  } catch (err) {
+    console.error('[MIND] Error al procesar la respuesta de Clásico:',err);
+    try { await addMessage('He registrado tu respuesta. Tuve que reajustar el tablero; voy a continuar.','mind'); } catch {}
+    classicBusy = false;
+    await nextClassic();
+  } finally {
+    classicBusy = false;
   }
-  el('classicGuessModal').classList.add('hidden');
-  if (ans === 'si' || ans === 'psi') {
-    window.MindSparring?.guess('clásico',c.p?.nombre,true);
-    await addMessage(`¡Lo sabía! Eras ${c.p.nombre}.`, 'mind');
-    await classicEnd({wonBy:'brain', nombre:c.p.nombre, descripcion:c.p.descripcion || 'El personaje que estabas pensando.'});
-    return;
-  }
-  classic.fails++; window.MindSparring?.guess('clásico',c.p?.nombre,false); Clasico.rechazar(classic.s, c.i);
-  if (classic.fails >= MAX_GUESSES || !Clasico.mejor(classic.s)) return classicName();
-  await addMessage(pickLine(['¡Fallé! No te emociones, todavía sigo en el duelo.', 'Bien jugado, mortal. Sigo buscando.', 'Ese no era… mi próximo intento será mejor.']), 'mind');
-  classicBusy = false;
-  await nextClassic();
 }
 
 function machineSnapshot(){
@@ -717,9 +753,10 @@ function buildSoloCharacterPool(){
  }
  return pool;
 }
-function resetGame() {
+function resetGame(skipSoloPool = false) {
   clearInterval(state.timerId);
-  const soloPool=buildSoloCharacterPool();state.secret = soloPool[Math.floor(Math.random() * soloPool.length)] || PERSONAJES[Math.floor(Math.random() * PERSONAJES.length)];
+  if(skipSoloPool) state.secret = null;
+  else { const soloPool=buildSoloCharacterPool();state.secret = soloPool[Math.floor(Math.random() * soloPool.length)] || PERSONAJES[Math.floor(Math.random() * PERSONAJES.length)]; }
   state.active = true;
   state.busy = false;
   state.questionCount = 0;

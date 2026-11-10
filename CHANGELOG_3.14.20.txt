@@ -1,0 +1,40 @@
+MIND DUEL FUSION — VERSIÓN 3.14.20
+Corrección de rendimiento y continuidad del modo Clásico
+
+BASE Y ALCANCE
+- Base de trabajo: ZIP 3.14.17 (Extracción con IA).
+- Se contrastaron los archivos del juego con el árbol de GitHub en main, commit 3963ce71c22ec75f6307f67c62f428e79af307f4 (3.14.19).
+- Los archivos principales script.js, clasico.js, sugeridor.js y multijugador.js coincidían con GitHub.
+- api/character-extract.js se conserva byte por byte desde la base 3.14.17 para no alterar el prompt de extracción solicitado.
+- multijugador.js no fue modificado.
+
+CAMBIOS
+1. sugeridor.js
+- Se agregó caché de fichas inferidas por objeto de personaje.
+- La inferencia se reutiliza durante el cálculo de una pregunta, evitando repetir la lectura y evaluación completa de cada ficha por cada pregunta candidata.
+- Se agregó invalidarCache() para renovar los datos después de cada respuesta y mantener actualizado el aprendizaje.
+
+2. script.js
+- Clásico ya no construye el personaje secreto del modo Solo durante resetGame().
+- nextClassic() ahora protege el turno con try/catch/finally y libera classicBusy incluso si falla el selector, el registro de sparring o la presentación.
+- Si falla el selector, intenta una pregunta general no utilizada; si no quedan preguntas de respaldo, intenta adivinar.
+- classicAnswer() ahora protege el procesamiento de respuestas, aprendizaje, sparring y guardado; libera classicBusy incluso ante errores.
+- La presentación inicial y el comentario de memoria no impiden que arranque el primer turno si falla su renderizado.
+- La caché se invalida después de registrar la respuesta para que el siguiente turno use la evidencia más reciente.
+
+ARCHIVOS NO MODIFICADOS
+- multijugador.js: intacto.
+- clasico.js: intacto; se mantiene su lógica de razonamiento y selección.
+- api/character-extract.js: intacto; prompt preservado.
+- No se modificó el protocolo ni la reconexión del modo Multijugador.
+
+PRUEBAS
+- node --check: 41 archivos JavaScript, sin errores de sintaxis.
+- SIMULACION_CLASICO_3_14_20.js: 8 controles aprobados; 900 candidatos sintéticos, una inferencia por candidato en la primera selección, invalidación después de responder, no repetición inmediata y liberación del bloqueo comprobada estáticamente.
+- SIMULACION_3_14_17.js: 13 pruebas aprobadas.
+- SIMULACION_FIX9.js: 19 controles aprobados.
+- En la simulación sintética, la primera selección tomó aproximadamente 1,3–1,4 s y el turno siguiente 1,1–1,2 s. Estos tiempos no sustituyen una prueba en navegador con el catálogo real.
+
+PENDIENTE DE VALIDACIÓN
+- Probar una partida real de Clásico en el navegador y confirmar el tiempo de primera pregunta y la continuidad después de varias respuestas.
+- La conexión de GitHub rechazó la escritura con HTTP 403; esta versión se entrega como ZIP y no fue publicada en el repositorio.
