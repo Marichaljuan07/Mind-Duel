@@ -13,8 +13,9 @@ function attr(tag,name){const m=tag.match(new RegExp("\\b"+name+"\\s*=\\s*([\"\'
 function meta(html,key){for(const tag of html.match(/<meta\b[^>]*>/gi)||[]){if((attr(tag,'property')||attr(tag,'name')).toLowerCase()===key.toLowerCase())return attr(tag,'content');}return '';}
 function jsonLd(html){const out=[];const visit=v=>{if(Array.isArray(v)){v.forEach(visit);return}if(!v||typeof v!=='object')return;out.push(v);for(const [k,x] of Object.entries(v))if(x&&typeof x==='object'&&['@graph','mainEntity','mainEntityOfPage','about','author','creator','publisher','itemListElement'].includes(k))visit(x)};for(const m of html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)){try{visit(JSON.parse(m[1]))}catch{}}return out;}
 function imageFrom(value,base){const raw=typeof value==='string'?value:(value&&typeof value==='object'?(value.url||value.contentUrl||''):'');if(!raw)return '';try{const u=new URL(raw,base);return ['http:','https:'].includes(u.protocol)?u.href:''}catch{return ''}}
-function rowsFrom(html){const rows=[];for(const m of html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)){const cells=[...m[1].matchAll(/<(?:th|td)\b[^>]*>([\s\S]*?)<\/(?:th|td)>/gi)].map(x=>clean(x[1])).filter(Boolean);if(cells.length>=2){const label=cells[0].replace(/[:：]$/,'').trim(),value=cells.slice(1).join(' · ').trim();if(label&&value&&label.length<80&&value.length<300)rows.push(`${label}: ${value}`)}}
- const dl=html.match(/<(?:dl|div)\b[^>]*(?:class|id)=["'][^"']*(?:infobox|vcard|datos|ficha)[^"']*["'][^>]*>[\s\S]*?<\/(?:dl|div)>/gi)||[];for(const block of dl){for(const m of block.matchAll(/<dt\b[^>]*>([\s\S]*?)<\/dt>\s*<dd\b[^>]*>([\s\S]*?)<\/dd>/gi)){const label=clean(m[1]),value=clean(m[2]);if(label&&value&&label.length<80&&value.length<300)rows.push(`${label}: ${value}`)}}return [...new Set(rows)].slice(0,80);}
+function cellText(h){return clean(String(h||'').replace(/<br\s*\/?>/gi,' · ').replace(/<\/(?:li|p|div|dd)>/gi,' · ')).replace(/(?:\s*·\s*){2,}/g,' · ').replace(/^\s*·\s*|\s*·\s*$/g,'').trim();}
+function rowsFrom(html){const rows=[];for(const m of html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)){const cells=[...m[1].matchAll(/<(?:th|td)\b[^>]*>([\s\S]*?)<\/(?:th|td)>/gi)].map(x=>cellText(x[1])).filter(Boolean);if(cells.length>=2){const label=cells[0].replace(/[:：]$/,'').trim(),value=cells.slice(1).join(' · ').trim();if(label&&value&&label.length<80&&value.length<300)rows.push(`${label}: ${value}`)}}
+ const dl=html.match(/<(?:dl|div)\b[^>]*(?:class|id)=["'][^"']*(?:infobox|vcard|datos|ficha)[^"']*["'][^>]*>[\s\S]*?<\/(?:dl|div)>/gi)||[];for(const block of dl){for(const m of block.matchAll(/<dt\b[^>]*>([\s\S]*?)<\/dt>\s*<dd\b[^>]*>([\s\S]*?)<\/dd>/gi)){const label=clean(m[1]),value=cellText(m[2]);if(label&&value&&label.length<80&&value.length<300)rows.push(`${label}: ${value}`)}}return [...new Set(rows)].slice(0,80);}
 
 
 function normLabel(s){return clean(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();}
@@ -56,7 +57,13 @@ function leadFacts(html,type){
  const lead=[];const blocks=html.match(/<p\b[^>]*>[\s\S]*?<\/p>/gi)||[];let text='';
  for(const block of blocks){const t=clean(block);if(t.length<35)continue;if(/^(contenido|ir a la navegacion|editar|coordenadas)/i.test(t))continue;text+=' '+t;if(text.length>1800)break;}
  text=text.slice(0,1800);const add=(k,v)=>{if(v&&!lead.some(x=>x.startsWith(k+':')))lead.push(k+': '+v)};
- const dateRe=/\b(\d{1,2}\s+de\s+[a-záéíóú]+\s+de\s+\d{4})\b/gi;const dates=[...text.matchAll(dateRe)].map(x=>x[1]);if(dates[0])add('Nacimiento',dates[0]);if(dates.length>1)add('Fallecimiento',dates[1]);
+ const dateRe=/\b(\d{1,2}\s+de\s+[a-záéíóú]+\s+de\s+\d{4})\b/gi;const datesIn=t=>[...String(t||'').matchAll(dateRe)].map(x=>x[1]);
+ // Nacimiento/fallecimiento solo del primer paréntesis ("(Lugar, fecha – Lugar, fecha)") o de frases explícitas (nació / falleció).
+ // Antes se tomaba cualquier segunda fecha del texto como muerte: a una persona viva con una fecha de elección en la portada la marcaba fallecida.
+ const paren=/\(([^()]{0,220})\)/.exec(text.slice(0,500));const pd=paren?datesIn(paren[1]):[];
+ const born=pd[0]||(/\bnaci[óo]\s+(?:el\s+)?(\d{1,2}\s+de\s+[a-záéíóú]+\s+de\s+\d{4})/i.exec(text)||[])[1]||'';
+ const died=(pd.length>1?pd[1]:'')||(/\b(?:falleci[óo]|muri[óo])\s+(?:el\s+)?(\d{1,2}\s+de\s+[a-záéíóú]+\s+de\s+\d{4})/i.exec(text)||[])[1]||'';
+ if(born)add('Nacimiento',born);if(died)add('Fallecimiento',died);
  const roleRe=/\b(?:fue|es|ha sido|se convirtió en)\s+(?:el|la|un|una)?\s*(?:(\d{1,3})\s*(?:\.º|º|°|o)?\s*)?(papa|presidente|presidenta|rey|reina|emperador|emperatriz|primer ministro|primera ministra|monarca|arzobispo|obispo|actor|actriz|cantante|escritor|escritora|director|directora|futbolista|deportista|cientifico|científica|político|política|militar|filósofo|filósofa)\s+(?:de|del)\s+([^.,;()]{2,100})/i.exec(text);
  if(roleRe){const role=roleRe[2],org=roleRe[3].split(/\s+(?:y|,)?\s+(?:fue|es|ha sido|también|además)\b/i)[0].trim().replace(/^(?:la|el|los|las)\s+/i,'');add('Cargo',role);add('Organización',org);if(roleRe[1])add('Número en el cargo',roleRe[1]);}
  const secular=/\b(?:de nombre secular|nombre secular|cuyo nombre real es)\s+([^,(.;]{3,100})/i.exec(text);if(secular)add('Nombre completo',secular[1].trim());
@@ -124,6 +131,7 @@ function buildArticleText(html,budget=10000){
 const HUMANO_RE=/^(humano|humana|ser humano|human)$/i;
 const NO_HUMANO_RE=/semidi|\bdios|\bdiosa|tit[aá]n|androide|robot|alien|extraterrestre|demonio|vampiro|elfo|enano|orco|drag[oó]n|animal|perro|gato|fantasma|esp[ií]ritu|kryptonian|saiyaj|saiyan|namek|zombi|bestia|monstruo|ogro|hada|[aá]ngel|cyborg/i;
 function applyRules(a,article){
+ if(a.tipo==='real'&&a.humano===null)a.humano=true;
  if(a.tipo==='ficticio'){
   if(a.humano===null&&a.especie){const e=String(a.especie).trim();if(HUMANO_RE.test(e))a.humano=true;else if(NO_HUMANO_RE.test(e))a.humano=false;}
   const lead=String(article||'').split('\n')[0].slice(0,900).toLowerCase();const found=[];
