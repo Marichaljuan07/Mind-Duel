@@ -1,0 +1,94 @@
+'use strict';
+// Pruebas de la 3.14.17. A diferencia de la 3.14.16, el HTML de Kratos acá imita la página REAL de Wikipedia:
+// la infobox NO trae armas ni universo; esos datos solo están en el texto del artículo.
+// La IA se simula con un fetch falso: no se prueba contra Groq real desde este entorno.
+const fs=require('fs'),assert=require('assert/strict');
+const catalog=fs.readFileSync(__dirname+'/catalogo_personajes.js','utf8');
+const handler=require('./api/character-extract');
+let passed=0;const test=(n,f)=>{f();passed++;console.log('PASS',n)};
+
+const kratosHtml=`<html><head><title>Kratos (personaje) - Wikipedia, la enciclopedia libre</title>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","name":"Kratos (personaje)"}</script></head>
+<body><header><nav><ul><li>Portada</li><li>Cambios recientes</li></ul></nav></header>
+<h1 id="firstHeading"><span>Kratos (personaje)</span></h1><div id="mw-content-text">
+<table class="infobox"><tr><th colspan="2">Kratos</th></tr>
+<tr><th>Alias</th><td>Fantasma de Esparta</td></tr><tr><th>Primera aparición</th><td>God of War</td></tr>
+<tr><th>Creador</th><td>David Jaffe</td></tr><tr><th>Especie</th><td>Semidiós</td></tr><tr><th>Género</th><td>Masculino</td></tr></table>
+<p>Kratos, conocido como el Fantasma de Esparta, es un personaje ficticio y protagonista de la serie de videojuegos God of War, desarrollada por Santa Monica Studio.</p>
+<h2><span id="Poderes_y_habilidades">Poderes y habilidades</span></h2>
+<ul><li>Fuerza sobrehumana</li><li>Regeneración acelerada</li></ul>
+<p>Como semidiós, Kratos posee una fuerza sobrehumana y utiliza las Hojas del Caos y el Hacha Leviatán en combate contra Ares, Zeus y otros dioses.</p>
+<h2>Aliados</h2><ul><li>Atreus</li><li>Mimir</li></ul>
+<h2>Referencias</h2><ul><li>Texto de referencia que no debe llegar a la IA</li></ul></div></body></html>`;
+
+const franciscoHtml=`<html><body><h1>Francisco (papa)</h1><div class="infobox vcard"><table><tr><th>Nacionalidad</th><td>Argentina</td></tr><tr><th>Sexo</th><td>Masculino</td></tr><tr><th>Ocupación</th><td>Papa</td></tr><tr><th>Fecha de nacimiento</th><td>17 de diciembre de 1936</td></tr></table></div><p>Francisco, de nombre secular Jorge Mario Bergoglio (Buenos Aires, 17 de diciembre de 1936), fue el 266.º papa de la Iglesia católica y fue un religioso argentino.</p></body></html>`;
+
+let lastAiRequest=null;
+function mockFetch(html,aiBehavior){
+ global.fetch=async(url,opts)=>{
+  if(String(url).includes('api.groq.com')){
+   lastAiRequest={url:String(url),headers:opts.headers,body:JSON.parse(opts.body)};
+   if(aiBehavior.status&&aiBehavior.status!==200)return new Response('rate limit exceeded',{status:aiBehavior.status});
+   return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify(aiBehavior.data)}}]}),{status:200,headers:{'content-type':'application/json'}});
+  }
+  return new Response(html,{status:200,headers:{'content-type':'text/html'}});
+ };
+}
+async function extract(html,type,ai){
+ mockFetch(html,ai||{});lastAiRequest=null;
+ const req={method:'POST',body:{url:'https://8.8.8.8/reference',type},headers:{}};
+ const res={setHeader(){},status(n){this.statusCode=n;return this},json(v){this.payload=v;return this}};
+ await handler(req,res);assert.equal(res.statusCode,200,JSON.stringify(res.payload));return res.payload;
+}
+
+(async()=>{
+ // ---- A) sin clave de IA: solo reglas ----
+ delete process.env.AI_API_KEY;delete process.env.GROQ_API_KEY;
+ const a=await extract(kratosHtml,'ficticio');
+ test('sin IA: el nombre pierde el sufijo (personaje) y no se llama a la IA',()=>{assert.equal(a.extracted.name,'Kratos');assert.equal(a.ai.status,'sin_clave');assert.equal(lastAiRequest,null);assert(a.notice.includes('AI_API_KEY'))});
+ test('sin IA: reglas derivan humano, franquicia y medios',()=>{const x=a.extracted.attributes;assert.equal(x.humano,false);assert.equal(x.franquicia,'God of War');assert.deepEqual(x.medios,['videojuego']);assert.equal(x.medio_origen,'videojuego');assert.equal(x.especie,'Semidiós');assert.equal(x.creador,'David Jaffe');assert.equal(x.genero,'hombre')});
+ test('sin IA: descripción de respaldo ahora incluye la franquicia',()=>{assert.equal(a.extracted.description,'Semidiós del universo God of War.')});
+
+ // ---- B) con IA simulada ----
+ process.env.AI_API_KEY='clave-de-prueba';
+ const aiOk={data:{humano:false,genero:'hombre',especie:'Semidiós',franquicia:'God of War',creador:'David Jaffe',medios:['videojuego','cocina'],
+  habilidades:['Fuerza sobrehumana','Regeneración acelerada','Vuelo supersónico'],poderes:[],armas:['Hojas del Caos','Hacha Leviatán','Martillo de Thor'],afiliaciones:[],
+  aliados:['Atreus','Mimir'],enemigos:['Ares','Zeus','Thanos'],origen:'Guerrero espartano convertido en semidiós.',etiquetas:['guerrero','combate','cocinero','usa_armas'],
+  nombre_completo:'No debe aparecer',contenido_fuente:'No debe aparecer',descripcion:'Guerrero espartano y semidiós que protagoniza la saga God of War.'}};
+ const b=await extract(kratosHtml,'ficticio',aiOk);const bx=b.extracted.attributes;
+ test('con IA: la petición lleva clave, JSON estricto y el texto relevante sin navegación ni referencias',()=>{
+  assert.equal(lastAiRequest.headers.Authorization,'Bearer clave-de-prueba');assert.equal(lastAiRequest.body.response_format.type,'json_object');assert.equal(lastAiRequest.body.temperature,0);
+  const prompt=lastAiRequest.body.messages[1].content;assert(prompt.includes('Poderes y habilidades'));assert(prompt.includes('Hojas del Caos'));assert(!prompt.includes('Cambios recientes'));assert(!prompt.includes('no debe llegar a la IA'))});
+ test('con IA: completa armas, aliados, enemigos y habilidades que la infobox no traía',()=>{assert.deepEqual(bx.armas,['Hojas del Caos','Hacha Leviatán']);assert.deepEqual(bx.aliados,['Atreus','Mimir']);assert.deepEqual(bx.enemigos,['Ares','Zeus']);assert.deepEqual(bx.habilidades,['Fuerza sobrehumana','Regeneración acelerada'])});
+ test('con IA: descarta lo inventado (no figura en el texto) y lo fuera de las listas cerradas',()=>{assert(!bx.armas.includes('Martillo de Thor'));assert(!bx.enemigos.includes('Thanos'));assert(!bx.habilidades.includes('Vuelo supersónico'));assert.deepEqual(bx.etiquetas,['guerrero','combate','usa_armas']);assert.deepEqual(bx.medios,['videojuego'])});
+ test('con IA: ignora campos que no pertenecen a la plantilla y no pisa datos de la infobox',()=>{assert.equal(bx.nombre_completo,undefined);assert.equal(bx.contenido_fuente,undefined);assert.equal(bx.creador,'David Jaffe');assert.equal(bx.humano,false);assert.equal(bx.origen,'Guerrero espartano convertido en semidiós')});
+ test('con IA: la descripción generada reemplaza a la de respaldo',()=>{assert.equal(b.extracted.description,'Guerrero espartano y semidiós que protagoniza la saga God of War.');assert.equal(b.ai.status,'ok');assert(b.notice.startsWith('IA:'))});
+
+ // ---- C) descripción copiada de la página: se descarta ----
+ const copied=JSON.parse(JSON.stringify(aiOk));copied.data.descripcion='Kratos, conocido como el Fantasma de Esparta, es un personaje ficticio y protagonista de la serie de videojuegos God of War.';
+ const c=await extract(kratosHtml,'ficticio',copied);
+ test('una descripción que copia 8 palabras seguidas de la página se reemplaza por la de respaldo',()=>{assert.equal(c.extracted.description,'Semidiós del universo God of War.')});
+
+ // ---- D) la IA falla: se sigue con reglas y se avisa ----
+ const d=await extract(kratosHtml,'ficticio',{status:500});
+ test('si la IA falla, la extracción sigue con reglas y el aviso explica el motivo',()=>{assert.equal(d.ai.status,'error');assert(d.ai.detail.includes('HTTP 500'));assert(d.notice.includes('falló'));assert.equal(d.extracted.attributes.humano,false);assert.equal(d.extracted.description,'Semidiós del universo God of War.')});
+
+ // ---- E) persona real: la IA no puede colar campos de ficticios ni cambiar humano ----
+ const e=await extract(franciscoHtml,'real',{data:{humano:false,habilidades:['volar'],etiquetas:['religioso','papa'],descripcion:'Líder de la Iglesia católica durante más de una década.'}});
+ test('persona real: sin campos de ficticios, humano sigue true y las etiquetas válidas se incorporan',()=>{const x=e.extracted.attributes;assert.equal(x.humano,true);assert.equal(x.habilidades,undefined);assert.deepEqual(x.etiquetas,['religioso','papa']);assert.equal(x.numero_en_cargo,266)});
+
+ // ---- Front: plantilla y reemplazo de descripciones automáticas ----
+ const vm=require('vm');
+ const fnSrc=catalog.slice(catalog.indexOf('function canReplaceDescription('),catalog.indexOf('\nfunction mergeExtractedAttributes('));
+ const canReplace=vm.runInNewContext('('+fnSrc.trim()+')');
+ test('descripciones: se reemplazan las vacías y las automáticas, nunca las escritas a mano',()=>{
+  assert.equal(canReplace({value:'',dataset:{}}),true);
+  assert.equal(canReplace({value:'Personaje de especie Semidiós.',dataset:{}}),true);
+  assert.equal(canReplace({value:'Semidiós del universo God of War.',dataset:{}}),true);
+  assert.equal(canReplace({value:'Texto previo de la IA.',dataset:{auto:'Texto previo de la IA.'}}),true);
+  assert.equal(canReplace({value:'El espartano que desafió al Olimpo.',dataset:{}}),false)});
+ const tStart=catalog.indexOf('function applyFichaTemplate(');const tEnd=catalog.indexOf('\n}\n',tStart)+3;
+ const applyFichaTemplate=vm.runInNewContext('('+catalog.slice(tStart,tEnd).trim().replace('function applyFichaTemplate','function')+')');
+ test('plantilla: etiquetas y medios se conservan en ficticios y reales',()=>{const f=applyFichaTemplate({etiquetas:['guerrero'],medios:['videojuego']},'ficticio');assert.deepEqual(Array.from(f.etiquetas),['guerrero']);assert.deepEqual(Array.from(f.medios),['videojuego']);const r=applyFichaTemplate({etiquetas:['papa']},'real');assert.deepEqual(Array.from(r.etiquetas),['papa'])});
+ console.log(`Resultado 3.14.17: ${passed} pruebas aprobadas.`);
+})().catch(err=>{console.error(err);process.exitCode=1});

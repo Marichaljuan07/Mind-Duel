@@ -4,12 +4,12 @@ let characters=[],loaded=false,loadPromise=null,typeFilter='all',activeProfile=n
 const normalize=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 function applyFichaTemplate(attrs,type){
  const a=(attrs&&typeof attrs==='object'&&!Array.isArray(attrs))?attrs:{};if(!['real','ficticio'].includes(type))return {...a};
- const common={tipo:type,plantillaVersion:2,genero:null,humano:null,vivo:null,rasgos:[],medios:[],otros_nombres:null};
+ const common={tipo:type,plantillaVersion:2,genero:null,humano:null,vivo:null,rasgos:[],medios:[],etiquetas:[],otros_nombres:null};
  const specific=type==='real'?{plantilla:'persona_real_v2',nombre_completo:null,nacionalidad:null,nacionalidades:[],numero_en_cargo:null,profesion:null,ocupacion:null,ambito:null,organizaciones:[],cargos:[],fecha_nacimiento:null,fecha_fallecimiento:null,lugar_nacimiento:null,obras:[],formacion:[],logros:[]}:{plantilla:'personaje_ficticio_v2',universo:null,franquicia:null,medio_origen:null,especie:null,habilidades:[],poderes:[],armas:[],afiliaciones:[],aliados:[],enemigos:[],origen:null,creador:null};
  const allowed=new Set([...Object.keys(common),...Object.keys(specific),'_source','_image']);
  const out={...common,...specific};for(const [k,v] of Object.entries(a))if(allowed.has(k))out[k]=v;
  out.tipo=type;out.plantillaVersion=2;out.plantilla=type==='real'?'persona_real_v2':'personaje_ficticio_v2';
- const arrayKeys=['rasgos','medios','nacionalidades','organizaciones','cargos','obras','formacion','logros','habilidades','poderes','armas','afiliaciones','aliados','enemigos'];for(const k of arrayKeys){if(!allowed.has(k))continue;if(Array.isArray(a[k]))out[k]=a[k];else if(typeof a[k]==='string'&&a[k].trim())out[k]=[a[k].trim()];else out[k]=[];}
+ const arrayKeys=['rasgos','medios','etiquetas','nacionalidades','organizaciones','cargos','obras','formacion','logros','habilidades','poderes','armas','afiliaciones','aliados','enemigos'];for(const k of arrayKeys){if(!allowed.has(k))continue;if(Array.isArray(a[k]))out[k]=a[k];else if(typeof a[k]==='string'&&a[k].trim())out[k]=[a[k].trim()];else out[k]=[];}
  if(typeof out.genero==='string')out.genero=out.genero.toLowerCase();
  return out;
 }
@@ -70,6 +70,7 @@ async function saveProfile(verify=false){
   renderModal();renderSuggestions();
  }catch(err){status.textContent=err.message;}finally{btn.disabled=false}
 }
+function canReplaceDescription(el){const v=String(el.value||'').trim();return !v||v===(el.dataset.auto||'')||/^(Personaje (de especie|del universo) [^.]+|[^.]{2,60} del universo [^.]+)\.$/.test(v);}
 function mergeExtractedAttributes(current, extracted){const out={...current};for(const [k,v] of Object.entries(extracted||{})){if(['tipo','plantilla','plantillaVersion'].includes(k)){if(v!==null&&v!==undefined&&v!=='')out[k]=v;continue;}const old=out[k];if(Array.isArray(v)){if(!Array.isArray(old)||old.length===0)out[k]=v.slice();else if(v.length)out[k]=[...new Set([...old,...v])];}else if(old===undefined||old===null||old==='')out[k]=v;}return out;}
 async function extractReference(url,statusEl,mode){
  const urlValue=String(url||'').trim();if(!/^https?:\/\//i.test(urlValue))throw Error('Pegá primero una URL http o https.');const selectedType=mode==='profile'?$('profileType').value:$('newCharacterType').value;if(!['real','ficticio'].includes(selectedType))throw Error('Elegí primero si el personaje es real o ficticio para cargar la plantilla correcta.');
@@ -77,7 +78,7 @@ async function extractReference(url,statusEl,mode){
  const r=await fetch('/api/character-extract',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({url:urlValue,type:mode==='profile'?$('profileType').value:$('newCharacterType').value})});const d=await r.json();if(!r.ok)throw Error(d.error||'No se pudo extraer la referencia.');const x=d.extracted||{};
  if(mode==='profile'){
   if(x.name&&!$('profileName').value.trim())$('profileName').value=x.name;
-  if(x.description&&!$('profileDescription').value.trim())$('profileDescription').value=x.description;
+  if(x.description&&canReplaceDescription($('profileDescription'))){$('profileDescription').value=x.description;$('profileDescription').dataset.auto=x.description;}
   if(x.aliases?.length){const old=$('profileAliases').value.split(',').map(v=>v.trim()).filter(Boolean);$('profileAliases').value=[...new Set([...old,...x.aliases])].join(', ')}
   let attrs;try{attrs=JSON.parse($('profileAttributes').value||'{}')}catch{attrs={}}if(!$('profileType').value&&x.attributes?.tipo)$('profileType').value=x.attributes.tipo;
   attrs=mergeExtractedAttributes(attrs,x.attributes||{});
@@ -85,13 +86,13 @@ async function extractReference(url,statusEl,mode){
   if(x.image&&!$('profileImage').value.trim()){$('profileImage').value=x.image;$('profileImage').dispatchEvent(new Event('input',{bubbles:true}));}
  }else{
   if(x.name&&!$('newCharacterName').value.trim())$('newCharacterName').value=x.name;
-  if(x.description&&!$('newCharacterDescription').value.trim())$('newCharacterDescription').value=x.description;
+  if(x.description&&canReplaceDescription($('newCharacterDescription'))){$('newCharacterDescription').value=x.description;$('newCharacterDescription').dataset.auto=x.description;}
   if(x.aliases?.length&&!$('newCharacterAliases').value.trim())$('newCharacterAliases').value=x.aliases.join(', ');
   $('newCharacterSource').value=d.source||urlValue;if(!$('newCharacterType').value&&x.attributes?.tipo)$('newCharacterType').value=x.attributes.tipo;newExtractedAttributes=applyFichaTemplate({...newExtractedAttributes,...(x.attributes||{})},$('newCharacterType').value||x.attributes?.tipo);newExtractedAttributes._source=d.source||urlValue;
   if(x.image&&!$('newCharacterImage').value.trim())$('newCharacterImage').value=x.image;
   if(x.image){const im=$('newCharacterImagePreview');im.onload=()=>im.classList.remove('hidden');im.onerror=()=>{im.classList.add('hidden');statusEl.textContent+=' La imagen sugerida no pudo cargarse; podés reemplazarla.'};im.src=x.image;}
  }
- const found=Object.keys(x.attributes||{}).length;statusEl.textContent=`Borrador extraído. ${found} atributo(s) estructurado(s). ${d.notice||'Revisá los datos antes de guardar.'}`;
+ statusEl.textContent=`Borrador extraído. ${d.notice||'Revisá los datos antes de guardar.'}`;
 }
 function normalizeImageUrl(raw){const value=String(raw||'').trim();if(!value)return '';try{const u=new URL(value);if(/(^|\.)google\.[a-z.]+$/i.test(u.hostname)){const embedded=u.searchParams.get('imgurl')||u.searchParams.get('mediaurl')||'';if(embedded){const decoded=new URL(embedded);if(/^https?:$/.test(decoded.protocol))return decoded.href;}const q=u.searchParams.get('q')||'';if(/^https?:\/\//i.test(q)&&/\.(png|jpe?g|webp|gif)(\?|$)/i.test(q))return q;}}catch{}return value;}
 async function imageIsValid(url){if(!url)return true;if(!/^https?:\/\//i.test(url))throw Error('La URL de imagen debe comenzar con http o https.');return await new Promise((resolve,reject)=>{const img=new Image();const timer=setTimeout(()=>{img.src='';reject(Error('La imagen tardó demasiado en cargar. No se guardó la URL.'))},10000);img.onload=()=>{clearTimeout(timer);resolve(true)};img.onerror=()=>{clearTimeout(timer);reject(Error('La URL no entrega una imagen que el navegador pueda cargar. Probá con un enlace directo o quitá la imagen.'))};img.src=url;});}

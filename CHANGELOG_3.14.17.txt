@@ -1,0 +1,42 @@
+MIND DUEL FUSION — 3.14.17 EXTRACCIÓN CON IA + DATOS PARA EL CEREBRO
+
+QUÉ CAMBIA
+- El botón "Extraer / actualizar datos desde la fuente" ahora, además de la infobox, le pasa a una IA el texto relevante del artículo
+  (portada + secciones de poderes, armas, aliados, enemigos...) y completa el JSON y la descripción.
+- La descripción se genera con palabras propias (1–2 oraciones). Si repite 8 palabras seguidas de la página, se descarta y se usa la de respaldo.
+- Sin IA (sin clave o si falla) el botón sigue andando con reglas, y el mensaje de estado dice por qué no se usó la IA.
+- La referencia (fuente) y la imagen siguen siendo campos separados. No se tocó el manejo de imágenes: ya acepta la URL directa y
+  las direcciones imgres de Google Imágenes.
+
+PENSADO PARA LO QUE EL CEREBRO REALMENTE LEE
+- Nuevos campos en la plantilla (reales y ficticios): etiquetas (lista cerrada con las que usa motor_logico/conocimiento: guerrero, combate,
+  usa_espada, musico, cientifico, politico, marvel, anime...) y medios (videojuego, pelicula, serie, anime, manga, comic, libro).
+- humano deja de quedar en null para especies claras (Semidiós, dios, robot, alien... = false; Humano = true). Sin humano booleano
+  no se puede verificar la ficha ni responder "¿es humano?".
+- "Primera aparición" ahora llena franquicia (antes llenaba medio_origen con el título del juego). medio_origen pasa a ser el medio (videojuego).
+- Nuevas etiquetas de infobox reconocidas para fichas ficticias: aliados, enemigos, origen.
+- El nombre pierde el sufijo "(personaje)".
+
+SEGURIDAD DE LOS DATOS (la IA propone, el código valida)
+- La IA solo rellena huecos: nunca pisa datos que ya vinieron de la infobox ni datos manuales.
+- Listas (armas, poderes, aliados, enemigos...) y datos como especie/franquicia/creador: se descarta lo que no aparece en el texto de la página.
+- etiquetas y medios: solo valores de las listas cerradas. Tipos y largos validados. Campos ajenos a la plantilla se ignoran.
+- Una ficha Real nunca recibe campos de ficticios (y viceversa), ni cambia humano.
+- El texto de la página se trata como dato, no como instrucciones. Aun así, lo que escriba la propia página pasa la verificación
+  de "figura en el texto": por eso se revisa el JSON antes de guardar.
+
+CONFIGURACIÓN EN VERCEL (Settings → Environment Variables, y después redeploy)
+- AI_API_KEY   (obligatoria) clave del proveedor. Por defecto se usa Groq (api.groq.com), compatible con la API tipo OpenAI.
+- AI_MODEL     (opcional) por defecto llama-3.3-70b-versatile. Si el proveedor retira ese modelo, poner uno vigente.
+- AI_API_URL   (opcional) otra URL tipo OpenAI /chat/completions (OpenRouter, OpenAI, etc.).
+- GROQ_API_KEY también se acepta en lugar de AI_API_KEY.
+
+ARCHIVOS TOCADOS
+- api/character-extract.js, catalogo_personajes.js, SIMULACION_3_14_17.js (nuevo), este changelog.
+- api/characters.js, multijugador.js y supabase-sync.js no se modificaron.
+
+PRUEBAS
+- 13 pruebas nuevas (3.14.17) + 9 de la 3.14.16, todas aprobadas.
+- El HTML de Kratos de la prueba imita la página real: la infobox NO trae armas ni universo.
+- La IA se probó con un fetch simulado: NO se probó contra Groq real, ni contra Wikipedia real, ni el guardado en Vercel/Supabase
+  desde este entorno (sin acceso de red a esos sitios).
