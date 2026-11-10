@@ -1,0 +1,16 @@
+MIND DUEL FUSION — 3.14.18 FIX IA CON MODELOS gpt-oss
+
+PROBLEMA
+- Con openai/gpt-oss-20b (Groq) la extracción devolvía: HTTP 400 "Failed to validate JSON ... failed_generation".
+- Causa probable: gpt-oss es un modelo de razonamiento; gasta parte del límite de salida pensando y el JSON queda cortado
+  (max_tokens era 1100). Con el 120b piensa más, por eso fallaba siempre.
+
+CAMBIOS (solo api/character-extract.js, función aiEnrich)
+- Para modelos gpt-oss: reasoning_effort "low" y límite de salida 6000. Para el resto: límite 2500.
+- Si el proveedor responde 400, se reintenta una vez sin response_format (algunos modelos/proveedores lo rechazan o cortan el JSON).
+- La respuesta se recorta al primer { ... último } antes de interpretarla, por si el modelo agrega texto alrededor.
+- El mensaje de error de la IA muestra hasta 170 caracteres del proveedor (antes 110).
+
+PRUEBAS
+- 15 pruebas 3.14.17 (2 nuevas: gpt-oss y reintento) + 9 de la 3.14.16, todas aprobadas, con un proveedor simulado.
+- No se probó contra Groq real desde este entorno.

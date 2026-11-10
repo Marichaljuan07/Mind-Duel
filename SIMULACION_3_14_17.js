@@ -23,11 +23,12 @@ const kratosHtml=`<html><head><title>Kratos (personaje) - Wikipedia, la enciclop
 
 const franciscoHtml=`<html><body><h1>Francisco (papa)</h1><div class="infobox vcard"><table><tr><th>Nacionalidad</th><td>Argentina</td></tr><tr><th>Sexo</th><td>Masculino</td></tr><tr><th>Ocupación</th><td>Papa</td></tr><tr><th>Fecha de nacimiento</th><td>17 de diciembre de 1936</td></tr></table></div><p>Francisco, de nombre secular Jorge Mario Bergoglio (Buenos Aires, 17 de diciembre de 1936), fue el 266.º papa de la Iglesia católica y fue un religioso argentino.</p></body></html>`;
 
-let lastAiRequest=null;
+let lastAiRequest=null,aiCalls=[];
 function mockFetch(html,aiBehavior){
  global.fetch=async(url,opts)=>{
   if(String(url).includes('api.groq.com')){
-   lastAiRequest={url:String(url),headers:opts.headers,body:JSON.parse(opts.body)};
+   lastAiRequest={url:String(url),headers:opts.headers,body:JSON.parse(opts.body)};aiCalls.push(lastAiRequest);
+   if(aiBehavior.reject400WithFormat&&lastAiRequest.body.response_format)return new Response('{"error":{"message":"Failed to validate JSON"}}',{status:400});
    if(aiBehavior.status&&aiBehavior.status!==200)return new Response('rate limit exceeded',{status:aiBehavior.status});
    return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify(aiBehavior.data)}}]}),{status:200,headers:{'content-type':'application/json'}});
   }
@@ -35,7 +36,7 @@ function mockFetch(html,aiBehavior){
  };
 }
 async function extract(html,type,ai){
- mockFetch(html,ai||{});lastAiRequest=null;
+ mockFetch(html,ai||{});lastAiRequest=null;aiCalls=[];
  const req={method:'POST',body:{url:'https://8.8.8.8/reference',type},headers:{}};
  const res={setHeader(){},status(n){this.statusCode=n;return this},json(v){this.payload=v;return this}};
  await handler(req,res);assert.equal(res.statusCode,200,JSON.stringify(res.payload));return res.payload;
@@ -76,6 +77,19 @@ async function extract(html,type,ai){
  // ---- E) persona real: la IA no puede colar campos de ficticios ni cambiar humano ----
  const e=await extract(franciscoHtml,'real',{data:{humano:false,habilidades:['volar'],etiquetas:['religioso','papa'],descripcion:'Líder de la Iglesia católica durante más de una década.'}});
  test('persona real: sin campos de ficticios, humano sigue true y las etiquetas válidas se incorporan',()=>{const x=e.extracted.attributes;assert.equal(x.humano,true);assert.equal(x.habilidades,undefined);assert.deepEqual(x.etiquetas,['religioso','papa']);assert.equal(x.numero_en_cargo,266)});
+
+
+ // ---- F) gpt-oss en Groq: 400 "Failed to validate JSON" ----
+ process.env.AI_MODEL='openai/gpt-oss-20b';
+ const f=await extract(kratosHtml,'ficticio',{data:aiOk.data,reject400WithFormat:true});
+ test('gpt-oss: razonamiento bajo, margen amplio y reintento sin response_format tras un 400',()=>{
+  assert.equal(aiCalls.length,2);assert(aiCalls[0].body.response_format);assert.equal(aiCalls[1].body.response_format,undefined);
+  assert.equal(aiCalls[0].body.reasoning_effort,'low');assert(aiCalls[0].body.max_tokens>=4000);
+  assert.equal(f.ai.status,'ok');assert.deepEqual(f.extracted.attributes.armas,['Hojas del Caos','Hacha Leviatán'])});
+ process.env.AI_MODEL='llama-3.3-70b-versatile';
+ await extract(kratosHtml,'ficticio',aiOk);
+ test('otros modelos: sin reasoning_effort y una sola llamada si no hay error',()=>{assert.equal(aiCalls.length,1);assert.equal(aiCalls[0].body.reasoning_effort,undefined)});
+ delete process.env.AI_MODEL;
 
  // ---- Front: plantilla y reemplazo de descripciones automáticas ----
  const vm=require('vm');
