@@ -21,7 +21,7 @@ module.exports=async function(req,res){
     const b=req.body||{};
     const headers={apikey:SERVICE_KEY,Authorization:`Bearer ${SERVICE_KEY}`,Accept:'application/json'};
     if(req.method==='PATCH'){
-      if(!EDITOR_TOKEN)return res.status(503).json({error:'La edición del catálogo todavía no está habilitada en el servidor.'});
+      if(!EDITOR_TOKEN)return res.status(503).json({error:'Falta configurar CHARACTER_EDITOR_TOKEN en las variables de entorno de Vercel. La edición compartida está deshabilitada hasta configurarlo.',diagnostic:{stage:'configuration',code:'missing_character_editor_token',required_env:'CHARACTER_EDITOR_TOKEN'}});
       const supplied=String(req.headers['x-character-editor-token']||'');
       if(!supplied||supplied!==EDITOR_TOKEN)return res.status(403).json({error:'Clave de edición incorrecta.'});
       const id=String(req.query?.id||b.id||'').trim();
