@@ -153,9 +153,15 @@ async function aiEnrich({type,title,facts,article}){
  const user=`Tipo de ficha: ${type}\nNombre: ${title}\nEtiquetas permitidas: ${ETIQUETAS_OK.join(', ')}\nMedios permitidos: ${MEDIOS_OK.join(', ')}\nPlantilla JSON a devolver: ${JSON.stringify(AI_TEMPLATES[type])}\n\nDATOS ESTRUCTURADOS:\n${(facts||[]).slice(0,40).join('\n')}\n\nTEXTO DE LA PÁGINA:\n${article}`;
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);
  try{
-  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify({model,temperature:0,max_tokens:1100,response_format:{type:'json_object'},messages:[{role:'system',content:system},{role:'user',content:user}]}),signal:controller.signal});
-  if(!r.ok){let b='';try{b=(await r.text()).replace(/\s+/g,' ').slice(0,110)}catch{}return {status:'error',detail:`HTTP ${r.status}${b?' '+b:''}`};}
+  // Modelos "de razonamiento" (gpt-oss, etc.) gastan parte del límite de salida pensando: con poco margen el JSON queda cortado
+  // y el proveedor responde 400 "Failed to validate JSON". Por eso el margen es amplio y, para gpt-oss, el razonamiento va en "low".
+  const reasoning=/gpt-oss/i.test(model);
+  const call=withFormat=>fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify({model,temperature:0,max_tokens:reasoning?6000:2500,...(reasoning?{reasoning_effort:'low'}:{}),...(withFormat?{response_format:{type:'json_object'}}:{}),messages:[{role:'system',content:system},{role:'user',content:user}]}),signal:controller.signal});
+  let r=await call(true);
+  if(r.status===400){try{await r.text()}catch{}r=await call(false);} // algunos proveedores/modelos rechazan response_format o cortan el JSON: se reintenta sin eso
+  if(!r.ok){let b='';try{b=(await r.text()).replace(/\s+/g,' ').slice(0,170)}catch{}return {status:'error',detail:`HTTP ${r.status}${b?' '+b:''}`};}
   const j=await r.json();let txt=String(j?.choices?.[0]?.message?.content||'').trim().replace(/^```(?:json)?\s*|\s*```$/g,'');
+  const i0=txt.indexOf('{'),i1=txt.lastIndexOf('}');if(i0>=0&&i1>i0)txt=txt.slice(i0,i1+1);
   let data;try{data=JSON.parse(txt)}catch{return {status:'error',detail:'respuesta no era JSON'}}
   if(!data||typeof data!=='object'||Array.isArray(data))return {status:'error',detail:'respuesta inválida'};
   return {status:'ok',model,data};
