@@ -26,7 +26,7 @@ function mergeCharacters(rows){
   const item={...attrs,...c,...edit,name:finalName,aliases:finalAliases,description:edit.description||c.description||c.descripcion||attrs.descripcion||'',tipo:c.tipo||attrs.tipo||attrs.universo||c.universo||'',universo:c.universo||attrs.universo||c.tipo||attrs.tipo||'',status:edit.status||c.status||'active',attributes:{...attrs,...(edit.attributes||{})}};
   if(existingIndex===undefined){const i=out.length;out.push(item);keys.forEach(k=>byKey.set(k,i));continue;}
   const current=out[existingIndex],mergedAttrs={...(item.attributes||{}),...(current.attributes||{}),...(attrs||{})};
-  const merged={...item,...current,id:current.id||item.id,attributes:mergedAttrs,aliases:[...new Set([...(current.aliases||[]),...aliases])],description:current.description||item.description||'',tipo:current.tipo||item.tipo||'',universo:current.universo||item.universo||'',status:item.status||current.status};
+  const merged={...item,...current,id:current.id||item.id,attributes:mergedAttrs,aliases:[...new Set([...(current.aliases||[]),...aliases])],description:item.description||current.description||'',tipo:item.tipo||current.tipo||'',universo:item.universo||current.universo||'',status:item.status||current.status};
   for(const [k,v] of Object.entries(item))if((merged[k]===undefined||merged[k]===null||merged[k]==='')&&v!==undefined&&v!==null&&v!=='')merged[k]=v;
   out[existingIndex]=merged;[name,...merged.aliases].map(normalize).filter(Boolean).forEach(k=>byKey.set(k,existingIndex));
  }

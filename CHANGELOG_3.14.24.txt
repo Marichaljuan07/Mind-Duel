@@ -1,0 +1,7 @@
+Mind Duel Fusion 3.14.24 — FIX DESCRIPCIÓN DE FICHAS
+
+- Corregido el orden de prioridad al combinar fichas locales y compartidas.
+- La descripción recién guardada en el catálogo compartido ahora prevalece sobre una descripción antigua del catálogo local.
+- El mismo criterio se aplica al tipo y universo cuando existe una versión compartida más reciente.
+- Se conserva la corrección de guardado y verificación de la versión 3.14.23.
+- Sin cambios en la lógica de Clásico, Solo, Multijugador ni en el extractor de referencias.
