@@ -363,6 +363,23 @@ async function descartarContradichosAsync(s,L,limite=2,chunk=450){
   return {mejor:m,descartados};
 }
 
-const C={nuevo,pregunta,preguntaAsync,responder,responderAsync,descartarContradichosAsync,mejor,debeAdivinar,rechazar,frase,esRedundante,separaLideres,nota,razonar,notaFallo,encaje,contradicciones,preguntaVerificacion,descartarContradichos};
+
+// Recuperación conservadora: si las fichas contradicen dos o más respuestas y
+// el filtro deja cero candidatos, no se abandona la deducción ni se pide el nombre.
+// Se reconstruyen pesos dando prioridad a los personajes con menos contradicciones.
+function recuperarCandidatos(s,L,excluded=[]){
+  if(!s||!Array.isArray(s.ps)||!s.ps.length)return null;
+  const blocked=new Set(Array.from(excluded||[]));
+  const rows=s.ps.map((p,i)=>({i,p,contra:contradicciones(s,L,p)})).filter(x=>!blocked.has(x.i));
+  if(!rows.length)return null;
+  const min=Math.min(...rows.map(x=>x.contra));
+  const weights=s.ps.map(()=>0);
+  for(const row of rows){const delta=row.contra-min;weights[row.i]=Math.pow(.32,delta);}
+  const total=weights.reduce((a,b)=>a+b,0);if(!total)return null;
+  s.w=weights.map(w=>w/total);s.recovered=true;
+  return mejor(s);
+}
+
+const C={nuevo,pregunta,preguntaAsync,responder,responderAsync,descartarContradichosAsync,mejor,debeAdivinar,rechazar,frase,esRedundante,separaLideres,nota,razonar,notaFallo,encaje,contradicciones,preguntaVerificacion,descartarContradichos,recuperarCandidatos};
 if(typeof module!=='undefined'&&module.exports)module.exports=C;else window.Clasico=C;
 })();

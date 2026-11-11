@@ -1,0 +1,10 @@
+Mind Duel Fusion 3.14.26 — CRONÓMETRO, CATÁLOGO Y DEDUCCIÓN
+
+- El cronómetro de Solo y Clásico arranca al mostrarse la interfaz y continúa durante presentaciones, animaciones, preguntas y respuestas.
+- En Clásico, si el filtrado contradice todas las fichas, el Cerebro recupera candidatos con menor contradicción y continúa deduciendo en vez de pedir inmediatamente el nombre.
+- El nombre revelado al final recibe una reacción irónica; se quitaron mensajes de registro como «Anotado» y «Queda registrado».
+- La pantalla final de Clásico presenta una sola vez el personaje: nombre, imagen disponible y descripción; el panel de aprendizaje queda separado y solo contiene la pregunta.
+- Las preguntas de aprendizaje rotan por personaje para evitar repetir la misma pregunta en partidas sucesivas.
+- Al guardar una ficha compartida con la clave de edición, se guarda y verifica en una sola acción, siempre que cumpla los requisitos de integridad. Sin clave, los cambios se conservan localmente.
+- Se retiraron las etiquetas visibles «Verificada» y «Pendiente de revisión» del catálogo y del perfil. El estado se conserva internamente.
+- Sin cambios en multijugador.js, la lógica de reconexión ni api/character-extract.js.

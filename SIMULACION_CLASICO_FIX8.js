@@ -68,7 +68,7 @@ const nextStart=scriptSource.indexOf('async function nextClassic() {');
 const nextEnd=scriptSource.indexOf('\nasync function classicGuess',nextStart);
 const nextBody=scriptSource.slice(nextStart,nextEnd);
 check('el selector de pregunta se ejecuta una sola vez por turno', (nextBody.match(/Clasico\.pregunta\(s, MindLogic\)/g)||[]).length===1);
-check('al llegar a 20 preguntas fuerza un intento de adivinanza',/s\.n\s*>=\s*MAX_QUESTIONS\) return classicGuess\(true\)/.test(nextBody));
+check('al llegar a 20 preguntas fuerza un intento de adivinanza',/s\.n\s*>=\s*MAX_QUESTIONS/.test(nextBody)&&/await classicGuess\(true\)/.test(nextBody));
 
 
 // Regresión del aprendizaje: una ficha ya verificada no debe volver a pendiente.

@@ -2780,9 +2780,7 @@ const PERSONAJES = [
     "humano": false,
     "famoso": true,
     "region": "asia",
-    "nacionalidades": [
-      "videojuego"
-    ],
+    "nacionalidades": [],
     "idiomas": [
       "espanol"
     ],
@@ -2797,7 +2795,14 @@ const PERSONAJES = [
       "videojuego"
     ],
     "poderes": false,
+    "poderoso": false,
     "magia": false,
+    "animal": false,
+    "deidad": false,
+    "dios": false,
+    "alien": false,
+    "extraterrestre": false,
+    "origen_terrestre": true,
     "universo": "pac-man",
     "mascara": false,
     "capa": false,

@@ -389,16 +389,17 @@ async function startClassic() {
   classic.s = Clasico.nuevo(classicPool);
   classic.characterDataMissing=false;
   classic.characterCatalogStatus=chosenCatalog?.status||'unknown';
-  classic.cur = null; classic.fails = 0; classic.phase = 'ask';
+  classic.cur = null; classic.fails = 0; classic.phase = 'ask'; classic.rejectedGuesses = new Set();
   classicBusy = true;
   state.guessesLeft = MAX_GUESSES; updateHud();
   show(ui.game);
+  machineStartedAt = Date.now();
+  startTimer(machineStartedAt);
   const chosen=el('classicChosenCharacter'); if(chosen) chosen.textContent='';
   const secretLabel=el('onlineSecretLabel'); if(secretLabel){secretLabel.textContent='PERSONAJE ELEGIDO: '+classicSecretName;secretLabel.classList.remove('hidden');}
   classicBusy = false;
   try { await addMessage(pickLine(['Ya tengo el tablero listo. Respondé con cuidado, mortal: cada pista puede acercarme a tu personaje.', 'Perfecto. Ahora empieza mi investigación. No confundas una pregunta sencilla con una deducción sencilla.', 'Que empiece el interrogatorio. Vos conocés la respuesta; yo voy a demostrar que puedo encontrarla.']), 'mind'); } catch (err) { console.warn('[MIND] No se pudo mostrar la presentación de Clásico:',err); }
   const memoryComment=classicMemoryComment(); if(memoryComment){try{await addMessage(memoryComment,'mind');classic.s.commentCount=1;}catch(err){console.warn('[MIND] No se pudo mostrar el comentario de memoria:',err);}}
-  startTimer();
   // La pregunta inicial se solicita después de que termine la presentación.
   classicBusy = false;
   await nextClassic();
@@ -426,9 +427,15 @@ async function nextClassic() {
     if (!s) throw new Error('No existe el estado de la partida clásica.');
     state.questionCount = s.n; state.guessesLeft = Math.max(0, MAX_GUESSES - classic.fails); updateHud();
 
-    const filtered = await (Clasico.descartarContradichosAsync?.(s, MindLogic, 2) || Promise.resolve(Clasico.descartarContradichos(s, MindLogic, 2)));
-    const best = filtered.mejor;
-    if (!best) { await classicName(); return; }
+    let best;
+    if(s.recovered){best=Clasico.mejor(s);}else{
+      const filtered = await (Clasico.descartarContradichosAsync?.(s, MindLogic, 2) || Promise.resolve(Clasico.descartarContradichos(s, MindLogic, 2)));
+      best=filtered.mejor;
+    }
+    if (!best) {
+      best=Clasico.recuperarCandidatos?.(s,MindLogic,classic.rejectedGuesses||[])||null;
+      if(!best){await classicName();return;}
+    }
     if (Clasico.debeAdivinar(s) || s.n >= MAX_QUESTIONS) { await classicGuess(true); return; }
 
     let q = await (Clasico.preguntaAsync?.(s, MindLogic) || Promise.resolve(Clasico.pregunta(s, MindLogic)));
@@ -463,7 +470,8 @@ async function nextClassic() {
 
 async function classicGuess(announce = false) {
   classicBusy = true;
-  const m = Clasico.mejor(classic.s);
+  let m = Clasico.mejor(classic.s);
+  if (!m) m=Clasico.recuperarCandidatos?.(classic.s,MindLogic,classic.rejectedGuesses||[])||null;
   if (!m) return classicName();
   classic.cur = { tipo: 'g', i: m.i, p: m.p };
   if (announce) {
@@ -532,9 +540,9 @@ async function classicSaveName(text) {
     localStorage.setItem(k, JSON.stringify(l));
   } catch (e) {}
   await addMessage(pickLine([
-    `Anotado: ${nombre}. Disfrutá la victoria, detective; no te acostumbres.`,
-    `${nombre}… esta ronda es tuya. Mi orgullo está herido, no vencido.`,
-    `Queda registrado: ${nombre}. Ganaste esta vez, mortal.`
+    `${nombre}... Ahora entiendo dónde me faltaba una pieza. No te emociones, detective; ya corregiré esa ventaja.`,
+    `¿${nombre}? Hm. La respuesta estaba delante de mis narices. Disfrutá este pequeño triunfo, mortal.`,
+    `${nombre}. Bien jugado. Mi orgullo está herido, no derrotado; la próxima no tendrás tanta suerte.`
   ]), 'mind');
   const saved=localStorage.getItem('mind_character_description_'+nombreCanonico)||localStorage.getItem('mind_character_description_'+nombre)||'';
   if(window.MindKnowledge){window.MindKnowledge.plantilla(nombreCanonico,{descripcion:(known&&known.descripcion)||saved||'',origen:'clasico',datosPendientes:!known});window.MindKnowledge.registrarRespuestasPartida(nombreCanonico,classic.s?.log||[],known||null);}
@@ -627,42 +635,27 @@ function mostrarPreguntaAprendizaje(nombre) {
   const item=window.MindPacks?window.MindPacks.preguntaAprendizaje(personaje):window.MindKnowledge.preguntaSiguiente(personaje);
   box.replaceChildren();if(!item){box.classList.add('hidden');return;}
   const title=document.createElement('h3');title.textContent='EL CEREBRO QUIERE APRENDER';
-  const taunt=document.createElement('p');taunt.className='learning-taunt';taunt.textContent=pickLine([
-    '¡Un momento! ¿Cómo es posible que un mortal haya conseguido ocultarme semejante información? No te emociones: solo voy a revisar algunos detalles.',
-    'No celebres demasiado, detective. He detectado una laguna en mis datos y, aunque me resulte desagradable admitirlo, voy a corregirla.',
-    'Esto no termina aquí. Mi memoria es extraordinaria; mis datos, al parecer, todavía tienen algunos agujeros. Vamos a remediarlo.'
-  ]);
-  const identity=document.createElement('div');identity.className='learning-character';
-  const sharedCard=window.MindCharacterCatalog?.getCharacter?.(nombre)||null;
-  const imageUrl=[personaje?._image,personaje?.image,personaje?.imagen,personaje?.image_url,personaje?.imageUrl,sharedCard?.image,sharedCard?._image,sharedCard?.attributes?._image].find(v=>typeof v==='string'&&/^https?:\/\//i.test(v.trim()));
-  if(imageUrl){const img=document.createElement('img');img.className='learning-character-image';img.src=imageUrl;img.alt=`Imagen de ${nombre}`;img.loading='lazy';img.referrerPolicy='no-referrer';img.onerror=()=>{img.remove();const missing=document.createElement('div');missing.className='learning-character-image learning-character-image-missing';missing.textContent='SIN IMAGEN';identity.prepend(missing);};identity.append(img);}
-  else {const missing=document.createElement('div');missing.className='learning-character-image learning-character-image-missing';missing.textContent='SIN IMAGEN';identity.append(missing);}
-  const identityText=document.createElement('div');identityText.className='learning-character-copy';
-  const characterName=document.createElement('strong');characterName.textContent=nombre;identityText.append(characterName);
-  const description=document.createElement('p');description.textContent=getCharacterDescription(nombre,personaje?.descripcion||'');
-  if(description.textContent)identityText.append(description);
-  identity.append(identityText);
-  const prompt=document.createElement('p');prompt.className='learning-question';prompt.textContent=item.kind==='field'?`Necesito completar un dato de ${nombre}: ${item.pregunta}`:`Quiero comprobar algo sobre ${nombre}: ${item.pregunta}`;
-  const note=document.createElement('small');note.textContent=item.kind==='field'?'Tu aporte quedará pendiente de revisión; no lo trataré automáticamente como una verdad.':'Tu respuesta queda como dato tentativo y necesita coincidencia de varias partidas/dispositivos.';
+  const prompt=document.createElement('p');prompt.className='learning-question';prompt.textContent=item.kind==='field'?`Hay un dato de ${nombre} que todavía quiero aclarar: ${item.pregunta}`:`Una última cosa sobre ${nombre}: ${item.pregunta}`;
+  const note=document.createElement('small');note.textContent='Tu respuesta me ayudará a afinar mis próximas deducciones.';
   const actions=document.createElement('div');actions.className='learning-actions';
   if(item.kind==='field'){
    const input=document.createElement('input');input.type='text';input.maxLength=300;input.placeholder='Escribí el dato si lo conocés';input.autocomplete='off';
    const save=document.createElement('button');save.type='button';save.className='btn btn-green';save.textContent='APORTAR DATO';
    const skip=document.createElement('button');skip.type='button';skip.className='btn btn-purple';skip.textContent='NO LO SÉ';
-   save.addEventListener('click',()=>{const result=window.MindKnowledge.aportarDato(nombre,item.field,input.value,personaje);box.replaceChildren();const done=document.createElement('p');done.textContent=result.ok?'Aporte guardado como pendiente de revisión. El Cerebro no lo considerará confirmado todavía.':result.error;box.append(done);});
-   skip.addEventListener('click',()=>{box.replaceChildren();const done=document.createElement('p');done.textContent='No se agregó ningún dato. El Cerebro no va a inventar la respuesta.';box.append(done);});
+   save.addEventListener('click',()=>{const result=window.MindKnowledge.aportarDato(nombre,item.field,input.value,personaje);box.replaceChildren();const done=document.createElement('p');done.textContent=result.ok?'Bien. Voy a revisar ese dato antes de incorporarlo a mis deducciones.':result.error;box.append(done);});
+   skip.addEventListener('click',()=>{box.replaceChildren();const done=document.createElement('p');done.textContent='Por ahora lo dejaré como incógnita. No pienso inventar respuestas.';box.append(done);});
    actions.append(input,save,skip);
   }else{
    [['si','SÍ'],['no','NO'],['ns','NO LO SÉ']].forEach(([answer,label])=>{
     const btn=document.createElement('button');btn.type='button';btn.className='btn '+(answer==='si'?'btn-green':answer==='no'?'btn-red':'btn-purple');btn.textContent=label;
-    btn.addEventListener('click',async()=>{if(answer==='ns'){box.replaceChildren();const done=document.createElement('p');done.textContent='No se agregó ningún dato. El Cerebro no va a inventar la respuesta.';box.append(done);return;}
-     window.MindKnowledge.registrarVoto(nombre,item.concepto,answer==='si',personaje);actions.querySelectorAll('button').forEach(button=>button.disabled=true);const waiting=document.createElement('p');waiting.textContent='Un momento… el Cerebro está procesando tu respuesta.';box.replaceChildren(title,taunt,identity,prompt,waiting);
+    btn.addEventListener('click',async()=>{if(answer==='ns'){box.replaceChildren();const done=document.createElement('p');done.textContent='Queda como incógnita. Prefiero eso antes que inventar.';box.append(done);return;}
+     window.MindKnowledge.registrarVoto(nombre,item.concepto,answer==='si',personaje);actions.querySelectorAll('button').forEach(button=>button.disabled=true);const waiting=document.createElement('p');waiting.textContent='Un instante… hasta mi memoria necesita procesar una corrección.';box.replaceChildren(title,prompt,waiting);
      let sharedResult={ok:false};if(window.MindDuelSupabase?.submitClaim){sharedResult=await window.MindDuelSupabase.submitClaim({character:nombre,attribute_key:item.concepto,value:answer==='si',source_note:`Respuesta de jugador a la pregunta de aprendizaje: ${item.pregunta}`});if(sharedResult.ok&&window.MindDuelSupabase.flushClaims){const sent=await window.MindDuelSupabase.flushClaims(false);sharedResult={ok:!!sent.ok,pending:sent.pending||0};}}
-     box.replaceChildren();const done=document.createElement('p');done.textContent=sharedResult.ok?'Respuesta recibida. El Cerebro seguirá afinando sus deducciones.':'La respuesta quedó guardada localmente; se intentará sincronizar cuando haya conexión.';box.append(done);
+     box.replaceChildren();const done=document.createElement('p');done.textContent=sharedResult.ok?'Respuesta recibida. Ya veremos si mis próximas deducciones mejoran.':'La respuesta quedó guardada aquí; intentaré compartirla cuando haya conexión.';box.append(done);
     },{once:true});actions.append(btn);
    });
   }
-  box.append(title,taunt,identity,prompt,note,actions);box.classList.remove('hidden');
+  box.append(title,prompt,note,actions);box.classList.remove('hidden');
 }
 window.MindDuelLearningPrompt = mostrarPreguntaAprendizaje;
 async function classicEnd(result = {}) {
@@ -680,6 +673,16 @@ async function classicEnd(result = {}) {
   ui.resultTitle.textContent = wonByBrain ? 'HAS PERDIDO' : '¡HAS GANADO!';
   ui.resultCharacter.textContent = result.nombre ? `Tu personaje era: ${result.nombre}` : 'Personaje no identificado';
   const characterDescription = getCharacterDescription(result.nombre, result.descripcion);
+  const identityBox=el('resultIdentity');
+  if(identityBox){
+    identityBox.replaceChildren();
+    const profile=findKnownCharacter(result.nombre)||{};
+    const shared=window.MindCharacterCatalog?.getCharacter?.(result.nombre)||{};
+    const imageUrl=[profile._image,profile.image,profile.imagen,profile.image_url,profile.imageUrl,shared.image,shared._image,shared.attributes?._image].find(v=>typeof v==='string'&&/^https?:\/\//i.test(v.trim()));
+    if(imageUrl){const img=document.createElement('img');img.className='result-character-image';img.src=imageUrl;img.alt=`Imagen de ${result.nombre}`;img.loading='lazy';img.referrerPolicy='no-referrer';img.onerror=()=>img.remove();identityBox.append(img);}
+    const desc=document.createElement('p');desc.className='result-character-description';desc.textContent=characterDescription; if(characterDescription)identityBox.append(desc);
+    identityBox.classList.toggle('hidden',!imageUrl&&!characterDescription);
+  }
   if (window.MindKnowledge && result.nombre) {
     const knownForLearning=findKnownCharacter(result.nombre);
     const key=MindLogic.normalizar(result.nombre);
@@ -694,7 +697,7 @@ async function classicEnd(result = {}) {
   window.CerebroAprendizaje?.registrarPartida({modo:'clásico',resultado:result.wonBy||'finalizada',personaje:result.nombre||classicSecretName||'',preguntas:classic.s?.log||[],intentos:classic.s?.rech?.size||0});
   const tauntPool = wonByBrain ? CLASSIC_BRAIN_WIN_LINES : CLASSIC_PLAYER_WIN_LINES;
   const classicTaunt = pickLine(tauntPool)(result.nombre || classicSecretName || 'tu personaje');
-  ui.resultDescription.textContent = [characterDescription, classicTaunt].filter(Boolean).join(' ');
+  ui.resultDescription.textContent = classicTaunt;
   el('playAgainBtn')?.classList.remove('hidden'); el('playAgainBtn').textContent='JUGAR DE NUEVO';
   const editBtn=el('editCharacterBtn'); if(editBtn) editBtn.classList.toggle('hidden', !result.nombre); const createCardBtn=el('createUnknownCharacterCardBtn'); if(createCardBtn){let known=!!(classicSecretName&&findKnownCharacter(classicSecretName));try{if(!known&&classicSecretName&&window.MindCharacterCatalog?.isKnownAsync)known=await window.MindCharacterCatalog.isKnownAsync(classicSecretName);else if(!known&&classicSecretName)known=!!window.MindCharacterCatalog?.isKnown?.(classicSecretName);}catch{}const unknown=!!classicSecretName&&!known;createCardBtn.classList.toggle('hidden',!unknown);createCardBtn.onclick=()=>{if(unknown)window.MindCharacterCatalog?.openForNew?.(classicSecretName);};}
   show(ui.result);
@@ -745,7 +748,9 @@ async function classicAnswer(ans) {
     classic.fails++;
     try { window.MindSparring?.guess('clásico',c.p?.nombre,false); } catch {}
     Clasico.rechazar(classic.s, c.i);
-    if (classic.fails >= MAX_GUESSES || !Clasico.mejor(classic.s)) { await classicName(); return; }
+    classic.rejectedGuesses=classic.rejectedGuesses||new Set();classic.rejectedGuesses.add(c.i);
+    if (classic.fails >= MAX_GUESSES) { await classicName(); return; }
+    if(!Clasico.mejor(classic.s))Clasico.recuperarCandidatos?.(classic.s,MindLogic,classic.rejectedGuesses);
     await addMessage(pickLine(['¡Fallé! No te emociones, todavía sigo en el duelo.', 'Bien jugado, mortal. Sigo buscando.', 'Ese no era… mi próximo intento será mejor.']), 'mind');
     classicBusy = false;
     await nextClassic();
@@ -814,11 +819,14 @@ function updateHud() {
   ui.suggest.title = state.suggestionUses <= 0 ? 'Agotaste las sugerencias de esta partida' : !unlocked ? 'Se habilitan después de cinco preguntas válidas' : 'Sugerencias del Cerebro';
 }
 
-function startTimer() {
+function startTimer(originTimestamp) {
   clearInterval(state.timerId);
-  const startedAt = Date.now() - (Math.max(0, Number(state.seconds) || 0) * 1000);
+  const supplied = Number(originTimestamp);
+  const startedAt = Number.isFinite(supplied) && supplied > 0
+    ? supplied
+    : Date.now() - (Math.max(0, Number(state.seconds) || 0) * 1000);
   const render = () => {
-    state.seconds = Math.floor((Date.now() - startedAt) / 1000);
+    state.seconds = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
     const m = String(Math.floor(state.seconds / 60)).padStart(2, '0');
     const s = String(state.seconds % 60).padStart(2, '0');
     if (ui.timer) ui.timer.textContent = `${m}:${s}`;
@@ -877,7 +885,6 @@ function addMessage(text, kind = 'system') {
 }
 
 async function startGame() {
-  machineStartedAt = Date.now();
   window.MindDuelCleanupForMode?.();
   ui.stage.classList.remove('stage-ready');
   ui.curtainLeft.classList.add('open'); ui.curtainRight.classList.add('open');
@@ -888,7 +895,8 @@ async function startGame() {
   resetGame();
   window.MatchHistory?.begin('solo', {personaje: state.secret?.nombre || ''}); window.MindSparring?.start('solo');
   show(ui.game);
-  startTimer(); // El tiempo empieza con la partida, no al terminar el diálogo.
+  machineStartedAt = Date.now();
+  startTimer(machineStartedAt); // El reloj arranca al aparecer la interfaz y no depende de los diálogos.
   await addMessage('He elegido a mi entidad secreta. Tenés veinte preguntas y dos intentos. Procurá no desperdiciarlos, mortal; no pienso ponértelo más fácil.', 'mind');
   setTimeout(() => ui.input.focus(), 80);
 }
@@ -1129,7 +1137,8 @@ function rerollSuggestions() {
 function openSuggestions() {
   if (!state.active || state.busy || state.suggestionUses <= 0 || state.mode === 'classic') return;
   if (!(window.Sugeridor ? Sugeridor.desbloqueada(MindLogic, PERSONAJES, state.facts) : state.questionCount >= 5)) {
-    addMessage('Primero investigá por tu cuenta, mortal. Las sugerencias se desbloquean después de cinco preguntas válidas. Intentá deducirlo con tu propio razonamiento.', 'mind');
+    // El botón ya muestra cuántas preguntas válidas faltan. No repetir el mismo
+    // aviso en el chat cada vez que el jugador intenta abrirlo antes de tiempo.
     return;
   }
   const session = state.suggestionSession;
@@ -1223,6 +1232,7 @@ function finish(win, reason) {
   const modeHud=el('modeHud'); if(modeHud) modeHud.textContent='SOLO';
   ui.resultTitle.textContent = win ? 'VICTORIA' : 'DERROTA';
   ui.resultCharacter.textContent = state.secret.nombre;
+  const resultIdentity=el('resultIdentity');if(resultIdentity){resultIdentity.replaceChildren();resultIdentity.classList.add('hidden');}
   const why = String(reason || '');
   const asked = [...(state.asked || [])];
   const lastQuestion = asked.length ? asked[asked.length - 1] : '';
@@ -1370,7 +1380,7 @@ window.addEventListener('mind:restore-machine-match',async e=>{
  window.MatchHistory?.resume?.(snap.historyId, snap.mode==='CLASSIC'?'clásico':'solo');
  ui.chat.textContent='';for(const ev of (snap.transcript||[])){const kind=ev.kind||'system';const row=document.createElement('div');row.className='message message-'+kind;const av=document.createElement('div');av.className='avatar';const a=avatarFor(kind);av.textContent=a.txt;av.classList.add(a.cls);const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=ev.text||'';row.append(av,bubble);ui.chat.append(row);}
  classicBusy=false;
- updateHud();ui.timer.textContent=String(Math.floor(state.seconds/60)).padStart(2,'0')+':'+String(state.seconds%60).padStart(2,'0');show(ui.game);startTimer();machineAutosave();
+ updateHud();ui.timer.textContent=String(Math.floor(state.seconds/60)).padStart(2,'0')+':'+String(state.seconds%60).padStart(2,'0');show(ui.game);startTimer(Date.now()-(Math.max(0,state.seconds)*1000));machineAutosave();
  if(state.mode==='classic'){
   const chosen=el('classicChosenCharacter'); if(chosen) chosen.textContent='';
   const secretLabel=el('onlineSecretLabel'); if(secretLabel){secretLabel.textContent='PERSONAJE ELEGIDO: '+(classicSecretName||'Sin nombre');secretLabel.classList.remove('hidden');}

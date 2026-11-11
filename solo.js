@@ -87,7 +87,7 @@ function deducir(L,q,p){
 
   // Animal: un humano no es un animal (en el sentido del juego).
   if(/\b(animal|mascota|bestia)\b/.test(t)){
-    if(p.animal===true)return null; // la lógica existente ya sabe que lo es (la ficha de Garfield dice humano por error)
+    if(typeof p.animal==='boolean')return{nivel:p.animal?'si':'no',razon:'animal'};
     if(p.humano===true)return{nivel:'no',razon:'humano'};
     return null;
   }
@@ -136,7 +136,8 @@ function deducir(L,q,p){
 function texto(nivel){return ESTILOS[nivel]||null}
 
 // ---------------- Pistas variadas ----------------
-const REGION_TXT={europa:'Sus pasos empezaron en el viejo continente.',america:'Su historia transcurre en el continente americano.',asia:'Su origen está en oriente.',africa:'Sus raíces están en África.',oceania:'Su origen queda en Oceanía, al otro lado del mundo.',espacio:'Su mundo queda más allá de la Tierra.','tierra media':'Su mundo no figura en ningún mapa terrestre.'};
+const REGION_TXT={europa:'Sus pasos empezaron en el viejo continente.',america:'Su historia transcurre en el continente americano.',asia:'Sus raíces están en Asia.',africa:'Sus raíces están en África.',oceania:'Sus raíces están en Oceanía, al otro lado del mundo.',espacio:'Su mundo queda más allá de la Tierra.','tierra media':'Su mundo no figura en ningún mapa terrestre.'};
+const REGION_FICCION_TXT={europa:'La obra que lo vio nacer tiene raíces en Europa.',america:'La obra que lo vio nacer tiene raíces en América.',asia:'La franquicia que lo vio nacer surgió en Oriente.',africa:'La obra que lo vio nacer tiene raíces en África.',oceania:'La obra que lo vio nacer tiene raíces en Oceanía.'};
 const MEDIO_TXT={videojuego:'Su historia también se vive con un mando en la mano.',comic:'Sus aventuras se dibujaron en viñetas.',pelicula:'Seguro lo viste, o pudiste verlo, en una pantalla grande.',serie:'Hizo carrera en la televisión.',television:'Hizo carrera en la televisión.',libro:'Nació entre páginas.',literatura:'Nació entre páginas.',historia:'Su nombre está en los libros de historia.'};
 const EPOCA_TXT={antiguedad:'Vivió hace más de mil quinientos años.',medieval:'Su época fue la de los castillos y las cruzadas.',renacimiento:'Su época fue la del resurgir de las artes y las ciencias en Europa.',moderna:'Su época es la de los imperios y las revoluciones.',contemporanea:'Pertenece al último siglo y medio.'};
 const ROL_TXT=[
@@ -155,7 +156,7 @@ function candidatas(p,facts,nivel,L){
   const c=[];
   const medios=Array.isArray(p.medios)?p.medios:[];
   if(nivel===1){
-    if(!saber('region')&&REGION_TXT[String(p.region||'').toLowerCase()])c.push({id:'region',t:REGION_TXT[String(p.region).toLowerCase()]});
+    if(!saber('region')){const region=String(p.region||'').toLowerCase();const text=p.tipo==='ficticio'?(REGION_FICCION_TXT[region]||REGION_TXT[region]):REGION_TXT[region];if(text)c.push({id:'region',t:text});}
     if(!saber('medio'))for(const m of medios)if(MEDIO_TXT[m])c.push({id:'medio:'+m,t:MEDIO_TXT[m]});
     if(p.tipo==='real'&&p.vivo===false)c.push({id:'vivo',t:'Ya no está entre nosotros, pero su nombre sigue vivo.'});
     if(p.tipo==='real'&&p.vivo===true)c.push({id:'vivo',t:'Sigue entre nosotros, aunque no lo sepas.'});

@@ -193,12 +193,18 @@ function aportarDato(nombre,field,value,personaje){
 function preguntaSiguiente(p){
  const fieldQuestion=preguntaCampoPendiente(p);if(fieldQuestion)return fieldQuestion;
  const db=votes(),k=norm(p?.nombre||''),candidates=(typeof PERSONAJES!=='undefined'&&Array.isArray(PERSONAJES)?PERSONAJES:Array.isArray(window.PERSONAJES)?window.PERSONAJES:[]).filter(x=>x&&norm(x.nombre)!==k);
- const eligible=QUESTIONS.filter(q=>valor(p,q.concepto)===null&&!((db.votes[k+'|'+q.concepto]||{})[deviceId()]));
+ let eligible=QUESTIONS.filter(q=>valor(p,q.concepto)===null&&!((db.votes[k+'|'+q.concepto]||{})[deviceId()]));
  if(!eligible.length)return null;
+ const seenDb=read('mind_learning_questions_seen_v1',{}),seen=Array.isArray(seenDb[k])?seenDb[k]:[];
+ let fresh=eligible.filter(q=>!seen.includes(q.concepto));
+ if(!fresh.length){seenDb[k]=[];fresh=eligible;}
+ eligible=fresh;
  // Busca el atributo que mejor separa personajes parecidos al objetivo, en vez de tomar el primero disponible.
  const known=QUESTIONS.map(q=>({q,value:valor(p,q.concepto)})).filter(x=>x.value!==null);
  const ranked=eligible.map(q=>{let yes=0,no=0,coverage=0;for(const other of candidates){let similarity=0;for(const fact of known){const v=valor(other,fact.q.concepto);if(v!==null&&v===fact.value)similarity++;}if(known.length&&similarity<Math.max(1,Math.ceil(known.length*.35)))continue;const v=valor(other,q.concepto);if(v===true){yes++;coverage++;}else if(v===false){no++;coverage++;}}const split=coverage?1-Math.abs(yes-no)/coverage:0;return{q,score:coverage>=2?(split*3+Math.log2(coverage+1)):0,coverage};}).sort((a,b)=>b.score-a.score||b.coverage-a.coverage);
- return ranked[0]?.score>0?ranked[0].q:eligible[0];
+ const chosen=ranked[0]?.score>0?ranked[0].q:eligible[0];
+ if(chosen){seenDb[k]=[...(Array.isArray(seenDb[k])?seenDb[k]:[]),chosen.concepto].slice(-12);write('mind_learning_questions_seen_v1',seenDb);}
+ return chosen;
 }
 function registrarRespuestasPartida(nombre,log,personaje){if(!nombre||!Array.isArray(log))return 0;let n=0;for(const row of log){if(!row||!['si','no','psi','pno'].includes(row.a))continue;const c=conceptoDePregunta(row.q);if(!c)continue;registrarVoto(nombre,c,row.a==='si'||row.a==='psi',personaje);n++}return n}
 function registrarVoto(nombre,concepto,value,personaje){const db=votes(),key=norm(nombre)+'|'+concepto,id=deviceId(),profileKey=norm(nombre);db.votes[key]=db.votes[key]||{};db.votes[key][id]={value:!!value,device:id,at:new Date().toISOString()};if(!db.profiles[profileKey]&&(!personaje||personaje.plantillaVersion===1))db.profiles[profileKey]=crearPlantilla(nombre);if(db.profiles[profileKey]){db.profiles[profileKey].nombre=String(nombre).trim();if(personaje&&personaje.plantillaVersion===1){db.profiles[profileKey].alias=personaje.alias||[];db.profiles[profileKey].tipo=personaje.tipo||db.profiles[profileKey].tipo;db.profiles[profileKey].universo=personaje.universo||db.profiles[profileKey].universo;}}write(KEY,db);invalidarCache();if(personaje&&personaje.plantillaVersion===1){const current=read(TEMPLATE,{})[profileKey];const keepVerified=current&&current.datosPendientes===false;plantilla(nombre,{...personaje,datosPendientes:keepVerified?false:true});}const status=aggregate(nombre,concepto);return status}
