@@ -1,0 +1,8 @@
+MIND DUEL FUSION — 3.14.23
+FIX CATÁLOGO: GUARDADO Y VERIFICACIÓN
+
+- Las ediciones de fichas compartidas ya no se presentan como guardadas si falla la actualización en el servidor.
+- Un error de autorización o sincronización se informa explícitamente; no se crea una copia local engañosa para una ficha compartida.
+- Al guardar correctamente una ficha compartida, se eliminan las ediciones locales antiguas asociadas al nombre anterior y al nuevo.
+- La carga del catálogo compartido y su endpoint dejan de usar caché, para reflejar inmediatamente el estado verificado y los cambios guardados.
+- Se conserva la estructura y el comportamiento de los demás modos.
