@@ -27,6 +27,11 @@ function geografiaRealAplicable(personaje) {
 }
 
 function evaluarPregunta(pregunta, personaje) {
+    const ontologia = typeof window !== "undefined" ? window.MindOntology : null;
+    if (ontologia && typeof ontologia.resolver === "function") {
+        const respuestaOntologica = ontologia.resolver(pregunta, personaje);
+        if (typeof respuestaOntologica === "boolean") return respuestaOntologica;
+    }
     const texto = aplicarEquivalencias(normalizar(pregunta));
 
     // ==================================================

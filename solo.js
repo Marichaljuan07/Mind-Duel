@@ -45,6 +45,8 @@ const ERA=[['antiguedad',/\b(antiguedad|antiguo|antigua)\b/],['medieval',/\b(eda
 // Devuelve {nivel:'si'|'no'|'psi'|'pno', razon} o null si no puede deducir con seguridad razonable.
 function deducir(L,q,p){
   if(!p||!L||!L.normalizar)return null;
+  const ontologia=typeof window!=="undefined"?window.MindOntology:null;
+  if(ontologia&&typeof ontologia.resolver==="function"){const r=ontologia.resolver(q,p);if(typeof r==="boolean")return{nivel:r?"si":"no",razon:"conocimiento estructurado"};}
   const t=L.normalizar(q);
   const tagsFicha=tags(p).map(x=>L.normalizar(x));
   const tieneTag=(...values)=>values.some(x=>tagsFicha.includes(L.normalizar(x)));

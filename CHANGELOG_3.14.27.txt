@@ -1,0 +1,14 @@
+Mind Duel Fusion 3.14.27 — ONTOLOGÍA COMPARTIDA Y RAZONAMIENTO A+B
+
+- Se incorpora ontologia.js como capa común de interpretación de conceptos para Clásico y Solo.
+- Clásico y Solo consultan la misma ontología antes de aplicar sus reglas específicas.
+- El módulo de conocimiento utiliza la ontología al evaluar conceptos y seleccionar preguntas de aprendizaje.
+- Se normalizan variantes de género y sinónimos para deidades, semidioses, magia, héroes, heroínas, profesiones científicas y escritura.
+- Se normalizan nacionalidades mediante equivalencias de país y gentilicio, sin confundir nacionalidad con lugar de nacimiento, idioma o continente.
+- Se distingue entre dios/deidad y semidiós; también entre científico y el arquetipo narrativo de científico loco.
+- Los rasgos subjetivos como «loco» solo se responden cuando existe evidencia explícita en la ficha.
+- Se conserva el estado desconocido cuando falta información; no se convierte automáticamente en NO.
+- Se mantienen el control de partida y el motor de deducción existentes trabajando en conjunto.
+- No se modificaron multijugador.js, la lógica de reconexión ni api/character-extract.js.
+- No se añadió una consulta de IA externa por pregunta; la deducción normalizada se ejecuta localmente.
+- Filtros de catálogo por universo/categoría quedan para una etapa posterior, separada del razonamiento automático del Cerebro.
