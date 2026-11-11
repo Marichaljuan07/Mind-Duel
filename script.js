@@ -627,8 +627,23 @@ function mostrarPreguntaAprendizaje(nombre) {
   const item=window.MindPacks?window.MindPacks.preguntaAprendizaje(personaje):window.MindKnowledge.preguntaSiguiente(personaje);
   box.replaceChildren();if(!item){box.classList.add('hidden');return;}
   const title=document.createElement('h3');title.textContent='EL CEREBRO QUIERE APRENDER';
-  const prompt=document.createElement('p');prompt.textContent=`Una pregunta sobre ${nombre}: ${item.pregunta}`;
-  const note=document.createElement('small');note.textContent=item.kind==='field'?'El dato se guardará como aporte pendiente de revisión; no se tratará automáticamente como verdad.':'Tu respuesta queda como dato tentativo y necesita coincidencia de varias partidas/dispositivos.';
+  const taunt=document.createElement('p');taunt.className='learning-taunt';taunt.textContent=pickLine([
+    '¡Un momento! ¿Cómo es posible que un mortal haya conseguido ocultarme semejante información? No te emociones: solo voy a revisar algunos detalles.',
+    'No celebres demasiado, detective. He detectado una laguna en mis datos y, aunque me resulte desagradable admitirlo, voy a corregirla.',
+    'Esto no termina aquí. Mi memoria es extraordinaria; mis datos, al parecer, todavía tienen algunos agujeros. Vamos a remediarlo.'
+  ]);
+  const identity=document.createElement('div');identity.className='learning-character';
+  const sharedCard=window.MindCharacterCatalog?.getCharacter?.(nombre)||null;
+  const imageUrl=[personaje?._image,personaje?.image,personaje?.imagen,personaje?.image_url,personaje?.imageUrl,sharedCard?.image,sharedCard?._image,sharedCard?.attributes?._image].find(v=>typeof v==='string'&&/^https?:\/\//i.test(v.trim()));
+  if(imageUrl){const img=document.createElement('img');img.className='learning-character-image';img.src=imageUrl;img.alt=`Imagen de ${nombre}`;img.loading='lazy';img.referrerPolicy='no-referrer';img.onerror=()=>{img.remove();const missing=document.createElement('div');missing.className='learning-character-image learning-character-image-missing';missing.textContent='SIN IMAGEN';identity.prepend(missing);};identity.append(img);}
+  else {const missing=document.createElement('div');missing.className='learning-character-image learning-character-image-missing';missing.textContent='SIN IMAGEN';identity.append(missing);}
+  const identityText=document.createElement('div');identityText.className='learning-character-copy';
+  const characterName=document.createElement('strong');characterName.textContent=nombre;identityText.append(characterName);
+  const description=document.createElement('p');description.textContent=getCharacterDescription(nombre,personaje?.descripcion||'');
+  if(description.textContent)identityText.append(description);
+  identity.append(identityText);
+  const prompt=document.createElement('p');prompt.className='learning-question';prompt.textContent=item.kind==='field'?`Necesito completar un dato de ${nombre}: ${item.pregunta}`:`Quiero comprobar algo sobre ${nombre}: ${item.pregunta}`;
+  const note=document.createElement('small');note.textContent=item.kind==='field'?'Tu aporte quedará pendiente de revisión; no lo trataré automáticamente como una verdad.':'Tu respuesta queda como dato tentativo y necesita coincidencia de varias partidas/dispositivos.';
   const actions=document.createElement('div');actions.className='learning-actions';
   if(item.kind==='field'){
    const input=document.createElement('input');input.type='text';input.maxLength=300;input.placeholder='Escribí el dato si lo conocés';input.autocomplete='off';
@@ -641,13 +656,13 @@ function mostrarPreguntaAprendizaje(nombre) {
    [['si','SÍ'],['no','NO'],['ns','NO LO SÉ']].forEach(([answer,label])=>{
     const btn=document.createElement('button');btn.type='button';btn.className='btn '+(answer==='si'?'btn-green':answer==='no'?'btn-red':'btn-purple');btn.textContent=label;
     btn.addEventListener('click',async()=>{if(answer==='ns'){box.replaceChildren();const done=document.createElement('p');done.textContent='No se agregó ningún dato. El Cerebro no va a inventar la respuesta.';box.append(done);return;}
-     window.MindKnowledge.registrarVoto(nombre,item.concepto,answer==='si',personaje);actions.querySelectorAll('button').forEach(button=>button.disabled=true);const waiting=document.createElement('p');waiting.textContent='Un momento… el Cerebro está procesando tu respuesta.';box.replaceChildren(title,prompt,waiting);
+     window.MindKnowledge.registrarVoto(nombre,item.concepto,answer==='si',personaje);actions.querySelectorAll('button').forEach(button=>button.disabled=true);const waiting=document.createElement('p');waiting.textContent='Un momento… el Cerebro está procesando tu respuesta.';box.replaceChildren(title,taunt,identity,prompt,waiting);
      let sharedResult={ok:false};if(window.MindDuelSupabase?.submitClaim){sharedResult=await window.MindDuelSupabase.submitClaim({character:nombre,attribute_key:item.concepto,value:answer==='si',source_note:`Respuesta de jugador a la pregunta de aprendizaje: ${item.pregunta}`});if(sharedResult.ok&&window.MindDuelSupabase.flushClaims){const sent=await window.MindDuelSupabase.flushClaims(false);sharedResult={ok:!!sent.ok,pending:sent.pending||0};}}
      box.replaceChildren();const done=document.createElement('p');done.textContent=sharedResult.ok?'Respuesta recibida. El Cerebro seguirá afinando sus deducciones.':'La respuesta quedó guardada localmente; se intentará sincronizar cuando haya conexión.';box.append(done);
     },{once:true});actions.append(btn);
    });
   }
-  box.append(title,prompt,note,actions);box.classList.remove('hidden');
+  box.append(title,taunt,identity,prompt,note,actions);box.classList.remove('hidden');
 }
 window.MindDuelLearningPrompt = mostrarPreguntaAprendizaje;
 async function classicEnd(result = {}) {
@@ -795,18 +810,21 @@ function updateHud() {
   const unlocked = window.Sugeridor ? Sugeridor.desbloqueada(MindLogic, PERSONAJES, state.facts) : state.questionCount >= 5;
   ui.suggest.textContent = unlocked ? `SUGERENCIAS (${state.suggestionUses})` : `SUGERENCIAS · ${Math.max(0,5-state.questionCount)} PREGUNTAS`;
   ui.suggest.classList.toggle('locked', !unlocked);
-  ui.suggest.disabled = state.suggestionUses <= 0 || !state.active || state.mode === 'classic';
+  ui.suggest.disabled = state.suggestionUses <= 0 || !state.active || state.mode === 'classic' || !unlocked;
   ui.suggest.title = state.suggestionUses <= 0 ? 'Agotaste las sugerencias de esta partida' : !unlocked ? 'Se habilitan después de cinco preguntas válidas' : 'Sugerencias del Cerebro';
 }
 
 function startTimer() {
   clearInterval(state.timerId);
-  state.timerId = setInterval(() => {
-    state.seconds++;
+  const startedAt = Date.now() - (Math.max(0, Number(state.seconds) || 0) * 1000);
+  const render = () => {
+    state.seconds = Math.floor((Date.now() - startedAt) / 1000);
     const m = String(Math.floor(state.seconds / 60)).padStart(2, '0');
     const s = String(state.seconds % 60).padStart(2, '0');
-    ui.timer.textContent = `${m}:${s}`;
-  }, 1000);
+    if (ui.timer) ui.timer.textContent = `${m}:${s}`;
+  };
+  render();
+  state.timerId = setInterval(render, 250);
 }
 
 function avatarFor(kind) {
@@ -870,8 +888,8 @@ async function startGame() {
   resetGame();
   window.MatchHistory?.begin('solo', {personaje: state.secret?.nombre || ''}); window.MindSparring?.start('solo');
   show(ui.game);
-  await addMessage('He elegido a alguien. Tienes veinte preguntas. Empieza.', 'mind');
-  startTimer();
+  startTimer(); // El tiempo empieza con la partida, no al terminar el diálogo.
+  await addMessage('He elegido a mi entidad secreta. Tenés veinte preguntas y dos intentos. Procurá no desperdiciarlos, mortal; no pienso ponértelo más fácil.', 'mind');
   setTimeout(() => ui.input.focus(), 80);
 }
 
@@ -931,7 +949,7 @@ async function askQuestion(text) {
   if (answer === null) {
     window.MindSparring?.answer('solo',clean,'unknown',{source:'knowledge_gap'});
     window.CerebroAprendizaje?.registrarLaguna(clean,state.secret?.nombre||'');
-    addMessage(pickLine(['Esa pregunta todavía se me resiste, detective. No voy a inventar un SÍ o un NO; probá con otra pista.', 'Mmm… esa pieza no la tengo. No confundas una laguna con una respuesta: preguntá de otra manera.', 'No tengo evidencia suficiente para responderte eso. Mi orgullo no me obliga a mentir; seguí interrogándome.', 'Esa no la puedo resolver con lo que sé. Guardaré la pregunta para mejorar, pero por ahora no pienso chamuyarte.']), 'mind');
+    addMessage(pickLine(['Esa pregunta todavía se me resiste, detective. No voy a inventar un SÍ o un NO solo para complacerte; probá con otra pista.', 'Mmm… esa pieza no está en mis registros. No confundas una laguna con una respuesta: reformulá la pregunta.', 'No tengo evidencia suficiente. Mi orgullo es enorme, pero no tanto como para hacerme mentir; seguí interrogándome.', 'Esa no la puedo resolver con lo que sé. La guardaré para mejorar. Y no, mortal, eso no significa que estés ganando.']), 'mind');
     lockInput(false);
     ui.input.focus();
     return;

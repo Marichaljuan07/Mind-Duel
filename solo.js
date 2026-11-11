@@ -46,6 +46,44 @@ const ERA=[['antiguedad',/\b(antiguedad|antiguo|antigua)\b/],['medieval',/\b(eda
 function deducir(L,q,p){
   if(!p||!L||!L.normalizar)return null;
   const t=L.normalizar(q);
+  const tagsFicha=tags(p).map(x=>L.normalizar(x));
+  const tieneTag=(...values)=>values.some(x=>tagsFicha.includes(L.normalizar(x)));
+  const values=value=>(Array.isArray(value)?value:value==null?[]:[value]).map(x=>L.normalizar(x)).filter(Boolean);
+  const especie=values(p.especie).join(' '),origen=values(p.origen).join(' ');
+
+  // Preguntas frecuentes expresadas de distintas maneras. Estas reglas viven
+  // solo en Solo y nunca fuerzan una respuesta si la ficha no aporta evidencia.
+  if(/\b(es un humano|es humano|es una humana|es humana|es un ser humano|es una persona|es persona|ser humano)\b/.test(t)){
+    if(typeof p.humano==='boolean')return{nivel:p.humano?'si':'no',razon:'humano'};
+    if(p.tipo==='real')return{nivel:'si',razon:'humano'};
+    return null;
+  }
+  if(/\b(mago|maga|hechicero|hechicera|brujo|bruja)\b/.test(t)){
+    if(tieneTag('mago','maga','hechicero','hechicera','brujo','bruja'))return{nivel:'si',razon:'magia'};
+    if(typeof p.magia==='boolean')return{nivel:p.magia?'si':'no',razon:'magia'};
+    return null;
+  }
+  if(/\b(dios|diosa|deidad|divinidad)\b/.test(t)){
+    if(typeof p.deidad==='boolean')return{nivel:p.deidad?'si':'no',razon:'deidad'};
+    if(typeof p.dios==='boolean')return{nivel:p.dios?'si':'no',razon:'deidad'};
+    if(tieneTag('dios','diosa','deidad','divinidad'))return{nivel:'si',razon:'deidad'};
+    return null;
+  }
+  if(/\b(alien|extraterrestre|extraterrestres|ser de otro planeta)\b/.test(t)){
+    if(typeof p.alien==='boolean')return{nivel:p.alien?'si':'no',razon:'alien'};
+    if(typeof p.extraterrestre==='boolean')return{nivel:p.extraterrestre?'si':'no',razon:'alien'};
+    if(tieneTag('alien','extraterrestre','extraterrestres')||/alien|extraterrestre/i.test(especie+' '+origen))return{nivel:'si',razon:'alien'};
+    if(p.region==='espacio')return{nivel:'si',razon:'alien'};
+    if(p.origen_terrestre===true)return{nivel:'no',razon:'alien'};
+    return null;
+  }
+  if(/\b(griego|griega|grecia)\b/.test(t)){
+    const nacionalidades=values(p.nacionalidades);
+    if(nacionalidades.some(x=>['griego','griega','grecia','heleno','helena'].includes(x)))return{nivel:'si',razon:'nacionalidad'};
+    if(p.region&&p.region!=='europa')return{nivel:'no',razon:'nacionalidad'};
+    if(nacionalidades.some(x=>['aleman','frances','italiano','espanol','ingles','britanico','polaco','serbio','portugues','romano'].includes(x)))return{nivel:'no',razon:'nacionalidad'};
+    return null;
+  }
 
   // Animal: un humano no es un animal (en el sentido del juego).
   if(/\b(animal|mascota|bestia)\b/.test(t)){

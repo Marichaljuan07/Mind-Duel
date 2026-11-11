@@ -1,0 +1,10 @@
+Mind Duel Fusion 3.14.25 — APRENDIZAJE VISUAL Y CORRECCIONES DE SOLO
+
+- El panel de aprendizaje ahora identifica al personaje con nombre, descripción y fotografía cuando la ficha dispone de una imagen válida; si no hay imagen, lo indica sin romper el panel.
+- Se incorporó una presentación del aprendizaje con la voz orgullosa, irónica y burlona del Cerebro.
+- Se mejoraron algunas respuestas de Solo para reconocer formulaciones naturales sobre humanidad, magia, deidades, extraterrestres y nacionalidad griega cuando la ficha permite responder con seguridad.
+- Se conservan como desconocidas las preguntas sobre las que la ficha no aporta evidencia suficiente; no se inventan respuestas.
+- Las sugerencias permanecen deshabilitadas hasta completar cinco preguntas válidas, evitando mensajes repetidos al pulsar el botón bloqueado.
+- El cronómetro de Solo comienza inmediatamente al iniciar la partida, antes de la animación del primer diálogo.
+- Se conserva intacto el motor compartido de razonamiento de Clásico.
+- Sin cambios en multijugador.js, la lógica de reconexión ni api/character-extract.js.
