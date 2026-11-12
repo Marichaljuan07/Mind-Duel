@@ -1,4 +1,4 @@
-/* MIND DUEL FUSION 3.14.27 — Ontología común del Cerebro.
+/* MIND DUEL FUSION 3.14.28 — Ontología común del Cerebro.
  * Normaliza conceptos y sinónimos para Clásico y Solo. No inventa hechos:
  * ausencia de evidencia = desconocido (null), nunca NO.
  */

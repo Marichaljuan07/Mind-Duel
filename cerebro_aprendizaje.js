@@ -11,6 +11,22 @@ function registrarPartida(data={}){
  const row={id:'learn-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),fecha:new Date().toISOString(),modo:String(data.modo||'desconocido'),resultado:String(data.resultado||'finalizada'),personaje:String(data.personaje||''),intentos:Number(data.intentos)||0,preguntasTotales:Number(data.preguntasTotales)||((Array.isArray(data.preguntas)?data.preguntas.length:0)),preguntas:Array.isArray(data.preguntas)?data.preguntas.slice(0,100).map(x=>({texto:String(x?.q??x?.texto??''),respuesta:String(x?.a??(typeof x?.answer==='boolean'?(x.answer?'si':'no'):'')).slice(0,20)})).filter(x=>x.texto):[]};
  const rows=read(KEY);rows.push(row);write(KEY,rows.slice(-MAX_GAMES));return row;
 }
+async function proponerPersonajeDesconocido(data={}){
+ const nombre=String(data.nombre||'').trim().replace(/\s+/g,' ');if(nombre.length<2||nombre.length>120)return {ok:false,error:'Nombre inválido.'};
+ const preguntas=Array.isArray(data.preguntas)?data.preguntas.slice(0,40).map(x=>({pregunta:String(x?.q??x?.texto??'').slice(0,240),respuesta:String(x?.a??(typeof x?.answer==='boolean'?(x.answer?'sí':'no'):x?.respuesta??'')).slice(0,20)})).filter(x=>x.pregunta):[];
+ const attrs={tipo:'desconocido',origen_propuesta:'partida',modo_origen:String(data.modo||'clásico').slice(0,30),resultado_partida:String(data.resultado||'victoria_del_jugador').slice(0,40),preguntas_de_partida:preguntas.map(x=>`${x.pregunta} => ${x.respuesta}`),fecha_deteccion:new Date().toISOString()};
+ try{
+  const r=await fetch('/api/characters',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({name:nombre,aliases:[],description:'Personaje detectado durante una partida. La identidad y sus atributos requieren investigación y revisión antes de publicarse.',attributes:attrs,discovery:true})});
+  const result=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(result.error||'No se pudo enviar la propuesta al catálogo compartido.');
+  return {ok:true,duplicate:!!result.duplicate,character:result.character||result.matches?.[0]||null};
+ }catch(error){
+  const queue=read('mind_duel_discoveries_pending_v1');const key=norm(nombre);const existing=queue.find(x=>norm(x.nombre)===key);
+  const row={nombre,modo:String(data.modo||'clásico'),resultado:String(data.resultado||'victoria_del_jugador'),preguntas,fecha:new Date().toISOString(),estado:'pendiente_de_envio',error:String(error.message||error).slice(0,240)};
+  if(existing)Object.assign(existing,row);else queue.push(row);write('mind_duel_discoveries_pending_v1',queue.slice(-100));
+  return {ok:false,local:true,error:row.error};
+ }
+}
 function registrarLaguna(pregunta,personaje=''){
  const q=String(pregunta||'').trim();if(!q)return;
  const rows=read(GAP_KEY),key=norm(q),existing=rows.find(x=>norm(x.pregunta)===key);
@@ -41,5 +57,5 @@ function render(){
  modal.classList.remove('hidden');
 }
 document.addEventListener('click',e=>{if(e.target.closest('#openCerebroLearningBtn')){e.preventDefault();render()}});
-window.CerebroAprendizaje={registrarPartida,registrarLaguna,guardarMapeo,resolverPregunta,estado,exportar,show:render};
+window.CerebroAprendizaje={registrarPartida,registrarLaguna,guardarMapeo,resolverPregunta,proponerPersonajeDesconocido,estado,exportar,show:render};
 })();

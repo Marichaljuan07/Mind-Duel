@@ -1,0 +1,13 @@
+MIND DUEL FUSION 3.14.29 — DESCUBRIMIENTOS DESDE PARTIDAS
+
+- Cuando el jugador vence en Clásico con un personaje que no figura en el catálogo conocido, el juego envía una propuesta preliminar al catálogo compartido.
+- La propuesta conserva el nombre, el modo, el resultado y las preguntas/respuestas de la partida como contexto para investigarla.
+- Los descubrimientos se guardan como needs_review y con tipo desconocido; no se incorporan al catálogo jugable ni se tratan como hechos confirmados.
+- Si el servicio compartido no está disponible, el descubrimiento queda en una cola local de recuperación para no perder el descubrimiento.
+- El Curador distingue los descubrimientos originados en partidas y muestra el contexto registrado.
+- El Curador permite completar tipo, género, condición humana, descripción, fuente, imagen y atributos antes de aprobar.
+- La aprobación sigue exigiendo datos básicos, descripción, fuente e imagen; las fichas incompletas no se publican.
+- No se modifica el prompt ni la implementación de api/character-extract.js.
+- Se mantienen intactos multijugador.js, la reconexión y el motor de procesamiento de Clásico.
+
+ALCANCE: esta versión registra descubrimientos y prepara su revisión. La investigación automática por nombre, búsqueda/selección automática de imágenes y revisión masiva de fichas existentes quedan para una etapa posterior; no se presentan como funciones ya implementadas.
